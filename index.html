@@ -54,10 +54,12 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .r.nxt .no::before{content:'▸';position:absolute;left:-1px;color:var(--hl2);font:700 13px/24px system-ui}
 .r.off{visibility:hidden}
 .r .hc{flex:none;width:24px;text-align:right;font:700 16px/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
-.info a{color:var(--or2);font-weight:700;text-decoration:none;white-space:nowrap}
-.sheet .row{display:flex;gap:8px;align-items:center;margin-top:8px}.sheet .row label{flex:1;color:var(--mu);font-size:12.5px}.sheet .row input,.sheet .row select{width:96px;flex:none}
-.sheet select{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px 6px;font-size:16px}
-.sheet .or{color:var(--mu);font-size:12px;text-align:center;margin:12px 0 2px}.sheet .res{margin-top:8px;font-size:13px;min-height:18px}
+/* karta 1: podział na 4 części (numery wierszy tylko w pierwszej) */
+.q4 .r{padding:0 1px}.q4 .half:not(:first-child) .r .no{display:none}.q4 .r .no{width:18px;padding-right:3px}
+.q4 .r .m{width:11px;font-size:14px}.q4 .r .nt{padding-left:3px;font-size:13px}
+/* kody bez miejsca na karcie (nie wiadomo, na której karcie były) */
+.xtra{margin:10px 6px 0;border-top:2px dashed var(--ink2);padding-top:6px}.xtra .h{font:700 16px/1.2 Caveat,'Comic Sans MS',cursive;color:var(--ink2);margin-bottom:2px}
+.xtra .r{max-width:50%}
 
 /* okno notatki */
 .ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
@@ -117,14 +119,32 @@ const APP_VER = '1.0.0';
 const TABS = {
   t50: { name: 'T50', seed: '/moje/seed_t50.txt', key: 't50razem_v1_added' },
 };
-const K = { notes: t => 'zeszyt_v1_notes_' + t, start: t => 'zeszyt_v1_start_' + t };   // własne dane ZESZYTU — tylko klucze zeszyt_
+const K = { notes: t => 'zeszyt_v1_notes_' + t };   // własne dane ZESZYTU — tylko klucze zeszyt_
 const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć podręczna, nie localStorage — nie zabiera miejsca kodom)
-// karta = 2 połowy, połowa = 3 tercje: 1–10 · 11–20 · 21–28 (pierwsza karta: 21–26)
-const HALF = k => k === 1 ? 26 : 28, CARD = k => 2 * HALF(k);
-const cardStart = k => k === 1 ? 0 : 52 + (k - 2) * 56;   // indeks (od 0) pierwszego kodu karty
-const cardOf = i => i < 52 ? 1 : 2 + Math.floor((i - 52) / 56);
-const PL = ['lewa', 'prawa'];
-const hund = j => { const v = (j + 1) % 100; return v ? String(v) : '00'; };   // licznik setek przy wierszu: 1 … 99, 00, 1 … (od karty 1, wiersza 1)
+
+// ===== KARTY ZESZYTU TRÓJKA (sprawdzone na kodach ze zdjęć zeszytu) =====
+// standard: 2 połowy × 28 wierszy, tercje 1–10 · 11–20 · 21–28.
+// karta 0: Nr 1–51 (lewa 26, prawa 25 wierszy) · karta 1: Nr 52–163, 4 części × 28 · karta 2: od Nr 164
+// karta 60: od Nr 3421 (prawa połowa od Nr 3449 = licznik 49) — od niej wszystko standardowo (karta 273 od Nr 15 349).
+// Między kartą 2 a 60 jest 9 kodów więcej niż 58 standardowych kart (Nr 3412–3420) — nie wiadomo, na której karcie były;
+// na razie pokazane pod kartą 59 jako „kody bez miejsca”.
+const C2 = 163, C60 = 3420, XTRA = 9;   // indeksy od 0
+function spec(k) {   // {s: indeks pierwszego kodu, parts: wiersze w częściach, x: ile kodów bez miejsca pod kartą}
+  if (k === 0) return { s: 0, parts: [26, 25], x: 0 };
+  if (k === 1) return { s: 51, parts: [28, 28, 28, 28], x: 0 };
+  if (k < 60) return { s: C2 + (k - 2) * 56, parts: [28, 28], x: k === 59 ? XTRA : 0 };
+  return { s: C60 + (k - 60) * 56, parts: [28, 28], x: 0 };
+}
+const cardOf = i => i < 51 ? 0 : i < C2 ? 1 : i < C60 ? Math.min(59, 2 + Math.floor((i - C2) / 56)) : 60 + Math.floor((i - C60) / 56);
+function where(i) {   // indeks kodu → {k, p (część; -1 = bez miejsca), r (wiersz)}
+  const k = cardOf(i), sp = spec(k); let j = i - sp.s;
+  for (let p = 0; p < sp.parts.length; p++) { if (j < sp.parts[p]) return { k, p, r: j + 1 }; j -= sp.parts[p]; }
+  return { k, p: -1, r: j + 1 };
+}
+const partName = (k, p) => p < 0 ? 'kody bez miejsca' : spec(k).parts.length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
+// licznik setek przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00 — w zeszycie od prawej połowy karty 60
+const hund = nr => { const v = nr % 100; return v ? String(v) : '00'; };
+const hasHund = (k, p) => k > 60 || (k === 60 && p === 1);
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -134,10 +154,6 @@ const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && ty
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
 const S = { t: 't50', seed: {}, seedErr: {}, codes: {}, nAdd: {}, card: {}, follow: {} };
-// początek zeszytu: Nr kodu (od 1) w karcie 1, wiersz 1 — wszystkie pozycje na kartach liczone od niego
-const startNr = t => { const v = +lsGet(K.start(t), '1'); return v >= 1 ? Math.floor(v) : 1; };
-const book = t => (S.codes[t] || []).slice(startNr(t) - 1);   // kody w zeszycie (od karty 1)
-const where = j => { const k = cardOf(j), r = j - cardStart(k), p = Math.floor(r / HALF(k)); return { k, p, r: r - p * HALF(k) + 1 }; };
 
 async function loadSeed(t) {
   const url = TABS[t].seed, ok = s => s.length > 0 && s.length % 3 === 0;
@@ -157,44 +173,49 @@ function readCodes(t) {   // → czy coś się zmieniło
   const ch = c.length !== (S.codes[t] || []).length || c[c.length - 1] !== (S.codes[t] || [])[c.length - 1];
   S.codes[t] = c; S.nAdd[t] = add.length / 3; return ch;
 }
-const lastCard = t => Math.max(1, cardOf(Math.max(0, book(t).length - 1)));
+const lastCard = t => cardOf(Math.max(0, S.codes[t].length - 1));
 const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
 
+function rowHtml(t, i, r, cls, k, p, notes) {
+  const c = S.codes[t], n = c.length, cd = cls.includes('off') ? null : c[i];
+  cls = [cls, i === n - 1 ? 'last' : '', i === n ? 'nxt' : ''].filter(Boolean).join(' ');
+  const ms = cd ? [...cd].map(d => `<span class="m">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
+  return `<div class="${cls}" data-i="${i}"><span class="no">${r}</span>${ms}<span class="nt">${esc(notes[i + 1] || '')}</span>${hasHund(k, p) ? `<span class="hc">${hund(i + 1)}</span>` : ''}</div>`;
+}
 function render() {
-  const t = S.t, c = book(t), n = c.length, L = lastCard(t), off = startNr(t) - 1;
-  if (S.follow[t] !== false || !S.card[t]) S.card[t] = L;
-  const k = Math.min(Math.max(1, S.card[t]), L + 1); S.card[t] = k;
+  const t = S.t, c = S.codes[t] || [], n = c.length, L = lastCard(t);
+  if (S.follow[t] !== false || S.card[t] == null) S.card[t] = L;
+  const k = Math.min(Math.max(0, S.card[t]), L + 1); S.card[t] = k;
   $('msg').innerHTML = S.seedErr[t] ? `<div class="err">Nie udało się wczytać bazy kodów ${TABS[t].name} (plik z aplikacji MOJE). Połącz z internetem i otwórz ZESZYT jeszcze raz. Teraz widać tylko kody dopisane w telefonie.</div>` : '';
   $('cardT').innerHTML = `KARTA ${k} <small>z ${L}</small>`;
-  $('prev').disabled = k <= 1; $('next').disabled = k > L;
+  $('prev').disabled = k <= 0; $('next').disabled = k > L;
   $('lastB').classList.toggle('on', k === L);
-  const li = n - 1, w = where(li), N = (S.codes[t] || []).length;
-  $('info').innerHTML = (N ? `Kodów: <b>${fmt(N)}</b> (baza ${fmt(N - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu)` : 'Brak kodów.')
-    + (n ? ` · ostatni: <b>${c[li]}</b> (Nr ${fmt(off + n)}) — karta ${w.k}, ${PL[w.p]} połowa, wiersz ${w.r}` : N ? ' · początek zeszytu jest za ostatnim kodem' : '')
-    + ` · karta 1 od kodu Nr ${fmt(off + 1)} <a href="#" id="setB">⚙ zmień</a>`;
-  $('setB').onclick = e => { e.preventDefault(); setStart(); };
-  const notes = jget(K.notes(t)), h = HALF(k), st = cardStart(k);
-  let html = `<div class="paper" id="paper"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="halves">`;
-  for (let p = 0; p < 2; p++) {
+  const w = where(n - 1);
+  $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> (baza ${fmt(n - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu) · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)}) — karta ${w.k}, ${partName(w.k, w.p)}, wiersz ${w.r}` : 'Brak kodów.';
+  const notes = jget(K.notes(t)), sp = spec(k), rows = Math.max(...sp.parts);
+  let html = `<div class="paper${sp.parts.length === 4 ? ' q4' : ''}" id="paper"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="halves">`;
+  for (let p = 0, i0 = sp.s; p < sp.parts.length; i0 += sp.parts[p], p++) {
     html += '<div class="half">';
-    for (let r = 1; r <= 28; r++) {
-      const i = st + p * h + r - 1, cd = r <= h ? c[i] : null, nt = notes[off + i + 1];
-      const cls = ['r', r === 10 || r === 20 ? 'te' : '', r > h ? 'off' : '', i === li ? 'last' : '', i === n ? 'nxt' : ''].filter(Boolean).join(' ');
-      const ms = cd ? [...cd].map(d => `<span class="m">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
-      html += `<div class="${cls}" data-i="${i}"><span class="no">${r}</span>${ms}<span class="nt">${esc(nt || '')}</span><span class="hc">${hund(i)}</span></div>`;
-    }
+    for (let r = 1; r <= rows; r++) html += rowHtml(t, i0 + r - 1, r, ['r', r === 10 || r === 20 ? 'te' : '', r > sp.parts[p] ? 'off' : ''].filter(Boolean).join(' '), k, p, notes);
     html += '</div>';
   }
-  $('card').innerHTML = html + '</div></div>';
+  html += '</div>';
+  if (sp.x) {
+    const x0 = sp.s + sp.parts.reduce((a, b) => a + b, 0);
+    html += `<div class="xtra"><div class="h">${sp.x} kodów bez miejsca (Nr ${fmt(x0 + 1)}–${fmt(x0 + sp.x)}) — były na którejś karcie 3–59</div>`;
+    for (let r = 1; r <= sp.x; r++) html += rowHtml(t, x0 + r - 1, r, 'r', k, -1, notes);
+    html += '</div>';
+  }
+  $('card').innerHTML = html + '</div>';
 }
-function go(k) { const L = lastCard(S.t); k = Math.min(Math.max(1, k), L + 1); S.card[S.t] = k; S.follow[S.t] = k === L; render(); }
+function go(k) { const L = lastCard(S.t); k = Math.min(Math.max(0, k), L + 1); S.card[S.t] = k; S.follow[S.t] = k === L; render(); }
 
 // notatka przy wierszu (mecz, uwaga) — zapis tylko w zeszyt_v1_notes_t50, klucz = Nr kodu (od 1)
 function editRow(i) {
-  const t = S.t, w = where(i), nr = startNr(t) + i, notes = jget(K.notes(t)), cd = book(t)[i];
+  const t = S.t, w = where(i), nr = i + 1, notes = jget(K.notes(t)), cd = S.codes[t][i];
   const ov = document.createElement('div'); ov.className = 'ov';
-  ov.innerHTML = `<div class="sheet"><h3>${TABS[t].name} · karta ${w.k} · ${PL[w.p]} połowa · wiersz ${w.r}</h3>
-    <div class="s">Nr ${fmt(nr)} · licznik ${hund(i)} · ${cd ? `kod <b>${cd}</b>` : 'jeszcze bez kodu'}</div>
+  ov.innerHTML = `<div class="sheet"><h3>${TABS[t].name} · karta ${w.k} · ${partName(w.k, w.p)} · wiersz ${w.r}</h3>
+    <div class="s">Nr ${fmt(nr)} · ${cd ? `kod <b>${cd}</b>` : 'jeszcze bez kodu'}</div>
     <input id="ntIn" maxlength="40" placeholder="np. mecz PAO-RAD" value="${esc(notes[nr] || '')}">
     <div class="bb"><button id="ntDel">Usuń</button><button id="ntNo">Anuluj</button><button id="ntOk" class="pri">Zapisz</button></div></div>`;
   document.body.appendChild(ov);
@@ -206,42 +227,11 @@ function editRow(i) {
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value.trim()); if (e.key === 'Escape') close(); };
 }
 
-// początek zeszytu: wpisz, gdzie w zeszycie jest ostatni kod (karta, połowa, wiersz) albo od którego kodu Nr zaczyna się karta 1
-function setStart() {
-  const t = S.t, N = (S.codes[t] || []).length, w = where(Math.max(0, book(t).length - 1));
-  const ov = document.createElement('div'); ov.className = 'ov';
-  ov.innerHTML = `<div class="sheet"><h3>Początek zeszytu ${TABS[t].name}</h3>
-    <div class="s">Ostatni kod w telefonie: <b>${(S.codes[t] || [])[N - 1] || '—'}</b> (Nr ${fmt(N)}). Gdzie jest wpisany w Twoim zeszycie?</div>
-    <div class="row"><label>karta</label><input id="ssK" type="number" inputmode="numeric" min="1" value="${w.k}"></div>
-    <div class="row"><label>połowa</label><select id="ssP"><option value="0">lewa</option><option value="1"${w.p ? ' selected' : ''}>prawa</option></select></div>
-    <div class="row"><label>wiersz</label><input id="ssR" type="number" inputmode="numeric" min="1" max="28" value="${w.r}"></div>
-    <div class="or">albo wpisz od razu: karta 1, wiersz 1 = kod Nr</div>
-    <div class="row"><label>Nr kodu</label><input id="ssN" type="number" inputmode="numeric" min="1" value="${startNr(t)}"></div>
-    <div class="res" id="ssRes"></div>
-    <div class="bb"><button id="ssNo">Anuluj</button><button id="ssOk" class="pri">Zapisz</button></div></div>`;
-  document.body.appendChild(ov);
-  let last = 'pos';
-  const calc = () => {
-    if (last === 'nr') { const v = Math.floor(+$('ssN').value); return v >= 1 && v <= N ? v : null; }
-    const k = Math.floor(+$('ssK').value), p = +$('ssP').value, r = Math.floor(+$('ssR').value);
-    if (!(k >= 1) || !(r >= 1 && r <= HALF(k))) return null;
-    const v = N - (cardStart(k) + p * HALF(k) + r - 1); return v >= 1 ? v : null;
-  };
-  const upd = () => { const v = calc(); if (last === 'pos' && v) $('ssN').value = v;
-    $('ssRes').innerHTML = v ? `Karta 1 zacznie się od kodu Nr <b>${fmt(v)}</b>.` : '<span style="color:#ff8a8a">Tak się nie da — sprawdź liczby.</span>'; };
-  ['ssK', 'ssP', 'ssR'].forEach(id => $(id).oninput = () => { last = 'pos'; upd(); });
-  $('ssN').oninput = () => { last = 'nr'; upd(); };
-  upd();
-  ov.onclick = e => { if (e.target === ov) ov.remove(); };
-  $('ssNo').onclick = () => ov.remove();
-  $('ssOk').onclick = () => { const v = calc(); if (!v) return; if (!lsSet(K.start(t), String(v))) alert('BŁĄD zapisu pamięci telefonu!'); ov.remove(); S.follow[t] = true; render(); };
-}
-
 $('prev').onclick = () => go(S.card[S.t] - 1);
 $('next').onclick = () => go(S.card[S.t] + 1);
 $('lastB').onclick = () => go(lastCard(S.t));
-$('cardT').onclick = () => { const L = lastCard(S.t), v = prompt(`Która karta? (1–${L})`, S.card[S.t]); if (v && /^\d+$/.test(v.trim())) go(+v); };
-$('card').onclick = e => { const r = e.target.closest('.r'); if (r && !$('card')._sw) editRow(+r.dataset.i); };
+$('cardT').onclick = () => { const L = lastCard(S.t), v = prompt(`Która karta? (0–${L})`, S.card[S.t]); if (v && /^\d+$/.test(v.trim())) go(+v); };
+$('card').onclick = e => { const r = e.target.closest('.r'); if (r && !r.classList.contains('off') && !$('card')._sw) editRow(+r.dataset.i); };
 { let x0 = 0, y0 = 0; const el = $('card');   // przesunięcie palcem w bok = następna / poprzednia karta
   el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; el._sw = false; }, { passive: true });
   el.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
