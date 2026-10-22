@@ -124,18 +124,24 @@ const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć
 
 // ===== KARTY ZESZYTU TRÓJKA (sprawdzone na kodach ze zdjęć zeszytu) =====
 // standard: 2 połowy × 28 wierszy, tercje 1–10 · 11–20 · 21–28.
-// karta 0: Nr 1–51 (lewa 26, prawa 25 wierszy — potwierdzone) · karta 1: Nr 52–163, 4 części × 28 · karta 2: od Nr 164
-// karta 60: od Nr 3421 (prawa połowa od Nr 3449 = licznik 49) — od niej wszystko standardowo (karta 273 od Nr 15 349).
-// Między kartą 2 a 60 jest 9 kodów więcej niż 58 standardowych kart (Nr 3412–3420) — nie wiadomo, na której karcie były;
-// na razie pokazane pod kartą 59 jako „kody bez miejsca”.
-const C2 = 163, C60 = 3420, XTRA = 9;   // indeksy od 0
-function spec(k) {   // {s: indeks pierwszego kodu, parts: wiersze w częściach, x: ile kodów bez miejsca pod kartą}
+// karta 0: Nr 1–51 (lewa 26, prawa 25 wierszy — potwierdzone) · karta 1: Nr 52–163, 4 części × 28
+// punkty sprawdzone na zdjęciach zeszytu: karta 2 od Nr 164, karta 30 od Nr 1740, karta 60 od Nr 3421 (prawa połowa od Nr 3449 = licznik 49).
+// Między nimi standard. Kody, które się nie mieszczą (karty 3–29: 8 kodów, 31–59: 1 kod — nie wiadomo, na której karcie były),
+// pokazane pod ostatnią kartą przed punktem jako „kody bez miejsca”. Od karty 60 wszystko standardowo (karta 273 od Nr 15 349).
+const ANCH = [[2, 163], [30, 1739], [60, 3420]];   // [karta, indeks (od 0) pierwszego kodu]
+function spec(k) {   // {s: indeks pierwszego kodu, parts: wiersze w częściach, x: ile kodów bez miejsca pod kartą, xr: [od, do] kart}
   if (k === 0) return { s: 0, parts: [26, 25], x: 0 };
   if (k === 1) return { s: 51, parts: [28, 28, 28, 28], x: 0 };
-  if (k < 60) return { s: C2 + (k - 2) * 56, parts: [28, 28], x: k === 59 ? XTRA : 0 };
-  return { s: C60 + (k - 60) * 56, parts: [28, 28], x: 0 };
+  let a = 0; while (a + 1 < ANCH.length && ANCH[a + 1][0] <= k) a++;
+  const s = ANCH[a][1] + (k - ANCH[a][0]) * 56, nx = ANCH[a + 1];
+  return nx && k === nx[0] - 1 ? { s, parts: [28, 28], x: nx[1] - s - 56, xr: [ANCH[a][0] + 1, k] } : { s, parts: [28, 28], x: 0 };
 }
-const cardOf = i => i < 51 ? 0 : i < C2 ? 1 : i < C60 ? Math.min(59, 2 + Math.floor((i - C2) / 56)) : 60 + Math.floor((i - C60) / 56);
+function cardOf(i) {
+  if (i < 51) return 0; if (i < 163) return 1;
+  let a = 0; while (a + 1 < ANCH.length && ANCH[a + 1][1] <= i) a++;
+  const k = ANCH[a][0] + Math.floor((i - ANCH[a][1]) / 56), nx = ANCH[a + 1];
+  return nx ? Math.min(k, nx[0] - 1) : k;
+}
 function where(i) {   // indeks kodu → {k, p (część; -1 = bez miejsca), r (wiersz)}
   const k = cardOf(i), sp = spec(k); let j = i - sp.s;
   for (let p = 0; p < sp.parts.length; p++) { if (j < sp.parts[p]) return { k, p, r: j + 1 }; j -= sp.parts[p]; }
@@ -202,7 +208,7 @@ function render() {
   html += '</div>';
   if (sp.x) {
     const x0 = sp.s + sp.parts.reduce((a, b) => a + b, 0);
-    html += `<div class="xtra"><div class="h">${sp.x} kodów bez miejsca (Nr ${fmt(x0 + 1)}–${fmt(x0 + sp.x)}) — były na którejś karcie 3–59</div>`;
+    html += `<div class="xtra"><div class="h">${sp.x === 1 ? '1 kod' : sp.x + ' kodów'} bez miejsca (Nr ${fmt(x0 + 1)}${sp.x > 1 ? '–' + fmt(x0 + sp.x) : ''}) — był${sp.x === 1 ? '' : 'y'} na którejś karcie ${sp.xr[0]}–${sp.xr[1]}</div>`;
     for (let r = 1; r <= sp.x; r++) html += rowHtml(t, x0 + r - 1, r, 'r', k, -1, notes);
     html += '</div>';
   }

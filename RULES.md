@@ -29,8 +29,11 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Karta 60** od Nr 3421, prawa połowa od Nr 3449 (sprawdzone na zdjęciu, przy wierszach zapisane 3426, 3431 …). Od karty 60 standard
   (karta 273 od Nr 15 349). Potwierdzone przez użytkownika: kod Nr 15 360 = karta 273, lewa połowa, wiersz 12, licznik 60.
 - Zeszyt był pierwszy, tabela TRÓJKA (Excel) była z niego przepisywana — kody tabeli pochodzą z zeszytu.
-- Między kartą 2 a 60 jest **9 kodów więcej** niż 58 standardowych kart (Nr 3412–3420). Nie wiadomo, na której karcie (3–59) były —
-  na razie pokazane pod kartą 59 jako „kody bez miejsca”. Gdy użytkownik powie, która karta była inna — poprawić `spec()`.
+- **Karta 30** od Nr 1740, prawa połowa od Nr 1768 (sprawdzone na zdjęciu, 56 kodów, standard).
+- Punkty sprawdzone: `ANCH` w `index.html` (karta 2, 30, 60). Między nimi standard 56 kodów na kartę.
+- Kody, które się nie mieszczą: **karty 3–29: 8 kodów** (Nr 1732–1739), **karty 31–59: 1 kod** (Nr 3420). Nie wiadomo, na której karcie były —
+  pokazane pod kartą 29 / 59 jako „kody bez miejsca”. Szukamy zdjęciami kart (połowienie: 16, potem 9 / 23 …; 45, potem 38 / 52 …);
+  każda sprawdzona karta = nowy punkt w `ANCH`.
 - **Licznik setek** przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00, 1 … — w zeszycie dopiero od prawej połowy karty 60 (= 49).
 - Znaki: `−` = 0, `+` = 1. Pierwszy znak = pierwsza cyfra kodu, środkowy = druga, trzeci = ostatnia (tak jest w zeszycie TRÓJKA).
 - Ostatni kod podświetlony, następny wiersz ze strzałką `▸`. Dotknięcie wiersza → notatka (np. mecz) — także na wierszach bez kodu;
