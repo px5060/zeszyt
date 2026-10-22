@@ -125,10 +125,10 @@ const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć
 // ===== KARTY ZESZYTU TRÓJKA (sprawdzone na kodach ze zdjęć zeszytu) =====
 // standard: 2 połowy × 28 wierszy, tercje 1–10 · 11–20 · 21–28.
 // karta 0: Nr 1–51 (lewa 26, prawa 25 wierszy — potwierdzone) · karta 1: Nr 52–163, 4 części × 28
-// punkty sprawdzone na zdjęciach zeszytu: karta 2 od Nr 164, karta 30 od Nr 1740, karta 60 od Nr 3421 (prawa połowa od Nr 3449 = licznik 49).
-// Między nimi standard. Kody, które się nie mieszczą (karty 3–29: 8 kodów, 31–59: 1 kod — nie wiadomo, na której karcie były),
+// punkty sprawdzone na zdjęciach zeszytu: karta 2 od Nr 164, 15 od Nr 900, 30 od Nr 1740, 45 od Nr 2581, 60 od Nr 3421 (prawa połowa od Nr 3449 = licznik 49).
+// Między nimi standard. Kody, które się nie mieszczą (karty 3–14: 8 kodów, 31–44: 1 kod — nie wiadomo, na której karcie były),
 // pokazane pod ostatnią kartą przed punktem jako „kody bez miejsca”. Od karty 60 wszystko standardowo (karta 273 od Nr 15 349).
-const ANCH = [[2, 163], [30, 1739], [60, 3420]];   // [karta, indeks (od 0) pierwszego kodu]
+const ANCH = [[2, 163], [15, 899], [30, 1739], [45, 2580], [60, 3420]];   // [karta, indeks (od 0) pierwszego kodu]
 function spec(k) {   // {s: indeks pierwszego kodu, parts: wiersze w częściach, x: ile kodów bez miejsca pod kartą, xr: [od, do] kart}
   if (k === 0) return { s: 0, parts: [26, 25], x: 0 };
   if (k === 1) return { s: 51, parts: [28, 28, 28, 28], x: 0 };
