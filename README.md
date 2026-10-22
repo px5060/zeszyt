@@ -9,7 +9,9 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
 
 - Kody **tylko czytane** ze wspólnej pamięci telefonu (ten sam adres px5060.github.io), te same co w RAZEM / SZUKAJ / MOJE:
   baza `seed_t50.txt` z aplikacji MOJE (`/moje/…`) + kody dopisane w telefonie (`t50razem_v1_added`).
-- Dotknięcie wiersza → notatka (np. mecz). Własne dane ZESZYTU tylko pod kluczami `zeszyt_…`.
+- Dotknięcie wiersza → mecz (skróty drużyn, np. PAO-RAD); Enter = następny wiersz. Własne dane ZESZYTU tylko pod kluczami `zeszyt_…`.
+- 📷 Mecze ze zdjęcia karty — Claude odczytuje skróty meczów ze zdjęcia karty zeszytu (własny klucz API, zapisany tylko w telefonie).
+- Kartka zawsze w kolorach zeszytu (biała, niebieska kratka, czarny tusz, czerwone linie).
 - Na górze pasek przycisków do pozostałych aplikacji (jak w MOJE) + ZESZYT.
 
 Bez budowania — `index.html` jest gotowy. Ikony: `python3 make_icons.py`. Zasady pracy: `RULES.md`.

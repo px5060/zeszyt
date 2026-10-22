@@ -17,7 +17,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - T60: baza `seed_t60.txt` z repo `moje` + `t60razem_v1_added`; pierwsza cyfra 0–3, pozostałe 0/1; cele `x1x` i `xx1`.
 - Bazę czytamy z `/moje/seed_t50.txt` (ten sam adres), kopia na brak internetu w pamięci podręcznej (Cache), nie w localStorage.
 - **ZESZYT tylko czyta kody** — nigdy nie zapisuje `t50razem_v1_added` / `t60razem_v1_added`.
-- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`).
+- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`, `zeszyt_v1_klucz`).
 
 ## Karta (zeszyt TRÓJKA)
 
@@ -40,3 +40,13 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Znaki: `−` = 0, `+` = 1. Pierwszy znak = pierwsza cyfra kodu, środkowy = druga, trzeci = ostatnia (tak jest w zeszycie TRÓJKA).
 - Ostatni kod podświetlony, następny wiersz ze strzałką `▸`. Dotknięcie wiersza → notatka (np. mecz) — także na wierszach bez kodu;
   notatka zapisana przy Nr kodu.
+
+## Kolory i mecze
+
+- **Kartka zawsze w kolorach zeszytu** (jak karta 273): biała kartka, niebieska kratka, czarny tusz, czerwone linie tercji — także w trybie nocnym.
+- Mecze (skróty drużyn, np. PAO-RAD) obok kodów — wielkie litery, czarnym „pismem”. Zapis w `zeszyt_v1_notes_t50` pod Nr kodu.
+- Wpisywanie: dotknij wiersza → wpisz → **Enter / „Dalej ▶”** zapisuje i otwiera następny wiersz (bez dopisków).
+- **📷 Mecze ze zdjęcia karty**: zdjęcie karty z zeszytu → Claude (`claude-opus-5-5`, effort medium, odpowiedź w JSON wg schematu,
+  `fallbacks: "default"`) odczytuje skróty → lista do poprawienia → zapis. W zapytaniu są kody karty z tabeli (pomagają dopasować wiersze).
+  Klucz API użytkownika tylko w telefonie (`zeszyt_v1_klucz`). Biblioteka: oficjalne `@anthropic-ai/sdk` 0.132.1 (MIT) spakowane esbuild
+  do `anthropic-sdk-0.132.1.mjs` (ładowane dopiero przy pierwszym zdjęciu).
