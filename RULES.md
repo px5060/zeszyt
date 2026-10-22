@@ -17,13 +17,16 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - T60: baza `seed_t60.txt` z repo `moje` + `t60razem_v1_added`; pierwsza cyfra 0–3, pozostałe 0/1; cele `x1x` i `xx1`.
 - Bazę czytamy z `/moje/seed_t50.txt` (ten sam adres), kopia na brak internetu w pamięci podręcznej (Cache), nie w localStorage.
 - **ZESZYT tylko czyta kody** — nigdy nie zapisuje `t50razem_v1_added` / `t60razem_v1_added`.
-- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`).
+- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`, `zeszyt_v1_start_t50`).
 
 ## Karta
 
 - Kody wpisujemy w tercjach: 1. tercja wiersze 1–10, 2. tercja 11–20, 3. tercja 21–28.
 - Pierwsza karta ma 3. tercję 21–26 (obie połowy), od drugiej karty 21–28.
 - Karta jest podzielona na pół (lewa / prawa połowa) → 6 tercji na karcie. Karta 1 = 52 kody, każda następna = 56.
-- Numeracja kart od kodu Nr 1. Numer karty w kółku w prawym górnym rogu, czerwone linie po wierszach 10 i 20.
+- Karta 1, wiersz 1 = kod Nr z ustawienia „⚙ zmień” (`zeszyt_v1_start_t50`, domyślnie Nr 1). Ustawia się je, wpisując, gdzie w zeszycie
+  jest ostatni kod (karta, połowa, wiersz), albo od razu Nr kodu. Numer karty w kółku w prawym górnym rogu, czerwone linie po wierszach 10 i 20.
+- **Licznik setek** przy prawej krawędzi każdej połowy: kolejne setki kodów 1 … 99, 00, 1 … 99, 00 … (karta 1, wiersz 1 = 1).
+  Na zdjęciu zeszytu lewa połowa karty ma 49 … 76 (to pasuje do karty 243 przy liczeniu od karty 1).
 - Znaki: `−` = 0, `+` = 1. Pierwszy znak = pierwsza cyfra kodu, środkowy = druga, trzeci = ostatnia (tak jest w zeszycie TRÓJKA).
-- Ostatni kod podświetlony, następny wiersz ze strzałką `▸`. Dotknięcie wiersza → notatka (np. mecz) — także na wierszach bez kodu.
+- Ostatni kod podświetlony, następny wiersz ze strzałką `▸`. Dotknięcie wiersza → notatka (np. mecz) — także na wierszach bez kodu; notatka zapisana przy Nr kodu.
