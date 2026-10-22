@@ -27,7 +27,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Karta 1**: wyjątkowo podział na 4 części × 28 wierszy = kody Nr 52–163 (sprawdzone na zdjęciu).
 - **Karta 2** od Nr 164 (sprawdzone), dalej standard 2 × 28 = 56 kodów.
 - **Karta 60** od Nr 3421, prawa połowa od Nr 3449 (sprawdzone na zdjęciu, przy wierszach zapisane 3426, 3431 …). Od karty 60 standard
-  (karta 273 od Nr 15 349).
+  (karta 273 od Nr 15 349). Potwierdzone przez użytkownika: kod Nr 15 360 = karta 273, lewa połowa, wiersz 12, licznik 60.
 - Między kartą 2 a 60 jest **9 kodów więcej** niż 58 standardowych kart (Nr 3412–3420). Nie wiadomo, na której karcie (3–59) były —
   na razie pokazane pod kartą 59 jako „kody bez miejsca”. Gdy użytkownik powie, która karta była inna — poprawić `spec()`.
 - **Licznik setek** przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00, 1 … — w zeszycie dopiero od prawej połowy karty 60 (= 49).
