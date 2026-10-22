@@ -27,8 +27,7 @@ header .n{color:var(--mu);font-size:10px;position:absolute;right:6px;bottom:1px}
 #appbar .thm{flex:none;border:1.5px solid #888;border-radius:6px;background:transparent;padding:2px 4px;font-size:13px;line-height:1;cursor:pointer}
 [data-theme=day] #appbar a{color:#161a22}[data-theme=day] #appbar a.big{background:#fff}
 main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
-.tsw{display:flex;gap:8px;margin-bottom:8px}.tsw button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px;font-size:17px;font-weight:800}
-.tsw button.on{background:var(--or);border-color:var(--or);color:#fff}.tsw button.on[data-t="t60"]{background:#457ec9;border-color:#457ec9}
+.ttl{font-size:18px;font-weight:800;margin:0 2px 8px}.ttl small{font-size:13px;color:var(--mu);font-weight:700}
 .cnav{display:flex;gap:6px;align-items:stretch;margin-bottom:6px}
 .cnav button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;font-size:18px;font-weight:800;padding:6px 14px}
 .cnav button:disabled{opacity:.35}
@@ -50,7 +49,6 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .r.te{border-bottom:2px solid var(--red);height:24px}
 .r .no{flex:none;width:22px;text-align:right;padding-right:5px;font:700 17px/1 Caveat,'Comic Sans MS',cursive}
 .r .m{flex:none;width:13px;text-align:center;font:800 16px/1 system-ui,sans-serif}
-.r .m.d{font:700 17px/1 Caveat,'Comic Sans MS',cursive;color:#3d86ff}
 .r .nt{flex:1;min-width:0;padding-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 16px/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
 .r.last{background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--hl2)}
 .r.nxt .no::before{content:'▸';position:absolute;left:-1px;color:var(--hl2);font:700 13px/24px system-ui}
@@ -93,7 +91,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 </script>
 
 <main id="main">
-  <div class="tsw" id="tsw"><button data-t="t50">T50</button><button data-t="t60">T60</button></div>
+  <div class="ttl">TRÓJKA <small>T50</small></div>
   <div id="msg"></div>
   <div class="cnav">
     <button id="prev" aria-label="poprzednia karta">◀</button>
@@ -110,11 +108,11 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 "use strict";
 const APP_VER = '1.0.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
+// Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
-  t50: { name: 'T50', seed: '/moje/seed_t50.txt', key: 't50razem_v1_added', alph: ['000', '001', '010', '011', '100', '101', '110', '111'] },
-  t60: { name: 'T60', seed: '/moje/seed_t60.txt', key: 't60razem_v1_added', alph: [0, 1, 2, 3].flatMap(a => ['00', '01', '10', '11'].map(b => a + b)) },
+  t50: { name: 'T50', seed: '/moje/seed_t50.txt', key: 't50razem_v1_added' },
 };
-const K = { tab: 'zeszyt_v1_tab', notes: t => 'zeszyt_v1_notes_' + t };   // własne dane ZESZYTU — tylko klucze zeszyt_
+const K = { notes: t => 'zeszyt_v1_notes_' + t };   // własne dane ZESZYTU — tylko klucze zeszyt_
 const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć podręczna, nie localStorage — nie zabiera miejsca kodom)
 // karta = 2 połowy, połowa = 3 tercje: 1–10 · 11–20 · 21–28 (pierwsza karta: 21–26)
 const HALF = k => k === 1 ? 26 : 28, CARD = k => 2 * HALF(k);
@@ -129,7 +127,7 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch
 const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-const S = { t: lsGet(K.tab, 't50') === 't60' ? 't60' : 't50', seed: {}, seedErr: {}, codes: {}, nAdd: {}, card: {}, follow: {} };
+const S = { t: 't50', seed: {}, seedErr: {}, codes: {}, nAdd: {}, card: {}, follow: {} };
 
 async function loadSeed(t) {
   const url = TABS[t].seed, ok = s => s.length > 0 && s.length % 3 === 0;
@@ -150,11 +148,10 @@ function readCodes(t) {   // → czy coś się zmieniło
   S.codes[t] = c; S.nAdd[t] = add.length / 3; return ch;
 }
 const lastCard = t => Math.max(1, cardOf(Math.max(0, S.codes[t].length - 1)));
-const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;
+const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
 
 function render() {
   const t = S.t, c = S.codes[t] || [], n = c.length, L = lastCard(t);
-  document.querySelectorAll('#tsw button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
   if (S.follow[t] !== false || !S.card[t]) S.card[t] = L;
   const k = Math.min(Math.max(1, S.card[t]), L + 1); S.card[t] = k;
   $('msg').innerHTML = S.seedErr[t] ? `<div class="err">Nie udało się wczytać bazy kodów ${TABS[t].name} (plik z aplikacji MOJE). Połącz z internetem i otwórz ZESZYT jeszcze raz. Teraz widać tylko kody dopisane w telefonie.</div>` : '';
@@ -164,13 +161,13 @@ function render() {
   const li = n - 1, lk = cardOf(li), lr = li - cardStart(lk), lh = Math.floor(lr / HALF(lk));
   $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> (baza ${fmt(n - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu) · ostatni: <b>${c[li]}</b> — karta ${lk}, ${PL[lh]} połowa, wiersz ${lr - lh * HALF(lk) + 1}` : 'Brak kodów.';
   const notes = jget(K.notes(t)), h = HALF(k), st = cardStart(k);
-  let html = `<div class="paper" id="paper"><span class="lbl">${TABS[t].name}</span><span class="cno">${k}</span><div class="halves">`;
+  let html = `<div class="paper" id="paper"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="halves">`;
   for (let p = 0; p < 2; p++) {
     html += '<div class="half">';
     for (let r = 1; r <= 28; r++) {
       const i = st + p * h + r - 1, cd = r <= h ? c[i] : null, nt = notes[i + 1];
       const cls = ['r', r === 10 || r === 20 ? 'te' : '', r > h ? 'off' : '', i === li ? 'last' : '', i === n ? 'nxt' : ''].filter(Boolean).join(' ');
-      const ms = cd ? [...cd].map(d => `<span class="m${d > '1' ? ' d' : ''}">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
+      const ms = cd ? [...cd].map(d => `<span class="m">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
       html += `<div class="${cls}" data-i="${i}"><span class="no">${r}</span>${ms}<span class="nt">${esc(nt || '')}</span></div>`;
     }
     html += '</div>';
@@ -179,7 +176,7 @@ function render() {
 }
 function go(k) { const L = lastCard(S.t); k = Math.min(Math.max(1, k), L + 1); S.card[S.t] = k; S.follow[S.t] = k === L; render(); }
 
-// notatka przy wierszu (mecz, uwaga) — zapis tylko w zeszyt_v1_notes_t50 / _t60, klucz = Nr kodu (od 1)
+// notatka przy wierszu (mecz, uwaga) — zapis tylko w zeszyt_v1_notes_t50, klucz = Nr kodu (od 1)
 function editRow(i) {
   const t = S.t, k = cardOf(i), r = i - cardStart(k), p = Math.floor(r / HALF(k)), notes = jget(K.notes(t)), cd = S.codes[t][i];
   const ov = document.createElement('div'); ov.className = 'ov';
@@ -196,7 +193,6 @@ function editRow(i) {
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value.trim()); if (e.key === 'Escape') close(); };
 }
 
-$('tsw').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.t = b.dataset.t; lsSet(K.tab, S.t); render(); };
 $('prev').onclick = () => go(S.card[S.t] - 1);
 $('next').onclick = () => go(S.card[S.t] + 1);
 $('lastB').onclick = () => go(lastCard(S.t));
@@ -209,7 +205,7 @@ $('card').onclick = e => { const r = e.target.closest('.r'); if (r && !$('card')
 document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') go(S.card[S.t] - 1); if (e.key === 'ArrowRight') go(S.card[S.t] + 1); });
 // kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
 const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
-window.addEventListener('storage', e => { if (!e.key || e.key === TABS.t50.key || e.key === TABS.t60.key) refresh(); });
+window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key)) refresh(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 window.addEventListener('focus', refresh);
 
