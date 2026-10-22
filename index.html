@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pl" data-themable>
+<script>try { const v = localStorage.getItem('zeszyt_v1_theme') || localStorage.getItem('px_theme'); if (v === 'day') document.documentElement.dataset.theme = 'day'; } catch (e) {}</script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1f2a">
+<title>ZESZYT</title>
+<link rel="manifest" href="zeszyt.webmanifest">
+<link rel="icon" href="zeszyt-192.png">
+<link rel="apple-touch-icon" href="zeszyt-192.png">
+<meta name="apple-mobile-web-app-title" content="ZESZYT">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#12151c;--pan:#1b1f2a;--card:#242a38;--bd:#323a4d;--tx:#e8ebf2;--mu:#8b93a7;--or:#c97a45;--or2:#d6a07c;--ye:#FFD700;
+  --paper:#fdfdfa;--grid:#bccfea;--ink:#16181f;--ink2:#46526e;--red:#d9302c;--hl:#ffe7cc;--hl2:#e0883a}   /* kartka zawsze jak w zeszycie */
+:root[data-theme=day]{--bg:#eef1f6;--pan:#ffffff;--card:#e3e7ef;--bd:#c3cad8;--tx:#161a22;--mu:#566074;--or2:#a0521a;color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:10;background:var(--pan);border-bottom:1px solid var(--bd);padding:8px 12px}
+header .t{display:flex;justify-content:space-between;align-items:center;gap:8px;position:relative;padding-bottom:6px}
+header .n{color:var(--mu);font-size:10px;position:absolute;right:6px;bottom:1px}
+#appbar{display:flex;gap:2px;flex-wrap:wrap;padding:3px 0;min-width:0;flex:1}#appbar a,#appbar b{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:5px 3px;text-decoration:none;color:#e8ebf2;border:1.5px solid;background:transparent}#appbar b{color:#fff;border-color:transparent}#appbar a{transition:transform .15s}#appbar a.big{transform:scale(1.45);background:#2b3245;position:relative;z-index:5;box-shadow:0 0 0 2px #fff6}
+#appbar .thm{flex:none;border:1.5px solid #888;border-radius:6px;background:transparent;padding:2px 4px;font-size:13px;line-height:1;cursor:pointer}
+[data-theme=day] #appbar a{color:#161a22}[data-theme=day] #appbar a.big{background:#fff}
+main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
+.ttl{font-size:18px;font-weight:800;margin:0 2px 8px}.ttl small{font-size:13px;color:var(--mu);font-weight:700}
+.cnav{display:flex;gap:6px;align-items:stretch;margin-bottom:6px}
+.cnav button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;font-size:18px;font-weight:800;padding:6px 14px}
+.cnav button:disabled{opacity:.35}
+.cnav .ct{flex:1;font-size:16px}.cnav .ct small{font-size:11.5px;font-weight:600;color:var(--mu)}
+.cnav button.lastb{font-size:13px;padding:6px 9px}.cnav button.lastb.on{background:var(--or);border-color:var(--or);color:#fff}
+.info{color:var(--mu);font-size:12px;margin:0 2px 8px}.info b{color:var(--tx)}
+.hint{color:var(--mu);font-size:11.5px;margin-top:8px;text-align:center}
+.err{background:#5a1f1f;border:1px solid #a8423a;color:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+
+/* karta z zeszytu: wiersz = 1 kratka (--sq), 2 połowy × 10 kratek, spirala po prawej; karty przewracają się wokół spirali */
+.stage{position:relative;perspective:1600px;touch-action:pan-y;user-select:none;-webkit-user-select:none;margin-top:4px}
+.paper{position:absolute;top:0;left:calc((100% - var(--sq)*22)/2);width:calc(var(--sq)*22);height:calc(var(--sq)*31);
+  background-color:var(--paper);border-radius:8px 3px 3px 8px;box-shadow:0 2px 10px #0006;color:var(--ink);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:var(--sq) var(--sq);background-position:calc(var(--sq)*.5) calc(var(--sq)*2);
+  transform-origin:100% 50%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.paper .cno{position:absolute;top:calc(var(--sq)*.3);right:calc(var(--sq)*2);min-width:calc(var(--sq)*2);height:calc(var(--sq)*1.4);padding:0 4px;border:2px solid var(--ink);border-radius:50%;font:700 calc(var(--sq)*1.05)/calc(var(--sq)*1.25) Caveat,'Comic Sans MS',cursive;text-align:center}
+.paper .lbl{position:absolute;top:calc(var(--sq)*.55);left:calc(var(--sq)*.6);font:700 calc(var(--sq)*.85)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
+.grid{position:absolute;left:calc(var(--sq)*.5);top:calc(var(--sq)*2);width:calc(var(--sq)*20);height:calc(var(--sq)*28)}
+.half{position:absolute;top:0}
+.half.sep::before{content:'';position:absolute;left:-1px;top:calc(var(--sq)*-1);bottom:calc(var(--sq)*-.6);width:2px;background:var(--ink)}
+.tl{position:absolute;left:calc(var(--sq)*-.3);right:calc(var(--sq)*-.6);height:2px;margin-top:-1px;background:var(--red)}
+.r{display:grid;grid-template-columns:repeat(4,var(--sq)) 1fr var(--sq);align-items:center;height:var(--sq);cursor:pointer;position:relative}
+.q .r{grid-template-columns:repeat(4,var(--sq)) 1fr}.q.nn .r{grid-template-columns:repeat(3,var(--sq)) 1fr}.q.nn .r .no{display:none}
+.r .no{text-align:center;font:700 calc(var(--sq)*.82)/1 Caveat,'Comic Sans MS',cursive}
+.r .m{text-align:center;font:800 calc(var(--sq)*.85)/1 system-ui,sans-serif}
+.r .nt{min-width:0;display:flex;align-items:center;gap:2px;padding-left:2px;white-space:nowrap;overflow:hidden;font:700 calc(var(--sq)*1.02)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink);text-transform:uppercase}
+.r .nt i{font-style:normal;overflow:hidden;text-overflow:ellipsis}
+.r .hc{text-align:center;font:700 calc(var(--sq)*.72)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
+.r.last{background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--hl2)}
+.r.nxt .no::before{content:'▸';position:absolute;left:calc(var(--sq)*-.55);color:var(--hl2);font:700 calc(var(--sq)*.7)/var(--sq) system-ui}
+.r.off{visibility:hidden}
+/* dopisek (mecz wciśnięty między wiersze) i wiersz bez kodu */
+.r .dp{flex:none;padding:0 2px;border:1px dashed var(--ink2);border-radius:3px;font:700 calc(var(--sq)*.55)/1.3 system-ui,sans-serif;color:var(--ink2)}
+.r.pu .nt{font-style:italic;font-weight:400;font-size:calc(var(--sq)*.75);color:#8a93a6;text-transform:none}
+/* spirala: dziurki w kartce + druciane kółka na prawej krawędzi (kółka stoją, karta obraca się wokół nich) */
+.paper .hole{position:absolute;right:calc(var(--sq)*.62);width:calc(var(--sq)*.46);height:calc(var(--sq)*.46);margin-top:calc(var(--sq)*-.23);border-radius:50%;background:#2a2f3a;box-shadow:inset 0 1px 2px #000}
+.spiral{position:absolute;top:0;left:calc((100% - var(--sq)*22)/2);width:calc(var(--sq)*22);height:calc(var(--sq)*31);pointer-events:none;z-index:6}
+.spiral i{position:absolute;right:calc(var(--sq)*-.75);width:calc(var(--sq)*1.6);height:calc(var(--sq)*.8);margin-top:calc(var(--sq)*-.4);border:calc(var(--sq)*.13) solid #aeb4c0;border-top-color:#eef0f4;border-right-color:#d5d9e1;border-radius:50%;transform:rotate(-10deg);box-shadow:0 1px 3px #0008}
+
+/* okno notatki */
+.ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--pan);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:min(100%,560px);padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:15px}.sheet .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}.sheet .s b{color:var(--tx);font-size:15px;letter-spacing:2px}
+.sheet input{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:17px}
+[data-theme=day] .sheet input{background:#fff}
+.sheet .bb{display:flex;gap:8px;margin-top:10px}.sheet .bb button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:15px;font-weight:700}
+.sheet .bb button.pri{background:var(--or);border-color:var(--or);color:#fff}
+.sheet #ntIn{text-transform:uppercase}
+</style>
+</head>
+<body>
+<header><div class="t"><div id="appbar"></div><span class="n" id="ver"></span></div></header>
+<script>
+(function () {   // pasek aplikacji: przyciski otwierające pozostałe aplikacje (ten sam adres px5060.github.io, wspólne kody) — jak w MOJE
+  const A = [['/moje/', 'MOJE', '#c97a45'], ['/t50razem/', 'R50', '#2e7d4f'], ['/all60/', 'R60', '#2e7d4f'], ['/szukaj50/', 'S50', '#2e75b6'], ['/szukaj60/', 'S60', '#2e75b6'],
+    ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
+    ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
+    ['/zeszyt/', 'ZESZYT', '#b8902e']];
+  const el = document.getElementById('appbar'), here = location.pathname.replace(/index\.html$/, '');
+  if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
+  // dzień / noc — ZESZYT pamięta własny wybór (zeszyt_v1_theme), na start bierze ustawienie z MOJE / SZUKAJ
+  if (el) {
+    const tb = document.createElement('button'), root = document.documentElement, upd = () => { tb.textContent = root.dataset.theme === 'day' ? '🌙' : '☀️'; tb.title = root.dataset.theme === 'day' ? 'tryb nocny' : 'tryb dzienny'; };
+    tb.className = 'thm'; upd(); el.appendChild(tb);
+    tb.onclick = () => { const d = root.dataset.theme === 'day' ? 'night' : 'day'; if (d === 'day') root.dataset.theme = 'day'; else delete root.dataset.theme; try { localStorage.setItem('zeszyt_v1_theme', d); } catch (e) {} upd(); };
+  }
+  // 1. dotknięcie powiększa przycisk, 2. dotknięcie powiększonego otwiera aplikację (żeby nie przełączyć przez przypadek)
+  if (el) el.addEventListener('click', e => {
+    const a = e.target.closest('a'); if (!a) return;
+    if (a.classList.contains('big')) return;
+    e.preventDefault(); el.querySelectorAll('a.big').forEach(x => x.classList.remove('big')); a.classList.add('big');
+    clearTimeout(el._t); el._t = setTimeout(() => a.classList.remove('big'), 4000);
+  });
+})();
+</script>
+
+<main id="main">
+  <div class="ttl">TRÓJKA <small>T50</small></div>
+  <div id="msg"></div>
+  <div class="cnav">
+    <button id="prev" aria-label="poprzednia karta">◀</button>
+    <button id="cardT" class="ct"></button>
+    <button id="next" aria-label="następna karta">▶</button>
+    <button id="lastB" class="lastb" title="karta z ostatnim kodem">⏭ ost.</button>
+  </div>
+  <div class="info" id="info"></div>
+  <div id="card" class="stage"></div>
+  <div class="hint">Przeciągnij kartę palcem w prawo — następna, w lewo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz).</div>
+</main>
+
+<script>
+"use strict";
+const APP_VER = '1.0.0';
+// kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
+// Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
+const TABS = {
+  t50: { name: 'T50', seed: '/moje/seed_t50.txt', key: 't50razem_v1_added' },
+};
+const K = { notes: t => 'zeszyt_v1_notes_' + t };   // własne dane ZESZYTU — tylko klucze zeszyt_
+const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć podręczna, nie localStorage — nie zabiera miejsca kodom)
+
+// ===== KARTY ZESZYTU TRÓJKA (sprawdzone na kodach ze zdjęć zeszytu) =====
+// karta = 2 połowy × 28 wierszy, tercje 1–10 · 11–20 · 21–28. Wyjątki: karta 0 — lewa 26, prawa 25 wierszy (Nr 1–51),
+// karta 1 — 4 części × 28 (Nr 52–163). Każda karta ma tyle samo kratek, ale w zeszycie bywają:
+// DOPISKI — mecz wciśnięty między wiersze albo pod 28. wiersz (kod bez własnego wiersza, pokazany przy poprzednim kodzie),
+// PUSTE — wiersz bez kodu (np. mecz przełożony, „SUSP”).
+// Sprawdzone na zdjęciach: karty 2–6, 8–15, 30, 34, 36, 38, 40, 42, 44, 45, 60, 273 (Nr 15 360 = karta 273, wiersz 12).
+const DOP = new Set([290, 377, 649, 693, 700, 729, 813, 842, 861, 2000]);   // Nr kodów dopisanych (przy wierszu poprzedniego kodu)
+const DOPG = new Set([641]);   // Nr kodów dopisanych nad 1. wierszem połowy (pokazane przy wierszu 1)
+const PUSTE = new Set([528, 803]);   // po kodzie o tym Nr — wiersz bez kodu
+const partsOf = k => k === 0 ? [26, 25] : k === 1 ? [28, 28, 28, 28] : [28, 28];
+function buildBook(N) {   // → {cards: [{parts: [[{nr (0 = pusty), pre: [Nr…], dop: [Nr…]}…]…]}], pos: Nr → {k, p, r, d (dopisek)}}
+  const cards = [], pos = [];
+  let nr = 1, empty = false;
+  for (let k = 0; nr <= N || k <= (pos[N] ? pos[N].k + 1 : 1); k++) {
+    const card = { parts: [] };
+    partsOf(k).forEach((R, p) => {
+      const rows = [];
+      for (let r = 1; r <= R; r++) {
+        if (empty) { rows.push({ nr: 0, pre: [], dop: [] }); empty = false; continue; }
+        const row = { nr: 0, pre: [], dop: [] };
+        while (DOPG.has(nr)) { row.pre.push(nr); pos[nr] = { k, p, r, d: 1 }; nr++; }
+        row.nr = nr; pos[nr] = { k, p, r }; nr++;
+        while (DOP.has(nr)) { row.dop.push(nr); pos[nr] = { k, p, r, d: 1 }; nr++; }
+        empty = PUSTE.has(nr - 1);
+        rows.push(row);
+      }
+      card.parts.push(rows);
+    });
+    cards.push(card);
+  }
+  return { cards, pos };
+}
+const partName = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
+// licznik setek przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00 — w zeszycie od prawej połowy karty 60
+const hund = nr => { const v = nr % 100; return v ? String(v) : '00'; };
+const hasHund = (k, p) => k > 60 || (k === 60 && p === 1);
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
+const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+const S = { t: 't50', seed: {}, seedErr: {}, codes: {}, nAdd: {}, book: {}, card: {}, follow: {} };
+
+async function loadSeed(t) {
+  const url = TABS[t].seed, ok = s => s.length > 0 && s.length % 3 === 0;
+  try {
+    const r = await fetch(url, { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status);
+    const s = (await r.text()).replace(/\D/g, ''); if (!ok(s)) throw new Error('zły plik');
+    try { const c = await caches.open(SEED_CACHE); await c.put(url, new Response(s)); } catch (e) {}
+    return s;
+  } catch (e) {
+    try { const c = await caches.open(SEED_CACHE), r = await c.match(url); if (r) { const s = await r.text(); if (ok(s)) return s; } } catch (e2) {}
+    S.seedErr[t] = true; return '';
+  }
+}
+function readAdded(t) { const s = lsGet(TABS[t].key, ''); return /^(\d{3})*$/.test(s) ? s : ''; }
+function readCodes(t) {   // → czy coś się zmieniło
+  const add = readAdded(t), s = (S.seed[t] || '') + add, c = s.match(/\d{3}/g) || [];
+  const ch = c.length !== (S.codes[t] || []).length || c[c.length - 1] !== (S.codes[t] || [])[c.length - 1];
+  S.codes[t] = c; S.nAdd[t] = add.length / 3; if (ch || !S.book[t]) S.book[t] = buildBook(c.length); return ch;
+}
+const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
+const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
+
+function rowHtml(t, row, r, cls, k, p, notes, q) {
+  const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, beg = row.pre.length ? row.pre[0] : nr, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
+  cls = [cls, nr ? '' : 'pu', nr && beg <= n && end >= n ? 'last' : '', beg === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
+  const ms = cd ? [...cd].map(d => `<span class="m">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
+  const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
+  const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
+  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span>${ms}<span class="nt">${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
+}
+function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
+  const notes = jget(K.notes(t)), card = S.book[t].cards[k], P = partsOf(k), q = P.length === 4, W = q ? [5, 4, 4, 4] : [10, 10];
+  let x = 0, h = '', holes = '';
+  card.parts.forEach((part, p) => {
+    h += `<div class="half${q ? ' q' : ''}${q && p ? ' nn' : ''}${p ? ' sep' : ''}" style="left:calc(var(--sq)*${x});width:calc(var(--sq)*${W[p]})">`;
+    for (let r = 1; r <= 28; r++) h += rowHtml(t, part[r - 1] || { nr: 0, pre: [], dop: [] }, r, r > P[p] ? 'r off' : 'r', k, p, notes, q);
+    h += '</div>'; x += W[p];
+  });
+  for (let i = 0; i < 14; i++) holes += `<i class="hole" style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
+  return `<div class="paper" data-k="${k}"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="grid">${h}<i class="tl" style="top:calc(var(--sq)*10)"></i><i class="tl" style="top:calc(var(--sq)*20)"></i></div>${holes}</div>`;
+}
+function drawStage(kTop, kUnder, rot) {   // karta na wierzchu (+ karta pod spodem przy przewracaniu) i spirala
+  const st = $('card'), sq = Math.max(13, Math.min(26, Math.floor(st.clientWidth / 22)));
+  st.style.setProperty('--sq', sq + 'px'); st.style.height = sq * 31 + 'px';
+  let sp = '<div class="spiral">'; for (let i = 0; i < 14; i++) sp += `<i style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
+  st.innerHTML = (kUnder != null ? paperHtml(S.t, kUnder) : '') + paperHtml(S.t, kTop) + sp + '</div>';
+  const pp = st.querySelectorAll('.paper'), top = pp[pp.length - 1];
+  if (rot != null) top.style.transform = `rotateY(${rot}deg)`;
+  return top;
+}
+function render() {
+  const t = S.t, c = S.codes[t] || [], n = c.length, L = lastCard(t);
+  if (S.follow[t] !== false || S.card[t] == null) S.card[t] = L;
+  const k = Math.min(Math.max(0, S.card[t]), L + 1); S.card[t] = k;
+  $('msg').innerHTML = S.seedErr[t] ? `<div class="err">Nie udało się wczytać bazy kodów ${TABS[t].name} (plik z aplikacji MOJE). Połącz z internetem i otwórz ZESZYT jeszcze raz. Teraz widać tylko kody dopisane w telefonie.</div>` : '';
+  $('cardT').innerHTML = `KARTA ${k} <small>z ${L}</small>`;
+  $('prev').disabled = k <= 0; $('next').disabled = k > L;
+  $('lastB').classList.toggle('on', k === L);
+  const w = S.book[t].pos[n];
+  $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> (baza ${fmt(n - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu) · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)}) — karta ${w.k}, ${partName(w.k, w.p)}, wiersz ${w.r}${w.d ? ' (dopisek)' : ''}` : 'Brak kodów.';
+  drawStage(k);
+}
+// ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====
+const SNDK = 'zeszyt_v1_dzwiek'; let AC = null;
+function szelest(len = .4) {
+  if (lsGet(SNDK, '1') !== '1') return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const sr = AC.sampleRate, n = Math.floor(sr * len), buf = AC.createBuffer(1, n, sr), d = buf.getChannelData(0), t0 = AC.currentTime;
+    for (let i = 0; i < n; i++) {   // szum z trzaskami papieru: narasta, potem cichnie
+      const x = i / n, env = Math.pow(Math.sin(Math.PI * Math.min(1, x * 1.1)), 1.4) * (1 - x * .4);
+      d[i] = (Math.random() * 2 - 1) * env * (Math.random() < .3 ? 1 : .3);
+    }
+    const src = AC.createBufferSource(), hp = AC.createBiquadFilter(), bp = AC.createBiquadFilter(), g = AC.createGain();
+    src.buffer = buf; hp.type = 'highpass'; hp.frequency.value = 700;
+    bp.type = 'bandpass'; bp.Q.value = .7; bp.frequency.setValueAtTime(1800, t0); bp.frequency.linearRampToValueAtTime(4500, t0 + len);
+    g.gain.value = .5;
+    src.connect(hp); hp.connect(bp); bp.connect(g); g.connect(AC.destination); src.start();
+  } catch (e) {}
+}
+{ const el = $('appbar'), b = document.createElement('button'), upd = () => { b.textContent = lsGet(SNDK, '1') === '1' ? '🔊' : '🔇'; b.title = 'szelest kartki'; };
+  b.className = 'thm'; upd(); el.appendChild(b);
+  b.onclick = () => { lsSet(SNDK, lsGet(SNDK, '1') === '1' ? '0' : '1'); upd(); szelest(.3); }; }
+
+// ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w prawo = następna, w lewo = poprzednia; karta idzie za palcem =====
+let FL = null;   // trwa przewracanie: {dir, k1, top}
+function flipStart(dir) {   // dir +1: karta odwraca się w prawo nad spiralą, pod nią następna; -1: poprzednia wraca na wierzch
+  const k0 = S.card[S.t], k1 = k0 + dir;
+  if (k1 < 0 || k1 > lastCard(S.t) + 1) return null;
+  const top = dir > 0 ? drawStage(k0, k1, 0) : drawStage(k1, k0, 180);
+  return FL = { dir, k1, top };
+}
+function flipSet(p) { FL.top.style.transition = 'none'; FL.top.style.transform = `rotateY(${(FL.dir > 0 ? p : 1 - p) * 180}deg)`; }
+function flipEnd(p, done) {   // p: ile już przewrócone (0–1); done: dokończ, inaczej karta wraca
+  const f = FL, ms = Math.round(420 * (done ? 1 - p : p) + 120), to = (done === f.dir > 0 ? 180 : 0);
+  f.top.style.transition = `transform ${ms}ms cubic-bezier(.3,.7,.4,1)`; f.top.style.transform = `rotateY(${to}deg)`;
+  if (done && p > 0) szelest(Math.max(.25, ms / 1000));   // przyciski grają szelest same (w chwili dotknięcia)
+  let fin = false; const end = () => { if (fin) return; fin = true; FL = null; if (done) { S.card[S.t] = f.k1; S.follow[S.t] = f.k1 === lastCard(S.t); } render(); };
+  f.top.addEventListener('transitionend', end, { once: true }); setTimeout(end, ms + 100);
+}
+function flipTo(k) {   // przyciski ◀ ▶ i strzałki: sąsiednia karta z animacją, dalsze skoki bez
+  if (FL) return;
+  const d = k - S.card[S.t];
+  if (Math.abs(d) !== 1 || matchMedia('(prefers-reduced-motion: reduce)').matches) return go(k);
+  if (flipStart(d)) { szelest(); requestAnimationFrame(() => requestAnimationFrame(() => flipEnd(0, true))); }
+}
+function go(k) { const L = lastCard(S.t); k = Math.min(Math.max(0, k), L + 1); S.card[S.t] = k; S.follow[S.t] = k === L; render(); }
+
+// notatka przy wierszu (mecz, uwaga) — zapis tylko w zeszyt_v1_notes_t50, klucz = Nr kodu (od 1)
+const putNotes = (t, m) => { const a = jget(K.notes(t)); for (const nr in m) { const v = String(m[nr] || '').trim().toUpperCase().slice(0, 40); if (v) a[nr] = v; else delete a[nr]; } if (!lsSet(K.notes(t), JSON.stringify(a))) alert('BŁĄD zapisu pamięci telefonu!'); };
+const nextNr = (t, nr) => { const P = S.book[t].pos; let x = nr + 1; while (P[x] && P[x].d) x++; return P[x] ? x : 0; };   // następny wiersz (bez dopisków)
+function editRow(nr) {
+  const t = S.t, w = S.book[t].pos[nr], notes = jget(K.notes(t)), c = S.codes[t], cd = c[nr - 1];
+  const row = S.book[t].cards[w.k].parts[w.p][w.r - 1], dop = [...row.pre, ...row.dop].filter(x => x <= c.length);
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="sheet"><h3>${TABS[t].name} · karta ${w.k} · ${partName(w.k, w.p)} · wiersz ${w.r}</h3>
+    <div class="s">Nr ${fmt(nr)} · ${cd ? `kod <b>${cd}</b>` : 'jeszcze bez kodu'}${dop.map(x => ` · dopisek Nr ${fmt(x)}: <b>${c[x - 1]}</b>`).join('')}</div>
+    <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="np. PAO-RAD" value="${esc(notes[nr] || '')}">
+    <div class="bb"><button id="ntDel">Usuń</button><button id="ntOk">Zapisz</button><button id="ntGo" class="pri">Dalej ▶</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove(), save = (v, dalej) => {
+    putNotes(t, { [nr]: v }); close();
+    const x = dalej ? nextNr(t, nr) : 0, k2 = x ? S.book[t].pos[x].k : S.card[t];
+    if (k2 !== S.card[t]) go(k2); else render();
+    if (x) editRow(x);
+  };
+  const inp = $('ntIn'); inp.focus();
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('ntDel').onclick = () => save('');
+  $('ntOk').onclick = () => save(inp.value);
+  $('ntGo').onclick = () => save(inp.value, true);
+  inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };
+}
+
+$('prev').onclick = () => flipTo(S.card[S.t] - 1);
+$('next').onclick = () => flipTo(S.card[S.t] + 1);
+$('lastB').onclick = () => go(lastCard(S.t));
+$('cardT').onclick = () => { const L = lastCard(S.t), v = prompt(`Która karta? (0–${L})`, S.card[S.t]); if (v && /^\d+$/.test(v.trim())) go(+v); };
+{ const st = $('card'); let d = null, noClick = 0;   // przeciąganie palcem (i myszką): karta przewraca się za palcem
+  st.addEventListener('pointerdown', e => { if (FL || (e.pointerType === 'mouse' && e.button)) return; d = { id: e.pointerId, x: e.clientX, y: e.clientY, on: false, p: 0, v: 0, x1: e.clientX, t1: e.timeStamp }; });
+  st.addEventListener('pointermove', e => {
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (!d.on) {
+      if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) { if (Math.abs(dy) > 12) d = null; return; }
+      if (!flipStart(dx > 0 ? 1 : -1)) { d = null; return; }
+      d.on = true; try { st.setPointerCapture(e.pointerId); } catch (x) {}
+    }
+    d.p = Math.max(0, Math.min(1, FL.dir * dx / (FL.top.offsetWidth * .85)));
+    d.v = (e.clientX - d.x1) / Math.max(1, e.timeStamp - d.t1); d.x1 = e.clientX; d.t1 = e.timeStamp;
+    flipSet(d.p);
+  });
+  const up = (e, cancel) => { if (!d || e.pointerId !== d.id) return; const dd = d; d = null; if (!dd.on) return; noClick = Date.now();
+    const v = e.timeStamp - dd.t1 < 90 ? FL.dir * dd.v : 0;   // szybkie machnięcie też przewraca (tylko gdy palec był w ruchu)
+    flipEnd(dd.p, !cancel && (dd.p > .35 || v > .45)); };
+  st.addEventListener('pointerup', e => up(e)); st.addEventListener('pointercancel', e => up(e, true));
+  st.addEventListener('click', e => { if (FL || Date.now() - noClick < 400) return; const r = e.target.closest('.r'); if (r && +r.dataset.nr && !r.classList.contains('off')) editRow(+r.dataset.nr); });
+}
+document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') flipTo(S.card[S.t] - 1); if (e.key === 'ArrowRight') flipTo(S.card[S.t] + 1); });
+window.addEventListener('resize', () => { if (!FL && S.book[S.t]) render(); });
+// kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
+const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
+window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key)) refresh(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+window.addEventListener('focus', refresh);
+
+(async () => {
+  $('ver').textContent = APP_VER;
+  $('info').textContent = 'Wczytuję kody…';
+  await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
+  render();
+})();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('zeszyt-sw.js').catch(() => {});
+</script>
+</body>
+</html>
