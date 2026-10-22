@@ -31,7 +31,9 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Zeszyt był pierwszy, tabela TRÓJKA (Excel) była z niego przepisywana — kody tabeli pochodzą z zeszytu.
 - Sprawdzone na zdjęciach (kody zgodne z tabelą): **karta 15** od Nr 900, **karta 30** od Nr 1740 (prawa od 1768), **karta 45** od Nr 2581.
 - Punkty sprawdzone: `ANCH` w `index.html` (karty 2, 15, 30, 45, 60). Między nimi standard 56 kodów na kartę.
-- Kody, które się nie mieszczą: **karty 3–14: 8 kodów** (Nr 892–899), **karty 31–44: 1 kod** (Nr 2580). Nie wiadomo, na której karcie były —
+- **Każda karta ma tyle samo kratek** — karta nie może mieć więcej wierszy (ustalenie użytkownika).
+- Tabela ma więcej kodów niż zeszyt: **karty 3–14: 8 kodów** (Nr 892–899), **karty 31–44: 1 kod** (Nr 2580) — pewnie dopisane / zdublowane
+  przy przepisywaniu do Excela. Tabeli nie zmieniamy (ZESZYT tylko czyta). Gdy zdjęcie karty pokaże, które to kody — pomijać je na karcie. Na razie —
   pokazane pod kartą 14 / 44 jako „kody bez miejsca”. Szukamy dalej zdjęciami kart (połowienie: 8, potem 5 / 11 …; 38, potem 34 / 41 …);
   każda sprawdzona karta = nowy punkt w `ANCH`.
 - **Licznik setek** przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00, 1 … — w zeszycie dopiero od prawej połowy karty 60 (= 49).

@@ -126,8 +126,8 @@ const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć
 // standard: 2 połowy × 28 wierszy, tercje 1–10 · 11–20 · 21–28.
 // karta 0: Nr 1–51 (lewa 26, prawa 25 wierszy — potwierdzone) · karta 1: Nr 52–163, 4 części × 28
 // punkty sprawdzone na zdjęciach zeszytu: karta 2 od Nr 164, 15 od Nr 900, 30 od Nr 1740, 45 od Nr 2581, 60 od Nr 3421 (prawa połowa od Nr 3449 = licznik 49).
-// Między nimi standard. Kody, które się nie mieszczą (karty 3–14: 8 kodów, 31–44: 1 kod — nie wiadomo, na której karcie były),
-// pokazane pod ostatnią kartą przed punktem jako „kody bez miejsca”. Od karty 60 wszystko standardowo (karta 273 od Nr 15 349).
+// Między nimi standard (każda karta ma tyle samo kratek — więcej wierszy się nie da). Tabela ma więcej kodów niż zeszyt:
+// karty 3–14: 8 kodów, 31–44: 1 kod (pewnie dopisane przy przepisywaniu do Excela) — pokazane pod ostatnią kartą przed punktem. Od karty 60 wszystko standardowo (karta 273 od Nr 15 349).
 const ANCH = [[2, 163], [15, 899], [30, 1739], [45, 2580], [60, 3420]];   // [karta, indeks (od 0) pierwszego kodu]
 function spec(k) {   // {s: indeks pierwszego kodu, parts: wiersze w częściach, x: ile kodów bez miejsca pod kartą, xr: [od, do] kart}
   if (k === 0) return { s: 0, parts: [26, 25], x: 0 };
@@ -208,7 +208,7 @@ function render() {
   html += '</div>';
   if (sp.x) {
     const x0 = sp.s + sp.parts.reduce((a, b) => a + b, 0);
-    html += `<div class="xtra"><div class="h">${sp.x === 1 ? '1 kod' : sp.x + ' kodów'} bez miejsca (Nr ${fmt(x0 + 1)}${sp.x > 1 ? '–' + fmt(x0 + sp.x) : ''}) — był${sp.x === 1 ? '' : 'y'} na którejś karcie ${sp.xr[0]}–${sp.xr[1]}</div>`;
+    html += `<div class="xtra"><div class="h">${sp.x === 1 ? '1 kod' : sp.x + ' kodów'} z tabeli bez miejsca w zeszycie (Nr ${fmt(x0 + 1)}${sp.x > 1 ? '–' + fmt(x0 + sp.x) : ''}) — gdzieś na kartach ${sp.xr[0]}–${sp.xr[1]} tabela ma ${sp.x === 1 ? 'kod' : 'kody'} więcej niż zeszyt</div>`;
     for (let r = 1; r <= sp.x; r++) html += rowHtml(t, x0 + r - 1, r, 'r', k, -1, notes);
     html += '</div>';
   }
