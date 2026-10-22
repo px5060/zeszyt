@@ -61,9 +61,6 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .r .dp{flex:none;margin-left:3px;padding:0 2px;border:1px dashed var(--ink2);border-radius:4px;font:700 11px/14px system-ui,sans-serif;letter-spacing:1px;color:var(--ink2)}
 .q4 .r .dp{font-size:9px;margin-left:1px;padding:0 1px;letter-spacing:0}
 .r.pu .nt{font-style:italic;font-weight:400;font-size:13px;color:var(--mu)}
-/* kody bez miejsca na karcie (nie wiadomo, na której karcie były) */
-.xtra{margin:10px 6px 0;border-top:2px dashed var(--ink2);padding-top:6px}.xtra .h{font:700 16px/1.2 Caveat,'Comic Sans MS',cursive;color:var(--ink2);margin-bottom:2px}
-.xtra .r{max-width:50%}
 
 /* okno notatki */
 .ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
@@ -131,22 +128,23 @@ const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć
 // karta 1 — 4 części × 28 (Nr 52–163). Każda karta ma tyle samo kratek, ale w zeszycie bywają:
 // DOPISKI — mecz wciśnięty między wiersze albo pod 28. wiersz (kod bez własnego wiersza, pokazany przy poprzednim kodzie),
 // PUSTE — wiersz bez kodu (np. mecz przełożony, „SUSP”).
-// Sprawdzone na zdjęciach: karty 2–6, 8, 9, 11–15, 30, 34, 36, 38, 40, 42, 44, 45, 60, 273 (Nr 15 360 = karta 273, wiersz 12).
-const DOP = new Set([290, 377, 693, 700, 729, 813, 842, 861, 2000]);   // Nr kodów dopisanych (przy wierszu poprzedniego kodu)
+// Sprawdzone na zdjęciach: karty 2–6, 8–15, 30, 34, 36, 38, 40, 42, 44, 45, 60, 273 (Nr 15 360 = karta 273, wiersz 12).
+const DOP = new Set([290, 377, 649, 693, 700, 729, 813, 842, 861, 2000]);   // Nr kodów dopisanych (przy wierszu poprzedniego kodu)
+const DOPG = new Set([641]);   // Nr kodów dopisanych nad 1. wierszem połowy (pokazane przy wierszu 1)
 const PUSTE = new Set([528, 803]);   // po kodzie o tym Nr — wiersz bez kodu
-const ANCH = { 11: 671 };   // karta → Nr pierwszego kodu, gdy przyczyna nieznana (karta 10: 2 kody bez miejsca, brak zdjęcia)
 const partsOf = k => k === 0 ? [26, 25] : k === 1 ? [28, 28, 28, 28] : [28, 28];
-function buildBook(N) {   // → {cards: [{parts: [[{nr (0 = pusty), dop: [Nr…]}…]…], bez: [Nr…]}], pos: Nr → {k, p (-1 = bez miejsca), r, d}}
+function buildBook(N) {   // → {cards: [{parts: [[{nr (0 = pusty), pre: [Nr…], dop: [Nr…]}…]…]}], pos: Nr → {k, p, r, d (dopisek)}}
   const cards = [], pos = [];
   let nr = 1, empty = false;
   for (let k = 0; nr <= N || k <= (pos[N] ? pos[N].k + 1 : 1); k++) {
-    if (ANCH[k] && nr < ANCH[k]) { const b = cards[k - 1].bez; for (; nr < ANCH[k]; nr++) { b.push(nr); pos[nr] = { k: k - 1, p: -1, r: b.length }; } }
-    const card = { parts: [], bez: [] };
+    const card = { parts: [] };
     partsOf(k).forEach((R, p) => {
       const rows = [];
       for (let r = 1; r <= R; r++) {
-        if (empty) { rows.push({ nr: 0, dop: [] }); empty = false; continue; }
-        const row = { nr, dop: [] }; pos[nr] = { k, p, r }; nr++;
+        if (empty) { rows.push({ nr: 0, pre: [], dop: [] }); empty = false; continue; }
+        const row = { nr: 0, pre: [], dop: [] };
+        while (DOPG.has(nr)) { row.pre.push(nr); pos[nr] = { k, p, r, d: 1 }; nr++; }
+        row.nr = nr; pos[nr] = { k, p, r }; nr++;
         while (DOP.has(nr)) { row.dop.push(nr); pos[nr] = { k, p, r, d: 1 }; nr++; }
         empty = PUSTE.has(nr - 1);
         rows.push(row);
@@ -157,7 +155,7 @@ function buildBook(N) {   // → {cards: [{parts: [[{nr (0 = pusty), dop: [Nr…
   }
   return { cards, pos };
 }
-const partName = (k, p) => p < 0 ? 'bez miejsca' : partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
+const partName = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
 // licznik setek przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00 — w zeszycie od prawej połowy karty 60
 const hund = nr => { const v = nr % 100; return v ? String(v) : '00'; };
 const hasHund = (k, p) => k > 60 || (k === 60 && p === 1);
@@ -193,10 +191,11 @@ const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0
 const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
 
 function rowHtml(t, row, r, cls, k, p, notes) {
-  const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
-  cls = [cls, nr ? '' : 'pu', nr && nr <= n && end >= n ? 'last' : '', nr === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
+  const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, beg = row.pre.length ? row.pre[0] : nr, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
+  cls = [cls, nr ? '' : 'pu', nr && beg <= n && end >= n ? 'last' : '', beg === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
   const ms = cd ? [...cd].map(d => `<span class="m">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
-  const dp = row.dop.filter(x => x <= n).map(x => `<span class="dp">${[...c[x - 1]].map(mark).join('')}</span>`).join('');
+  const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
+  const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
   return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span>${ms}${dp}<span class="nt">${esc(nr ? notes[nr] || '' : 'bez kodu')}</span>${hasHund(k, p) && nr ? `<span class="hc">${hund(nr)}</span>` : ''}</div>`;
 }
 function render() {
@@ -213,24 +212,17 @@ function render() {
   let html = `<div class="paper${P.length === 4 ? ' q4' : ''}" id="paper"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="halves">`;
   card.parts.forEach((part, p) => {
     html += '<div class="half">';
-    for (let r = 1; r <= rows; r++) html += rowHtml(t, part[r - 1] || { nr: 0, dop: [] }, r, ['r', r === 10 || r === 20 ? 'te' : '', r > P[p] ? 'off' : ''].filter(Boolean).join(' '), k, p, notes);
+    for (let r = 1; r <= rows; r++) html += rowHtml(t, part[r - 1] || { nr: 0, pre: [], dop: [] }, r, ['r', r === 10 || r === 20 ? 'te' : '', r > P[p] ? 'off' : ''].filter(Boolean).join(' '), k, p, notes);
     html += '</div>';
   });
-  html += '</div>';
-  if (card.bez.length) {
-    const b = card.bez, m = b.length;
-    html += `<div class="xtra"><div class="h">${m === 1 ? '1 kod' : m + ' kody'} z tabeli bez miejsca na karcie (Nr ${fmt(b[0])}${m > 1 ? '–' + fmt(b[m - 1]) : ''}) — pewnie dopisane w zeszycie, brak zdjęcia tej karty</div>`;
-    b.forEach((x, j) => { html += rowHtml(t, { nr: x, dop: [] }, j + 1, 'r', k, -1, notes); });
-    html += '</div>';
-  }
-  $('card').innerHTML = html + '</div>';
+  $('card').innerHTML = html + '</div></div>';
 }
 function go(k) { const L = lastCard(S.t); k = Math.min(Math.max(0, k), L + 1); S.card[S.t] = k; S.follow[S.t] = k === L; render(); }
 
 // notatka przy wierszu (mecz, uwaga) — zapis tylko w zeszyt_v1_notes_t50, klucz = Nr kodu (od 1)
 function editRow(nr) {
   const t = S.t, w = S.book[t].pos[nr], notes = jget(K.notes(t)), c = S.codes[t], cd = c[nr - 1];
-  const dop = w.p >= 0 ? S.book[t].cards[w.k].parts[w.p][w.r - 1].dop.filter(x => x <= c.length) : [];
+  const row = S.book[t].cards[w.k].parts[w.p][w.r - 1], dop = [...row.pre, ...row.dop].filter(x => x <= c.length);
   const ov = document.createElement('div'); ov.className = 'ov';
   ov.innerHTML = `<div class="sheet"><h3>${TABS[t].name} · karta ${w.k} · ${partName(w.k, w.p)} · wiersz ${w.r}</h3>
     <div class="s">Nr ${fmt(nr)} · ${cd ? `kod <b>${cd}</b>` : 'jeszcze bez kodu'}${dop.map(x => ` · dopisek Nr ${fmt(x)}: <b>${c[x - 1]}</b>`).join('')}</div>

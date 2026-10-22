@@ -30,13 +30,12 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
     pokazany przy wierszu poprzedniego kodu w przerywanej ramce;
   - **puste wiersze** — wiersz bez kodu (np. mecz przełożony, „SUSP”) → `PUSTE` (Nr kodu przed pustym wierszem).
 - Tabela TRÓJKA (Excel) była przepisywana z zeszytu. Układ sprawdzony na zdjęciach kart (kody zgodne z tabelą):
-  2–6, 8, 9, 11–15, 30, 34, 36, 38, 40, 42, 44, 45, 60, 273. Ważne punkty: karta 2 od Nr 164, 15 od 900, 30 od 1740,
+  2–6, 8–15, 30, 34, 36, 38, 40, 42, 44, 45, 60, 273. Ważne punkty: karta 2 od Nr 164, 15 od 900, 30 od 1740,
   45 od 2581, **60 od 3421** (prawa połowa od 3449 = licznik 49), **273 od 15 349** (Nr 15 360 = wiersz 12, licznik 60 — potwierdzone).
 - Użytkownik potwierdził: dopiski to mecze ponad liczbę ramek, czasem dwa mecze w jednym polu (np. EIBAR na karcie 5).
-- Dopiski: 290 (k4), 377 (k5), 693, 700, 729 (k11), 813, 842 (k13), 861 (k14), 2000 (k34). Puste: po 528 (k8 lewa w.28 — do potwierdzenia),
+- Dopiski: 290 (k4), 377 (k5), 641 (k10 prawa — nad 1. wierszem, `DOPG`), 649 (k10), 693, 700, 729 (k11), 813, 842 (k13), 861 (k14), 2000 (k34). Puste: po 528 (k8 lewa w.28 — do potwierdzenia),
   po 803 (k13 lewa w.19 „SUSP”).
-- **Karta 10**: tabela ma 2 kody więcej (Nr 669–670), brak zdjęcia — `ANCH = {11: 671}`, kody pokazane pod kartą 10 jako „bez miejsca”.
-  Po zdjęciu karty 10: dopisać do `DOP` / `PUSTE` i usunąć `ANCH`.
+- Wszystkie kody tabeli mają miejsce w zeszycie (od karty 2 do 273 bez „kodów bez miejsca”). Nowe nieprawidłowości → `DOP` / `DOPG` / `PUSTE`.
 - **Licznik setek** przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00, 1 … — w zeszycie dopiero od prawej połowy karty 60 (= 49).
 - Znaki: `−` = 0, `+` = 1. Pierwszy znak = pierwsza cyfra kodu, środkowy = druga, trzeci = ostatnia (tak jest w zeszycie TRÓJKA).
 - Ostatni kod podświetlony, następny wiersz ze strzałką `▸`. Dotknięcie wiersza → notatka (np. mecz) — także na wierszach bez kodu;
