@@ -37,30 +37,36 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .hint{color:var(--mu);font-size:11.5px;margin-top:8px;text-align:center}
 .err{background:#5a1f1f;border:1px solid #a8423a;color:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px}
 
-/* karta z zeszytu: kratka 12 px, wiersz = 2 kratki */
-.paper{position:relative;background-color:var(--paper);border-radius:6px 10px 10px 6px;box-shadow:0 2px 10px #0006;touch-action:pan-y;
-  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:12px 12px;background-position:-1px 5px;padding:30px 4px 14px 4px;color:var(--ink);user-select:none;-webkit-user-select:none}
-.paper .cno{position:absolute;top:3px;right:10px;min-width:30px;height:25px;padding:0 5px;border:2px solid var(--ink);border-radius:50%;font:700 17px/21px Caveat,'Comic Sans MS',cursive;text-align:center}
-.paper .lbl{position:absolute;top:7px;left:10px;font:700 15px/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
-.halves{display:flex}
-.half{flex:1;min-width:0}
-.half+.half{border-left:2px solid var(--ink)}
-.r{display:flex;align-items:center;height:24px;padding:0 3px 0 2px;cursor:pointer;position:relative}
-.r.te{border-bottom:2px solid var(--red);height:24px}
-.r .no{flex:none;width:22px;text-align:right;padding-right:5px;font:700 17px/1 Caveat,'Comic Sans MS',cursive}
-.r .m{flex:none;width:13px;text-align:center;font:800 16px/1 system-ui,sans-serif}
-.r .nt{flex:1;min-width:0;padding-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 17px/1 Caveat,'Comic Sans MS',cursive;color:var(--ink);text-transform:uppercase;letter-spacing:.5px}
+/* karta z zeszytu: wiersz = 1 kratka (--sq), 2 połowy × 10 kratek, spirala po prawej; karty przewracają się wokół spirali */
+.stage{position:relative;perspective:1600px;touch-action:pan-y;user-select:none;-webkit-user-select:none;margin-top:4px}
+.paper{position:absolute;top:0;left:calc((100% - var(--sq)*22)/2);width:calc(var(--sq)*22);height:calc(var(--sq)*31);
+  background-color:var(--paper);border-radius:8px 3px 3px 8px;box-shadow:0 2px 10px #0006;color:var(--ink);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:var(--sq) var(--sq);background-position:calc(var(--sq)*.5) calc(var(--sq)*2);
+  transform-origin:100% 50%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.paper .cno{position:absolute;top:calc(var(--sq)*.3);right:calc(var(--sq)*2);min-width:calc(var(--sq)*2);height:calc(var(--sq)*1.4);padding:0 4px;border:2px solid var(--ink);border-radius:50%;font:700 calc(var(--sq)*1.05)/calc(var(--sq)*1.25) Caveat,'Comic Sans MS',cursive;text-align:center}
+.paper .lbl{position:absolute;top:calc(var(--sq)*.55);left:calc(var(--sq)*.6);font:700 calc(var(--sq)*.85)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
+.grid{position:absolute;left:calc(var(--sq)*.5);top:calc(var(--sq)*2);width:calc(var(--sq)*20);height:calc(var(--sq)*28)}
+.half{position:absolute;top:0}
+.half.sep::before{content:'';position:absolute;left:-1px;top:calc(var(--sq)*-1);bottom:calc(var(--sq)*-.6);width:2px;background:var(--ink)}
+.tl{position:absolute;left:calc(var(--sq)*-.3);right:calc(var(--sq)*-.6);height:2px;margin-top:-1px;background:var(--red)}
+.r{display:grid;grid-template-columns:repeat(4,var(--sq)) 1fr var(--sq);align-items:center;height:var(--sq);cursor:pointer;position:relative}
+.q .r{grid-template-columns:repeat(4,var(--sq)) 1fr}.q.nn .r{grid-template-columns:repeat(3,var(--sq)) 1fr}.q.nn .r .no{display:none}
+.r .no{text-align:center;font:700 calc(var(--sq)*.82)/1 Caveat,'Comic Sans MS',cursive}
+.r .m{text-align:center;font:800 calc(var(--sq)*.85)/1 system-ui,sans-serif}
+.r .nt{min-width:0;display:flex;align-items:center;gap:2px;padding-left:2px;white-space:nowrap;overflow:hidden;font:700 calc(var(--sq)*1.02)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink);text-transform:uppercase}
+.r .nt i{font-style:normal;overflow:hidden;text-overflow:ellipsis}
+.r .hc{text-align:center;font:700 calc(var(--sq)*.72)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
 .r.last{background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--hl2)}
-.r.nxt .no::before{content:'▸';position:absolute;left:-1px;color:var(--hl2);font:700 13px/24px system-ui}
+.r.nxt .no::before{content:'▸';position:absolute;left:calc(var(--sq)*-.55);color:var(--hl2);font:700 calc(var(--sq)*.7)/var(--sq) system-ui}
 .r.off{visibility:hidden}
-.r .hc{flex:none;width:24px;text-align:right;font:700 16px/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
-/* karta 1: podział na 4 części (numery wierszy tylko w pierwszej) */
-.q4 .r{padding:0 1px}.q4 .half:not(:first-child) .r .no{display:none}.q4 .r .no{width:18px;padding-right:3px}
-.q4 .r .m{width:11px;font-size:14px}.q4 .r .nt{padding-left:3px;font-size:13px}
 /* dopisek (mecz wciśnięty między wiersze) i wiersz bez kodu */
-.r .dp{flex:none;margin-left:3px;padding:0 2px;border:1px dashed var(--ink2);border-radius:4px;font:700 11px/14px system-ui,sans-serif;letter-spacing:1px;color:var(--ink2)}
-.q4 .r .dp{font-size:9px;margin-left:1px;padding:0 1px;letter-spacing:0}
-.r.pu .nt{font-style:italic;font-weight:400;font-size:13px;color:#8a93a6;text-transform:none}
+.r .dp{flex:none;padding:0 2px;border:1px dashed var(--ink2);border-radius:3px;font:700 calc(var(--sq)*.55)/1.3 system-ui,sans-serif;color:var(--ink2)}
+.r.pu .nt{font-style:italic;font-weight:400;font-size:calc(var(--sq)*.75);color:#8a93a6;text-transform:none}
+/* spirala: dziurki w kartce + druciane kółka na prawej krawędzi (kółka stoją, karta obraca się wokół nich) */
+.paper .hole{position:absolute;right:calc(var(--sq)*.62);width:calc(var(--sq)*.46);height:calc(var(--sq)*.46);margin-top:calc(var(--sq)*-.23);border-radius:50%;background:#2a2f3a;box-shadow:inset 0 1px 2px #000}
+.spiral{position:absolute;top:0;left:calc((100% - var(--sq)*22)/2);width:calc(var(--sq)*22);height:calc(var(--sq)*31);pointer-events:none;z-index:6}
+.spiral i{position:absolute;right:calc(var(--sq)*-.75);width:calc(var(--sq)*1.6);height:calc(var(--sq)*.8);margin-top:calc(var(--sq)*-.4);border:calc(var(--sq)*.13) solid #aeb4c0;border-top-color:#eef0f4;border-right-color:#d5d9e1;border-radius:50%;transform:rotate(-10deg);box-shadow:0 1px 3px #0008}
 
 /* okno notatki */
 .ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
@@ -109,8 +115,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <button id="lastB" class="lastb" title="karta z ostatnim kodem">⏭ ost.</button>
   </div>
   <div class="info" id="info"></div>
-  <div id="card"></div>
-  <div class="hint">Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Przesuń kartę palcem w bok — następna / poprzednia.</div>
+  <div id="card" class="stage"></div>
+  <div class="hint">Przeciągnij kartę palcem w prawo — następna, w lewo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz).</div>
 </main>
 
 <script>
@@ -191,13 +197,33 @@ function readCodes(t) {   // → czy coś się zmieniło
 const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
 const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
 
-function rowHtml(t, row, r, cls, k, p, notes) {
+function rowHtml(t, row, r, cls, k, p, notes, q) {
   const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, beg = row.pre.length ? row.pre[0] : nr, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
   cls = [cls, nr ? '' : 'pu', nr && beg <= n && end >= n ? 'last' : '', beg === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
   const ms = cd ? [...cd].map(d => `<span class="m">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
   const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
   const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
-  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span>${ms}${dp}<span class="nt">${esc(nr ? notes[nr] || '' : 'bez kodu')}</span>${hasHund(k, p) && nr ? `<span class="hc">${hund(nr)}</span>` : ''}</div>`;
+  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span>${ms}<span class="nt">${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
+}
+function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
+  const notes = jget(K.notes(t)), card = S.book[t].cards[k], P = partsOf(k), q = P.length === 4, W = q ? [5, 4, 4, 4] : [10, 10];
+  let x = 0, h = '', holes = '';
+  card.parts.forEach((part, p) => {
+    h += `<div class="half${q ? ' q' : ''}${q && p ? ' nn' : ''}${p ? ' sep' : ''}" style="left:calc(var(--sq)*${x});width:calc(var(--sq)*${W[p]})">`;
+    for (let r = 1; r <= 28; r++) h += rowHtml(t, part[r - 1] || { nr: 0, pre: [], dop: [] }, r, r > P[p] ? 'r off' : 'r', k, p, notes, q);
+    h += '</div>'; x += W[p];
+  });
+  for (let i = 0; i < 14; i++) holes += `<i class="hole" style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
+  return `<div class="paper" data-k="${k}"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="grid">${h}<i class="tl" style="top:calc(var(--sq)*10)"></i><i class="tl" style="top:calc(var(--sq)*20)"></i></div>${holes}</div>`;
+}
+function drawStage(kTop, kUnder, rot) {   // karta na wierzchu (+ karta pod spodem przy przewracaniu) i spirala
+  const st = $('card'), sq = Math.max(13, Math.min(26, Math.floor(st.clientWidth / 22)));
+  st.style.setProperty('--sq', sq + 'px'); st.style.height = sq * 31 + 'px';
+  let sp = '<div class="spiral">'; for (let i = 0; i < 14; i++) sp += `<i style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
+  st.innerHTML = (kUnder != null ? paperHtml(S.t, kUnder) : '') + paperHtml(S.t, kTop) + sp + '</div>';
+  const pp = st.querySelectorAll('.paper'), top = pp[pp.length - 1];
+  if (rot != null) top.style.transform = `rotateY(${rot}deg)`;
+  return top;
 }
 function render() {
   const t = S.t, c = S.codes[t] || [], n = c.length, L = lastCard(t);
@@ -209,14 +235,28 @@ function render() {
   $('lastB').classList.toggle('on', k === L);
   const w = S.book[t].pos[n];
   $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> (baza ${fmt(n - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu) · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)}) — karta ${w.k}, ${partName(w.k, w.p)}, wiersz ${w.r}${w.d ? ' (dopisek)' : ''}` : 'Brak kodów.';
-  const notes = jget(K.notes(t)), card = S.book[t].cards[k], P = partsOf(k), rows = Math.max(...P);
-  let html = `<div class="paper${P.length === 4 ? ' q4' : ''}" id="paper"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="halves">`;
-  card.parts.forEach((part, p) => {
-    html += '<div class="half">';
-    for (let r = 1; r <= rows; r++) html += rowHtml(t, part[r - 1] || { nr: 0, pre: [], dop: [] }, r, ['r', r === 10 || r === 20 ? 'te' : '', r > P[p] ? 'off' : ''].filter(Boolean).join(' '), k, p, notes);
-    html += '</div>';
-  });
-  $('card').innerHTML = html + '</div></div>';
+  drawStage(k);
+}
+// ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w prawo = następna, w lewo = poprzednia; karta idzie za palcem =====
+let FL = null;   // trwa przewracanie: {dir, k1, top}
+function flipStart(dir) {   // dir +1: karta odwraca się w prawo nad spiralą, pod nią następna; -1: poprzednia wraca na wierzch
+  const k0 = S.card[S.t], k1 = k0 + dir;
+  if (k1 < 0 || k1 > lastCard(S.t) + 1) return null;
+  const top = dir > 0 ? drawStage(k0, k1, 0) : drawStage(k1, k0, 180);
+  return FL = { dir, k1, top };
+}
+function flipSet(p) { FL.top.style.transition = 'none'; FL.top.style.transform = `rotateY(${(FL.dir > 0 ? p : 1 - p) * 180}deg)`; }
+function flipEnd(p, done) {   // p: ile już przewrócone (0–1); done: dokończ, inaczej karta wraca
+  const f = FL, ms = Math.round(420 * (done ? 1 - p : p) + 120), to = (done === f.dir > 0 ? 180 : 0);
+  f.top.style.transition = `transform ${ms}ms cubic-bezier(.3,.7,.4,1)`; f.top.style.transform = `rotateY(${to}deg)`;
+  let fin = false; const end = () => { if (fin) return; fin = true; FL = null; if (done) { S.card[S.t] = f.k1; S.follow[S.t] = f.k1 === lastCard(S.t); } render(); };
+  f.top.addEventListener('transitionend', end, { once: true }); setTimeout(end, ms + 100);
+}
+function flipTo(k) {   // przyciski ◀ ▶ i strzałki: sąsiednia karta z animacją, dalsze skoki bez
+  if (FL) return;
+  const d = k - S.card[S.t];
+  if (Math.abs(d) !== 1 || matchMedia('(prefers-reduced-motion: reduce)').matches) return go(k);
+  if (flipStart(d)) requestAnimationFrame(() => requestAnimationFrame(() => flipEnd(0, true)));
 }
 function go(k) { const L = lastCard(S.t); k = Math.min(Math.max(0, k), L + 1); S.card[S.t] = k; S.follow[S.t] = k === L; render(); }
 
@@ -246,16 +286,32 @@ function editRow(nr) {
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };
 }
 
-$('prev').onclick = () => go(S.card[S.t] - 1);
-$('next').onclick = () => go(S.card[S.t] + 1);
+$('prev').onclick = () => flipTo(S.card[S.t] - 1);
+$('next').onclick = () => flipTo(S.card[S.t] + 1);
 $('lastB').onclick = () => go(lastCard(S.t));
 $('cardT').onclick = () => { const L = lastCard(S.t), v = prompt(`Która karta? (0–${L})`, S.card[S.t]); if (v && /^\d+$/.test(v.trim())) go(+v); };
-$('card').onclick = e => { const r = e.target.closest('.r'); if (r && +r.dataset.nr && !r.classList.contains('off') && !$('card')._sw) editRow(+r.dataset.nr); };
-{ let x0 = 0, y0 = 0; const el = $('card');   // przesunięcie palcem w bok = następna / poprzednia karta
-  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; el._sw = false; }, { passive: true });
-  el.addEventListener('touchend', e => { const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
-    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) { el._sw = true; setTimeout(() => el._sw = false, 350); go(S.card[S.t] + (dx < 0 ? 1 : -1)); } }, { passive: true }); }
-document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') go(S.card[S.t] - 1); if (e.key === 'ArrowRight') go(S.card[S.t] + 1); });
+{ const st = $('card'); let d = null, noClick = 0;   // przeciąganie palcem (i myszką): karta przewraca się za palcem
+  st.addEventListener('pointerdown', e => { if (FL || (e.pointerType === 'mouse' && e.button)) return; d = { id: e.pointerId, x: e.clientX, y: e.clientY, on: false, p: 0, v: 0, x1: e.clientX, t1: e.timeStamp }; });
+  st.addEventListener('pointermove', e => {
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (!d.on) {
+      if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) { if (Math.abs(dy) > 12) d = null; return; }
+      if (!flipStart(dx > 0 ? 1 : -1)) { d = null; return; }
+      d.on = true; try { st.setPointerCapture(e.pointerId); } catch (x) {}
+    }
+    d.p = Math.max(0, Math.min(1, FL.dir * dx / (FL.top.offsetWidth * .85)));
+    d.v = (e.clientX - d.x1) / Math.max(1, e.timeStamp - d.t1); d.x1 = e.clientX; d.t1 = e.timeStamp;
+    flipSet(d.p);
+  });
+  const up = (e, cancel) => { if (!d || e.pointerId !== d.id) return; const dd = d; d = null; if (!dd.on) return; noClick = Date.now();
+    const v = e.timeStamp - dd.t1 < 90 ? FL.dir * dd.v : 0;   // szybkie machnięcie też przewraca (tylko gdy palec był w ruchu)
+    flipEnd(dd.p, !cancel && (dd.p > .35 || v > .45)); };
+  st.addEventListener('pointerup', e => up(e)); st.addEventListener('pointercancel', e => up(e, true));
+  st.addEventListener('click', e => { if (FL || Date.now() - noClick < 400) return; const r = e.target.closest('.r'); if (r && +r.dataset.nr && !r.classList.contains('off')) editRow(+r.dataset.nr); });
+}
+document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') flipTo(S.card[S.t] - 1); if (e.key === 'ArrowRight') flipTo(S.card[S.t] + 1); });
+window.addEventListener('resize', () => { if (!FL && S.book[S.t]) render(); });
 // kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
 const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
 window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key)) refresh(); });

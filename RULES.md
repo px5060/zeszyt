@@ -48,3 +48,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Wpisywanie: dotknij wiersza → wpisz → **Enter / „Dalej ▶”** zapisuje i otwiera następny wiersz (bez dopisków).
 - Zdjęcia (Claude odczytuje skróty ze zdjęcia karty, z kluczem API) — zrobione i usunięte na prośbę użytkownika: zostaje **zapis ręczny**.
   Kod jest w historii repo (commit „Kartka w kolorach zeszytu, szybkie wpisywanie meczów i mecze ze zdjęcia”).
+- **Wygląd karty**: wiersz = 1 kratka (28 kratek w połowie), numer, 3 znaki, mecz i licznik siedzą w kratkach; połowa = 10 kratek
+  (numer 1 + znaki 3 + mecz 5 + licznik 1); karta 1: części 5 + 4 + 4 + 4. Rozmiar kratki z szerokości ekranu (`--sq`), cała karta na ekranie.
+- **Spirala po prawej** (dziurki w kartce + druciane kółka). **Przewracanie kart palcem** z animacją 3D wokół spirali, karta idzie za palcem:
+  przeciągnięcie **w prawo = następna** karta (kartka odwraca się nad spiralą), **w lewo = poprzednia** (wraca zza spirali).
+  Krótkie przeciągnięcie — karta wraca; szybkie machnięcie — przewraca. Przyciski ◀ ▶ i strzałki też animują (skoki o więcej kart bez animacji).
