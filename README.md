@@ -7,8 +7,9 @@ Kod w wierszu: `−` = 0, `+` = 1; pierwszy znak = pierwsza cyfra kodu, środkow
 PIKOFF (T60) ma w zeszycie inny układ — na razie go nie ma.
 Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej krawędzi — od prawej połowy karty 60, jak w zeszycie.
 
-- Kody **tylko czytane** ze wspólnej pamięci telefonu (ten sam adres px5060.github.io), te same co w RAZEM / SZUKAJ / MOJE:
+- Kody czytane ze wspólnej pamięci telefonu (ten sam adres px5060.github.io), te same co w RAZEM / SZUKAJ / MOJE:
   baza `seed_t50.txt` z aplikacji MOJE (`/moje/…`) + kody dopisane w telefonie (`t50razem_v1_added`).
+- ＋ Dopisz kod (− / +) → kod trafia do wszystkich aplikacji; „nr karty” + Idź → przejście do karty.
 - Dotknięcie wiersza → mecz (skróty drużyn, np. PAO-RAD); Enter = następny wiersz. Własne dane ZESZYTU tylko pod kluczami `zeszyt_…`.
 - Kartka zawsze w kolorach zeszytu (biała, niebieska kratka, czarny tusz, czerwone linie).
 - Na górze pasek przycisków do pozostałych aplikacji (jak w MOJE) + ZESZYT.

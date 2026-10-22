@@ -16,8 +16,11 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - T50: baza `seed_t50.txt` z repo `moje` + `t50razem_v1_added`; kody z cyfr 0/1 (000…111), cel `x1x`.
 - T60: baza `seed_t60.txt` z repo `moje` + `t60razem_v1_added`; pierwsza cyfra 0–3, pozostałe 0/1; cele `x1x` i `xx1`.
 - Bazę czytamy z `/moje/seed_t50.txt` (ten sam adres), kopia na brak internetu w pamięci podręcznej (Cache), nie w localStorage.
-- **ZESZYT tylko czyta kody** — nigdy nie zapisuje `t50razem_v1_added` / `t60razem_v1_added`.
-- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`).
+- **Dopisywanie kodów (od 1.0.1, na prośbę użytkownika):** „＋ Dopisz kod” albo dotknięcie wiersza ze strzałką ▸ → trzy znaki − / +
+  (− = 0, + = 1) → kod dopisany na koniec wspólnej listy `t50razem_v1_added` (czytaj-zmień-zapisz, jak w RAZEM / MOJE), więc od razu widzą go
+  RAZEM, SZUKAJ i MOJE (MOJE oznacza go jako „wpisany w innej aplikacji”). Tylko kolejny kod (Nr n+1), poprzednich kodów ZESZYT nie zmienia.
+  „↩ Cofnij” — tylko kod dopisany w ZESZYCIE i wciąż ostatni (`zeszyt_v1_ostatni`).
+- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`, `zeszyt_v1_dzwiek`, `zeszyt_v1_ostatni`).
 
 ## Karta (zeszyt TRÓJKA)
 
@@ -51,7 +54,9 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Wygląd karty**: wiersz = 1 kratka (28 kratek w połowie), numer, 3 znaki, mecz i licznik siedzą w kratkach; połowa = 10 kratek
   (numer 1 + znaki 3 + mecz 5 + licznik 1); karta 1: części 5 + 4 + 4 + 4. Rozmiar kratki z szerokości ekranu (`--sq`), cała karta na ekranie.
 - **Spirala po prawej** (dziurki w kartce + druciane kółka). **Przewracanie kart palcem** z animacją 3D wokół spirali, karta idzie za palcem:
-  przeciągnięcie **w prawo = następna** karta (kartka odwraca się nad spiralą), **w lewo = poprzednia** (wraca zza spirali).
+  przeciągnięcie **w lewo = następna** karta (wychodzi zza spirali na wierzch), **w prawo = poprzednia** (wierzchnia odwraca się nad spiralą)
+  — kierunek zmieniony na prośbę użytkownika (1.0.1).
   Krótkie przeciągnięcie — karta wraca; szybkie machnięcie — przewraca. Przyciski ◀ ▶ i strzałki też animują (skoki o więcej kart bez animacji).
 - **Szelest kartki** przy przewracaniu (dźwięk robiony w aplikacji z szumu, bez plików audio); 🔊/🔇 na pasku (`zeszyt_v1_dzwiek`).
   Gra tylko gdy karta się przewróci (nie przy cofnięciu).
+- **Przejście do karty**: pole „nr karty” + „Idź ▶” (albo Enter); dotknięcie „KARTA …” ustawia kursor w tym polu.

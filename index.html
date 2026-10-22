@@ -77,6 +77,18 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .sheet .bb{display:flex;gap:8px;margin-top:10px}.sheet .bb button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:15px;font-weight:700}
 .sheet .bb button.pri{background:var(--or);border-color:var(--or);color:#fff}
 .sheet #ntIn{text-transform:uppercase}
+.tools{display:flex;gap:6px;margin-bottom:6px}
+.tools input{width:92px;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px;font-size:16px}
+[data-theme=day] .tools input{background:#fff}
+.tools button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px 12px;font-size:14px;font-weight:700}
+.tools button.pri{flex:1;background:var(--or);border-color:var(--or);color:#fff}
+.undo{display:flex;align-items:center;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:6px 10px;margin-bottom:6px;font-size:13px}
+.undo b{letter-spacing:2px}.undo button{margin-left:auto;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
+.kod{display:flex;gap:10px;align-items:center;margin:2px 0 12px}
+.kod button{width:64px;height:64px;font:900 36px/1 system-ui,sans-serif;background:var(--card);border:2px solid var(--bd);color:var(--tx);border-radius:12px}
+.kod button.on{background:#1f8a4c;border-color:#1f8a4c;color:#fff}
+.kod b{margin-left:auto;font-size:24px;letter-spacing:4px}
+.sheet .s2{color:var(--mu);font-size:12px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -114,14 +126,20 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <button id="next" aria-label="następna karta">▶</button>
     <button id="lastB" class="lastb" title="karta z ostatnim kodem">⏭ ost.</button>
   </div>
+  <div class="tools">
+    <input id="goIn" type="number" inputmode="numeric" min="0" placeholder="nr karty" aria-label="numer karty">
+    <button id="goB">Idź ▶</button>
+    <button id="addB" class="pri">＋ Dopisz kod</button>
+  </div>
+  <div id="undo"></div>
   <div class="info" id="info"></div>
   <div id="card" class="stage"></div>
-  <div class="hint">Przeciągnij kartę palcem w prawo — następna, w lewo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz).</div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +.</div>
 </main>
 
 <script>
 "use strict";
-const APP_VER = '1.0.0';
+const APP_VER = '1.0.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -171,6 +189,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } };
 const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
@@ -235,6 +254,9 @@ function render() {
   $('lastB').classList.toggle('on', k === L);
   const w = S.book[t].pos[n];
   $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> (baza ${fmt(n - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu) · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)}) — karta ${w.k}, ${partName(w.k, w.p)}, wiersz ${w.r}${w.d ? ' (dopisek)' : ''}` : 'Brak kodów.';
+  const z = jobj(LASTK), un = z && z.n === n && c[n - 1] === z.c && S.nAdd[t] > 0;   // cofnąć można tylko kod dopisany tutaj i wciąż ostatni
+  $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
+  if (un) $('undoB').onclick = undoCode;
   drawStage(k);
 }
 // ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====
@@ -260,17 +282,20 @@ function szelest(len = .4) {
   b.className = 'thm'; upd(); el.appendChild(b);
   b.onclick = () => { lsSet(SNDK, lsGet(SNDK, '1') === '1' ? '0' : '1'); upd(); szelest(.3); }; }
 
-// ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w prawo = następna, w lewo = poprzednia; karta idzie za palcem =====
-let FL = null;   // trwa przewracanie: {dir, k1, top}
-function flipStart(dir) {   // dir +1: karta odwraca się w prawo nad spiralą, pod nią następna; -1: poprzednia wraca na wierzch
+// ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w lewo = następna, w prawo = poprzednia; karta idzie za palcem =====
+// następna: kartka wychodzi zza spirali i kładzie się na wierzch (wolny brzeg jedzie w lewo, za palcem);
+// poprzednia: wierzchnia kartka odwraca się nad spiralą w prawo i odsłania poprzednią.
+let FL = null;   // trwa przewracanie: {dir, k1, top, go}
+const FA = 100;   // kąt schowanej kartki: tuż za krawędzią (90°), żeby ruszała od razu za palcem
+function flipStart(dir) {   // dir +1: następna wychodzi zza spirali na wierzch; -1: wierzchnia odwraca się w prawo, pod nią poprzednia
   const k0 = S.card[S.t], k1 = k0 + dir;
   if (k1 < 0 || k1 > lastCard(S.t) + 1) return null;
-  const top = dir > 0 ? drawStage(k0, k1, 0) : drawStage(k1, k0, 180);
-  return FL = { dir, k1, top };
+  const go = dir < 0, top = go ? drawStage(k0, k1, 0) : drawStage(k1, k0, FA);
+  return FL = { dir, k1, top, go };
 }
-function flipSet(p) { FL.top.style.transition = 'none'; FL.top.style.transform = `rotateY(${(FL.dir > 0 ? p : 1 - p) * 180}deg)`; }
+function flipSet(p) { FL.top.style.transition = 'none'; FL.top.style.transform = `rotateY(${(FL.go ? p : 1 - p) * FA}deg)`; }
 function flipEnd(p, done) {   // p: ile już przewrócone (0–1); done: dokończ, inaczej karta wraca
-  const f = FL, ms = Math.round(420 * (done ? 1 - p : p) + 120), to = (done === f.dir > 0 ? 180 : 0);
+  const f = FL, ms = Math.round(420 * (done ? 1 - p : p) + 120), to = (done === f.go ? FA : 0);
   f.top.style.transition = `transform ${ms}ms cubic-bezier(.3,.7,.4,1)`; f.top.style.transform = `rotateY(${to}deg)`;
   if (done && p > 0) szelest(Math.max(.25, ms / 1000));   // przyciski grają szelest same (w chwili dotknięcia)
   let fin = false; const end = () => { if (fin) return; fin = true; FL = null; if (done) { S.card[S.t] = f.k1; S.follow[S.t] = f.k1 === lastCard(S.t); } render(); };
@@ -310,10 +335,60 @@ function editRow(nr) {
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };
 }
 
+// ===== NOWY KOD z zeszytu: − = 0, + = 1 → wspólna lista kodów (t50razem_v1_added), ten sam zapis co w RAZEM / MOJE —
+// kod od razu widzą wszystkie aplikacje. Ostatni kod dopisany tutaj można cofnąć (zeszyt_v1_ostatni).
+const LASTK = 'zeszyt_v1_ostatni';
+function addCodeSheet() {
+  const t = S.t, nr = S.codes[t].length + 1, w = S.book[t].pos[nr];
+  if (w.k !== S.card[t]) go(w.k);
+  const notes = jget(K.notes(t)), v = [0, 0, 0], ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="sheet"><h3>Nowy kod · Nr ${fmt(nr)}</h3>
+    <div class="s">Karta ${w.k} · ${partName(w.k, w.p)} · wiersz ${w.r}. Dotknij znaku: − = 0, + = 1.</div>
+    <div class="kod">${v.map((_, i) => `<button data-i="${i}">−</button>`).join('')}<b id="kdV">000</b></div>
+    <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="mecz, np. PAO-RAD (nieobowiązkowo)" value="${esc(notes[nr] || '')}">
+    <div class="s2">Kod trafi do wszystkich aplikacji (RAZEM, SZUKAJ, MOJE).</div>
+    <div class="bb"><button id="kdNo">Anuluj</button><button id="kdNt">Tylko mecz</button><button id="kdOk" class="pri">Zapisz kod</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove(), inp = $('ntIn');
+  ov.querySelectorAll('.kod button').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; v[i] ^= 1; b.textContent = v[i] ? '+' : '−'; b.classList.toggle('on', !!v[i]); $('kdV').textContent = v.join('');
+  });
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('kdNo').onclick = close;
+  $('kdNt').onclick = () => { putNotes(t, { [nr]: inp.value }); close(); render(); };
+  $('kdOk').onclick = () => {
+    const code = v.join('');
+    readCodes(t);   // czytaj-zmień-zapisz: nie gubi kodów dopisanych w innej aplikacji
+    if (S.codes[t].length + 1 !== nr) { alert('W międzyczasie dopisano kod w innej aplikacji — sprawdź kartę i dopisz jeszcze raz.'); close(); render(); return; }
+    if (!lsSet(TABS[t].key, readAdded(t) + code)) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, JSON.stringify({ n: nr, c: code, t: Date.now() }));
+    if (inp.value.trim()) putNotes(t, { [nr]: inp.value });
+    close(); readCodes(t); S.follow[t] = true; render();
+  };
+}
+function undoCode() {
+  const t = S.t, z = jobj(LASTK), add = readAdded(t), n = S.codes[t].length;
+  if (!z || z.n !== n || add.slice(-3) !== z.c) { render(); return; }
+  if (!confirm(`Cofnąć kod ${z.c} (Nr ${fmt(n)})? Zniknie też w RAZEM, SZUKAJ i MOJE.`)) return;
+  if (!lsSet(TABS[t].key, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+  lsSet(LASTK, 'null'); readCodes(t); render();
+}
+
 $('prev').onclick = () => flipTo(S.card[S.t] - 1);
 $('next').onclick = () => flipTo(S.card[S.t] + 1);
 $('lastB').onclick = () => go(lastCard(S.t));
-$('cardT').onclick = () => { const L = lastCard(S.t), v = prompt(`Która karta? (0–${L})`, S.card[S.t]); if (v && /^\d+$/.test(v.trim())) go(+v); };
+// przejście do wpisanej karty
+const goCard = () => {
+  const v = $('goIn').value.trim(), L = lastCard(S.t);
+  if (!/^\d+$/.test(v)) return;
+  if (+v > L + 1) { alert(`Nie ma karty ${v} — ostatnia to ${L}.`); return; }
+  $('goIn').value = ''; $('goIn').blur();
+  if (+v !== S.card[S.t]) { szelest(); go(+v); }
+};
+$('goB').onclick = goCard;
+$('goIn').onkeydown = e => { if (e.key === 'Enter') goCard(); };
+$('cardT').onclick = () => $('goIn').focus();
+$('addB').onclick = () => addCodeSheet();
 { const st = $('card'); let d = null, noClick = 0;   // przeciąganie palcem (i myszką): karta przewraca się za palcem
   st.addEventListener('pointerdown', e => { if (FL || (e.pointerType === 'mouse' && e.button)) return; d = { id: e.pointerId, x: e.clientX, y: e.clientY, on: false, p: 0, v: 0, x1: e.clientX, t1: e.timeStamp }; });
   st.addEventListener('pointermove', e => {
@@ -321,18 +396,19 @@ $('cardT').onclick = () => { const L = lastCard(S.t), v = prompt(`Która karta? 
     const dx = e.clientX - d.x, dy = e.clientY - d.y;
     if (!d.on) {
       if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) { if (Math.abs(dy) > 12) d = null; return; }
-      if (!flipStart(dx > 0 ? 1 : -1)) { d = null; return; }
+      if (!flipStart(dx < 0 ? 1 : -1)) { d = null; return; }
       d.on = true; try { st.setPointerCapture(e.pointerId); } catch (x) {}
     }
-    d.p = Math.max(0, Math.min(1, FL.dir * dx / (FL.top.offsetWidth * .85)));
+    d.p = Math.max(0, Math.min(1, -FL.dir * dx / (FL.top.offsetWidth * .85)));
     d.v = (e.clientX - d.x1) / Math.max(1, e.timeStamp - d.t1); d.x1 = e.clientX; d.t1 = e.timeStamp;
     flipSet(d.p);
   });
   const up = (e, cancel) => { if (!d || e.pointerId !== d.id) return; const dd = d; d = null; if (!dd.on) return; noClick = Date.now();
-    const v = e.timeStamp - dd.t1 < 90 ? FL.dir * dd.v : 0;   // szybkie machnięcie też przewraca (tylko gdy palec był w ruchu)
+    const v = e.timeStamp - dd.t1 < 90 ? -FL.dir * dd.v : 0;   // szybkie machnięcie też przewraca (tylko gdy palec był w ruchu)
     flipEnd(dd.p, !cancel && (dd.p > .35 || v > .45)); };
   st.addEventListener('pointerup', e => up(e)); st.addEventListener('pointercancel', e => up(e, true));
-  st.addEventListener('click', e => { if (FL || Date.now() - noClick < 400) return; const r = e.target.closest('.r'); if (r && +r.dataset.nr && !r.classList.contains('off')) editRow(+r.dataset.nr); });
+  st.addEventListener('click', e => { if (FL || Date.now() - noClick < 400) return; const r = e.target.closest('.r'); if (!r || !+r.dataset.nr || r.classList.contains('off')) return;
+    if (+r.dataset.nr === S.codes[S.t].length + 1) addCodeSheet(); else editRow(+r.dataset.nr); });
 }
 document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') flipTo(S.card[S.t] - 1); if (e.key === 'ArrowRight') flipTo(S.card[S.t] + 1); });
 window.addEventListener('resize', () => { if (!FL && S.book[S.t]) render(); });
