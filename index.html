@@ -70,16 +70,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 [data-theme=day] .sheet input{background:#fff}
 .sheet .bb{display:flex;gap:8px;margin-top:10px}.sheet .bb button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:15px;font-weight:700}
 .sheet .bb button.pri{background:var(--or);border-color:var(--or);color:#fff}
-.sheet #ntIn,.fl input{text-transform:uppercase}
-.fotob{display:block;width:100%;margin:0 0 8px;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:15px;font-weight:700}
-.sheet .fb{display:block;text-align:center;background:var(--or);color:#fff;border-radius:9px;padding:12px;font-size:16px;font-weight:800;margin-top:8px;cursor:pointer}
-.sheet .fb.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
-.sheet .fb input{display:none}
-.sheet .mu{color:var(--mu);font-size:12px;margin-top:8px}.sheet a{color:var(--or2)}
-.sheet .wait{text-align:center;padding:22px 0;font-size:15px}
-.fl{max-height:52vh;overflow:auto;margin-top:6px}
-.fl .it{display:flex;gap:6px;align-items:center;margin-top:5px}.fl .it span{flex:none;width:70px;color:var(--mu);font-size:12.5px}
-.fl .it input{flex:1;min-width:0;padding:7px 8px;font-size:15px}.fl .it em{flex:none;font-size:11px;color:var(--mu);max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sheet #ntIn{text-transform:uppercase}
 </style>
 </head>
 <body>
@@ -118,7 +109,6 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <button id="lastB" class="lastb" title="karta z ostatnim kodem">⏭ ost.</button>
   </div>
   <div class="info" id="info"></div>
-  <button class="fotob" id="fotoB">📷 Mecze ze zdjęcia karty</button>
   <div id="card"></div>
   <div class="hint">Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Przesuń kartę palcem w bok — następna / poprzednia.</div>
 </main>
@@ -215,7 +205,6 @@ function render() {
   const k = Math.min(Math.max(0, S.card[t]), L + 1); S.card[t] = k;
   $('msg').innerHTML = S.seedErr[t] ? `<div class="err">Nie udało się wczytać bazy kodów ${TABS[t].name} (plik z aplikacji MOJE). Połącz z internetem i otwórz ZESZYT jeszcze raz. Teraz widać tylko kody dopisane w telefonie.</div>` : '';
   $('cardT').innerHTML = `KARTA ${k} <small>z ${L}</small>`;
-  $('fotoB').textContent = `📷 Mecze ze zdjęcia karty ${k}`;
   $('prev').disabled = k <= 0; $('next').disabled = k > L;
   $('lastB').classList.toggle('on', k === L);
   const w = S.book[t].pos[n];
@@ -257,102 +246,9 @@ function editRow(nr) {
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };
 }
 
-// ===== MECZE ZE ZDJĘCIA: Claude czyta skróty drużyn z karty zeszytu i wpisuje je obok kodów =====
-// Zdjęcie idzie prosto z telefonu do Claude (klucz API użytkownika, zapisany tylko w tym telefonie: zeszyt_v1_klucz).
-const KEYK = 'zeszyt_v1_klucz', SDK_URL = './anthropic-sdk-0.132.1.mjs';   // oficjalne @anthropic-ai/sdk (MIT), jeden plik
-const FOTO_SCHEMA = { type: 'object', additionalProperties: false, required: ['wiersze'], properties: { wiersze: { type: 'array', items: {
-  type: 'object', additionalProperties: false, required: ['czesc', 'wiersz', 'mecz'], properties: { czesc: { type: 'integer' }, wiersz: { type: 'integer' }, mecz: { type: 'string' } } } } } };
-const FOTO_SYS = `Odczytujesz zdjęcie jednej karty z papierowego zeszytu z meczami piłkarskimi. Karta jest w kratkę, podzielona pionową kreską na części (zwykle 2: lewa i prawa połowa). W każdej części wiersze są numerowane od 1 (czerwone linie po wierszach 10 i 20). W wierszu są trzy znaki kodu (kreska „−” albo plus „+”), a obok nazwa meczu zapisana skrótami drużyn, np. PAO-RAD, RAK-TOR, GKS-CRA.
-Przepisz nazwę meczu z każdego wiersza dokładnie tak, jak jest napisana: wielkie litery, myślnik między drużynami. Pomiń liczby i dopiski obok nazwy (np. 1, 1', 49, wynik 2:1) oraz numer karty w kółku. Wiersze bez nazwy albo nieczytelne pomiń. Gdy przy wierszu są dwa mecze (jeden wciśnięty), podaj ten zapisany w linii wiersza.
-Odpowiedz listą: czesc (1 = lewa połowa, 2 = prawa połowa; przy 4 częściach 1–4 od lewej), wiersz (numer wiersza w tej części), mecz.`;
-function cardText(t, k) {   // kody karty z tabeli — pomagają dopasować wiersze na zdjęciu
-  const c = S.codes[t], P = S.book[t].cards[k].parts, nm = P.length === 2 ? ['lewa połowa', 'prawa połowa'] : P.map((_, p) => `część ${p + 1}`);
-  return `To jest karta ${k}. Kody w wierszach (z tabeli; − = 0, + = 1):\n` + P.map((rows, p) => `Część ${p + 1} (${nm[p]}): ` + rows.map((row, i) =>
-    `w${i + 1} ${!row.nr ? 'pusty' : row.nr > c.length ? 'bez kodu' : [...c[row.nr - 1]].map(mark).join('')}${row.pre.length + row.dop.length ? ' (+ dopisany mecz)' : ''}`).join(', ')).join('\n');
-}
-async function shrink(file, max = 1568) {   // zdjęcie → JPEG ≤ 1568 px (tyle Claude i tak czyta), base64
-  const img = await createImageBitmap(file);
-  const s = Math.min(1, max / Math.max(img.width, img.height)), cv = document.createElement('canvas');
-  cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
-  cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-  return cv.toDataURL('image/jpeg', 0.85).split(',')[1];
-}
-async function readPhoto(t, k, file) {   // → {Nr: 'PAO-RAD', …}
-  const { default: Anthropic } = await import(SDK_URL);
-  const client = new Anthropic({ apiKey: lsGet(KEYK, ''), dangerouslyAllowBrowser: true });
-  let res;
-  try {
-    res = await client.beta.messages.create({
-      model: 'claude-opus-5-5', max_tokens: 16000,
-      betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',   // gdy Claude odmówi — ponowienie na innym modelu po stronie serwera
-      output_config: { effort: 'medium', format: { type: 'json_schema', schema: FOTO_SCHEMA } },
-      system: FOTO_SYS,
-      messages: [{ role: 'user', content: [
-        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: await shrink(file) } },
-        { type: 'text', text: cardText(t, k) }] }],
-    });
-  } catch (e) {
-    if (e instanceof Anthropic.AuthenticationError) throw new Error('Zły klucz API — sprawdź go i wpisz jeszcze raz.');
-    if (e instanceof Anthropic.PermissionDeniedError) throw new Error('Klucz API nie ma dostępu (sprawdź konto na platform.claude.com).');
-    if (e instanceof Anthropic.RateLimitError) throw new Error('Za dużo zapytań naraz — spróbuj za minutę.');
-    if (e instanceof Anthropic.APIConnectionError) throw new Error('Brak połączenia z internetem.');
-    if (e instanceof Anthropic.APIError) throw new Error(`Błąd Claude (${e.status || '?'}): ${e.message}`);
-    throw e;
-  }
-  if (res.stop_reason === 'refusal') throw new Error('Claude nie odczytał tego zdjęcia (odmowa). Spróbuj innego zdjęcia.');
-  const txt = (res.content.find(b => b.type === 'text') || {}).text || '';
-  let out; try { out = JSON.parse(txt); } catch (e) { throw new Error('Nie udało się odczytać odpowiedzi — spróbuj jeszcze raz.'); }
-  const P = S.book[t].cards[k].parts, m = {};
-  for (const x of out.wiersze || []) { const row = (P[x.czesc - 1] || [])[x.wiersz - 1], v = String(x.mecz || '').trim().toUpperCase(); if (row && row.nr && v) m[row.nr] = v.slice(0, 40); }
-  return m;
-}
-function fotoSheet() {
-  const t = S.t, k = S.card[t], ov = document.createElement('div'); ov.className = 'ov';
-  const sh = document.createElement('div'); sh.className = 'sheet'; ov.appendChild(sh); document.body.appendChild(ov);
-  const close = () => ov.remove();
-  ov.onclick = e => { if (e.target === ov) close(); };
-  const keyView = () => {
-    sh.innerHTML = `<h3>Klucz do czytania zdjęć</h3>
-      <div class="s">Zdjęcie odczytuje Claude. Potrzebny jest klucz API: <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener">platform.claude.com → API Keys</a> (konto z doładowaniem). Koszt: ok. 20–30 groszy za zdjęcie. Klucz zostaje tylko w tym telefonie.</div>
-      <input id="kyIn" type="password" autocomplete="off" placeholder="sk-ant-…">
-      <div class="bb"><button id="kyNo">Anuluj</button><button id="kyOk" class="pri">Zapisz klucz</button></div>`;
-    $('kyNo').onclick = close;
-    $('kyOk').onclick = () => { const v = $('kyIn').value.trim(); if (!/^sk-ant-/.test(v)) { alert('To nie wygląda na klucz API (zaczyna się od sk-ant-).'); return; } lsSet(KEYK, v); startView(); };
-  };
-  const startView = () => {
-    sh.innerHTML = `<h3>📷 Mecze ze zdjęcia — karta ${k}</h3>
-      <div class="s">Zrób zdjęcie całej karty ${k} z zeszytu: obie połowy, wszystkie wiersze, prosto z góry, przy dobrym świetle. Claude odczyta skróty meczów i wpisze je obok kodów — przed zapisem możesz je poprawić.</div>
-      <label class="fb">📷 Zrób zdjęcie<input id="fCam" type="file" accept="image/*" capture="environment"></label>
-      <label class="fb sec">🖼 Wybierz z galerii<input id="fGal" type="file" accept="image/*"></label>
-      <div class="mu">Klucz API zapisany · <a href="#" id="kyCh">zmień klucz</a></div>
-      <div class="bb"><button id="fNo">Zamknij</button></div>`;
-    $('fNo').onclick = close;
-    $('kyCh').onclick = e => { e.preventDefault(); keyView(); };
-    $('fCam').onchange = $('fGal').onchange = e => { const f = e.target.files[0]; if (f) run(f); };
-  };
-  const run = async f => {
-    sh.innerHTML = `<h3>📷 Karta ${k}</h3><div class="wait">Czytam zdjęcie… (zwykle 20–60 s)</div>`;
-    try { review(await readPhoto(t, k, f)); }
-    catch (e) { sh.innerHTML = `<h3>📷 Karta ${k}</h3><div class="err">${esc(e.message || e)}</div><div class="bb"><button id="fNo">Zamknij</button><button id="fAg" class="pri">Jeszcze raz</button></div>`;
-      $('fNo').onclick = close; $('fAg').onclick = startView; }
-  };
-  const review = m => {
-    const notes = jget(K.notes(t)), nrs = Object.keys(m).map(Number).sort((a, b) => a - b), pos = S.book[t].pos;
-    if (!nrs.length) { sh.innerHTML = `<h3>📷 Karta ${k}</h3><div class="err">Nie odczytałem żadnego meczu. Zrób wyraźniejsze zdjęcie całej karty.</div><div class="bb"><button id="fNo">Zamknij</button><button id="fAg" class="pri">Jeszcze raz</button></div>`;
-      $('fNo').onclick = close; $('fAg').onclick = startView; return; }
-    sh.innerHTML = `<h3>📷 Karta ${k}: odczytane mecze (${nrs.length})</h3><div class="s">Popraw, jeśli coś źle odczytane. Puste pole = bez zmian.</div>
-      <div class="fl">${nrs.map(nr => `<div class="it"><span>${partName(k, pos[nr].p).split(' ')[0]} ${pos[nr].r}</span><input data-nr="${nr}" value="${esc(m[nr])}" autocapitalize="characters">${notes[nr] && notes[nr] !== m[nr] ? `<em title="było">było: ${esc(notes[nr])}</em>` : ''}</div>`).join('')}</div>
-      <div class="bb"><button id="fNo">Anuluj</button><button id="fOk" class="pri">Zapisz mecze</button></div>`;
-    $('fNo').onclick = close;
-    $('fOk').onclick = () => { const w = {}; sh.querySelectorAll('.fl input').forEach(i => { if (i.value.trim()) w[i.dataset.nr] = i.value; }); putNotes(t, w); close(); render(); };
-  };
-  if (lsGet(KEYK, '')) startView(); else keyView();
-}
-
 $('prev').onclick = () => go(S.card[S.t] - 1);
 $('next').onclick = () => go(S.card[S.t] + 1);
 $('lastB').onclick = () => go(lastCard(S.t));
-$('fotoB').onclick = fotoSheet;
 $('cardT').onclick = () => { const L = lastCard(S.t), v = prompt(`Która karta? (0–${L})`, S.card[S.t]); if (v && /^\d+$/.test(v.trim())) go(+v); };
 $('card').onclick = e => { const r = e.target.closest('.r'); if (r && +r.dataset.nr && !r.classList.contains('off') && !$('card')._sw) editRow(+r.dataset.nr); };
 { let x0 = 0, y0 = 0; const el = $('card');   // przesunięcie palcem w bok = następna / poprzednia karta
