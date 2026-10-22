@@ -23,7 +23,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 
 - Kody wpisujemy w tercjach: 1. tercja wiersze 1–10, 2. tercja 11–20, 3. tercja 21–28. Karta podzielona na pół → 6 tercji.
 - Karty numerowane od **0** (numer w kółku w prawym górnym rogu), czerwone linie po wierszach 10 i 20.
-- **Karta 0**: tercja 3 = wiersze 21–26 w obu połowach; w tabeli TRÓJKA to kody Nr 1–51 (lewa 26, prawa 25 — do potwierdzenia).
+- **Karta 0**: tercja 3 = wiersze 21–26 w obu połowach; w tabeli TRÓJKA to kody Nr 1–51 (lewa 26, prawa 25 — potwierdzone przez użytkownika).
 - **Karta 1**: wyjątkowo podział na 4 części × 28 wierszy = kody Nr 52–163 (sprawdzone na zdjęciu).
 - **Karta 2** od Nr 164 (sprawdzone), dalej standard 2 × 28 = 56 kodów.
 - **Karta 60** od Nr 3421, prawa połowa od Nr 3449 (sprawdzone na zdjęciu, przy wierszach zapisane 3426, 3431 …). Od karty 60 standard
