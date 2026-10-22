@@ -1,0 +1,15 @@
+{
+ "id": "zeszyt-v1",
+ "name": "ZESZYT — karty z kodami T50 / T60",
+ "short_name": "ZESZYT",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#12151c",
+ "theme_color": "#1b1f2a",
+ "icons": [
+  {"src": "zeszyt-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+  {"src": "zeszyt-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+ ]
+}
