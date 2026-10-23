@@ -72,8 +72,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mod{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;line-height:1.5}
 .mod b{color:var(--tx)}.mod small{color:var(--mu)}
 .mod .now{display:flex;align-items:center;gap:8px;margin-top:2px}.mod .now button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 9px;font-weight:700}
-.mod .lg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:4px;color:var(--mu);font-size:11.5px}.mod .lg span{display:inline-flex;align-items:center;gap:4px}
-:where(.mod .lg) i{display:inline-block;width:26px;height:13px;border-radius:3px;background:var(--paper)}
+/* legenda modelu — jedna, pod zeszytem (gdy model jest na kartach) */
+#leg .lg{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 12px;margin-top:10px;color:var(--mu);font-size:12px}#leg .lg span{display:inline-flex;align-items:center;gap:4px}
+:where(#leg .lg) i{display:inline-block;width:26px;height:13px;border-radius:3px;background:var(--paper)}
 .kd.msz{outline:1.5px dotted #8b93a7;outline-offset:-1px}
 .paper .anno{position:absolute;left:calc(var(--sq)*.7);right:calc(var(--sq)*1.7);top:calc(var(--sq)*28.2);padding:2px 6px;border:1.5px dashed #9aa3b5;border-radius:6px;background:#fffbe8;color:var(--ink2);font:600 calc(var(--sq)*.5)/1.3 system-ui,sans-serif}
 #appbar .mdl{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:4px 5px;border:1.5px solid #1f8a4c;background:transparent;color:var(--tx);transition:transform .15s;cursor:pointer}
@@ -193,12 +194,13 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div class="info" id="info"></div>
   <div id="mod"></div>
   <div id="card" class="stage"></div>
+  <div id="leg"></div>
   <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. MODELE na pasku (dotknij 2×) — lista modeli; dotknij modelu — pokaże się na kartach; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj.</div>
 </main>
 
 <script>
 "use strict";
-const APP_VER = '1.5.0';
+const APP_VER = '1.5.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -360,7 +362,6 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
   return `<div class="mod">${modStat(M)}
     ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go">Pokaż ▶</button></div>` : ''}
     <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? '<button data-act="last">Idź ▶</button>' : ''}</div>
-    <div class="lg">${modLeg()}</div>
     <div class="bb2"><button class="sec" data-act="stat">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
 }
 function modLista() {   // lista „Modele” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
@@ -495,6 +496,7 @@ function render() {
   S.modMk = S.mod ? modMk(S.mod, lsGet(PRZK, '0') === '1') : {};
   mdlUpd(ML);
   $('mod').innerHTML = modLista();
+  $('leg').innerHTML = S.mod ? `<div class="lg">${modLeg()}</div>` : '';
   drawStage(k);
 }
 // ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====

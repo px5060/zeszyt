@@ -81,7 +81,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   szary = po BUST. Wiersze modelu bez udziału w grze (także po WIN w tej samej połowie) — neutralna ramka. Gra w toku: migająca
   ramka następnego kroku („▶ 2”). Gry nie zachodzą na siebie. (1.4.0 miało kolor na całą połowę — użytkownik chce numer przy każdym kroku.)
 - **Opis wybranego modelu**: wynik, CZEKAJ / GRAJ + „Pokaż ▶”, „Na kartach: …” (bieżąca gra / ostatnia + „Idź ▶” / wszystkie),
-  legenda, „📊 Statystyki”, „🔍 Prześledź”.
+  „📊 Statystyki”, „🔍 Prześledź”. **Legenda jedna, pod zeszytem** (od 1.5.1, gdy model jest na kartach) — nie przy każdym modelu.
 - **🔍 Prześledź** (`zeszyt_v1_przesledz`): **WŁ** = wszystkie dotychczasowe gry modelu na całym zeszycie (przewracając karty);
   **WYŁ** = tylko bieżąca gra (przy CZEKAJ — ostatnia). Osobny ekran z listą / siatką (1.1.1–1.3.0) usunięty — oglądamy na kartach.
 - **Statystyki** (📊): stan (krok, miejsce, stawka, ile już postawione, ile da WIN), gry / WIN / BUST / najdłużej / bilans /
