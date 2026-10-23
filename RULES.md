@@ -62,28 +62,32 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   Gra tylko gdy karta się przewróci (nie przy cofnięciu).
 - **Przejście do karty**: pole „nr karty” + „Idź ▶” (albo Enter); dotknięcie „KARTA …” ustawia kursor w tym polu.
 
-## Model — podświetlenie układu (od 1.1.0)
+## Modele — podświetlenie układów (od 1.1.0, lista od 1.5.0)
 
-- **Model 16·18·27** (wybrany przez użytkownika z przeszukania zeszytu): + na środku (`x1x`), w każdej połowie liczą się tylko wiersze
-  16, 18 i 27 (3 kroki na połowę). Połowa bez + w tych wierszach = **pusta trójka** → gra od następnej połowy, krok za krokiem do WIN;
-  po WIN nowy cykl od następnej połowy. Gra do 9. kroku. Połowy krótsze niż 27 wierszy (karta 0) pomijane; karta 1 — 4 części po kolei.
-- Wynik na 15 361 kodach: 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, bilans +11 472 zł (kurs 3.0, stawki 8, 8, 16, 32…).
-- Przycisk modelu **16·18·27** na pasku (do 1.1.1: 2. dotknięcie włącza / wyłącza podświetlenie; od 1.2.0 — patrz kafelek niżej), wybór w `zeszyt_v1_model`.
-- **Kolory na karcie (od 1.4.1)**: **fioletowy** = start (pusta trójka, cała trójka; znaczek „start” od 1.4.2 przy 3., ostatnim pustym wierszu — to on uruchamia grę); każdy rozegrany wiersz
-  z **numerem kroku**: **czerwony** = krok bez trafienia (np. 4, 5, 6, 7, 8), **zielony** = WIN („WIN 9”); ciemnoczerwony = BUST,
-  szary = po BUST. Wiersze modelu bez udziału w grze (także te po WIN w tej samej połowie) — tylko neutralna ramka.
-  Gra w toku: rozegrane kroki na czerwono z numerami i migająca ramka następnego kroku („▶ 2”). Gry nie zachodzą na siebie.
-  (1.4.0 miało jeden kolor na całą połowę i znaczki „4–6” — użytkownik chce numer przy każdym kroku.)
-- **🔍 Prześledź** (od 1.4.0 — przełącznik, `zeszyt_v1_przesledz`): **WŁ** = kolory wszystkich gier na całym zeszycie (na kartach,
-  przewracając karty); **WYŁ** = tylko bieżąca gra (otwarta; przy CZEKAJ — ostatnia gra, „Idź ▶” przenosi do niej).
-  Osobny ekran z listą gier / siatką kodów (1.1.1–1.3.0) usunięty — użytkownik chce oglądać model na kartach zeszytu.
-- Karta 0 (brak wiersza 27, model jej nie liczy): wiersze 16 i 18 w szarej kropkowanej ramce + adnotacja na dole kartki
-  (policzone z kartą 0 na 2 krokach — wynik bez zmian, bo w obu połowach wiersz 16 ma + na środku).
-- **Kafelek modelu na pasku** (od 1.2.0): kwadracik **żółty = CZEKAJ** (na pustą trójkę), **miga (żółty/zielony) = GRAJ** — otwarta gra,
-  obok numer następnego kroku (np. ▶2). Stan liczony zawsze, także gdy podświetlenie kart jest wyłączone.
-  1. dotknięcie powiększa, 2. włącza podświetlenie i otwiera **statystyki modelu**: stan (CZEKAJ / GRAJ — krok, miejsce, stawka,
-  ile już postawione, ile da WIN), gry / WIN / BUST / najdłużej / bilans / największy spadek, tabela WIN na kroku (stawka, ile, zysk),
-  WIN w połowie gry, ostatnie gry (dotknięcie → karta), przyciski: wyłącz / włącz podświetlenie, 🔍 Prześledź (WŁ / WYŁ), Zamknij.
-- Opis nad kartą (gdy podświetlenie włączone): wynik, CZEKAJ / GRAJ + „Pokaż ▶”, „Na kartach: …” (wszystkie gry / bieżąca /
-  ostatnia + „Idź ▶”), legenda, „📊 Statystyki”, „🔍 Prześledź” (WŁ / WYŁ).
-- Kolejne modele dopisuje się w `MODELE` w `index.html` (`w` wiersze, `poz` cyfra, `czekaj` pustych trójek, `limit` kroków).
+- Model: + na środku (`x1x`), w każdej połowie liczą się tylko 3 wiersze modelu (3 kroki na połowę). Połowa bez + w tych wierszach
+  = **pusta trójka** → gra od następnej połowy, krok za krokiem do WIN; po WIN nowy cykl od następnej połowy.
+  Gra do kroku `limit` (domyślnie 9). Połowy krótsze niż najwyższy wiersz modelu (karta 0) pomijane; karta 1 — 4 części po kolei.
+  Opcje: start po 1 albo 2 pustych trójkach; warunek **„+ z boku”** — gramy tylko, gdy w pustej trójce jest kod z + na początku
+  albo na końcu (100 / 001 / 101); gdy same `−−−` — tej gry nie gramy, czekamy (bez stawiania) na + na środku.
+- Wbudowany **16·18·27** (wybrany przez użytkownika): 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, +11 472 zł (kurs 3.0, stawki 8, 8, 16…).
+  Sprawdzone w aplikacji też 1·6·17 (138 gier, 0 BUST, +7 968) i 16·18·27 z „+ z boku” (108 gier, 0 BUST, +9 320) — zgodne z analizą.
+- **Lista „Modele” nad kartą (1.5.0)**, rozwijana (`zeszyt_v1_modele_otw`): **zwinięta = żadnych oznaczeń na kartach**.
+  Rozwinięta: każdy model w wierszu (kwadracik żółty CZEKAJ / migający GRAJ, nazwa, opcje, stan). **Dotknięcie modelu** = jego wiersze
+  na kartach + opis pod nim, co się dzieje (`zeszyt_v1_model`); ponowne dotknięcie — odznacza. Jeden model na kartach naraz.
+  „＋ Dodaj model”: 3 wiersze (1–28), start po 1 / 2 pustych, warunek brak / + z boku, gra do kroku 5–12 → własne modele w
+  `zeszyt_v1_modele` (JSON); 🗑 usuwa własny model (wbudowanego nie).
+- **Kolory na karcie**: **fioletowy** = start (pusta trójka, cała trójka; „start” przy 3., ostatnim pustym wierszu — on uruchamia grę);
+  każdy rozegrany wiersz z **numerem kroku**: **czerwony** = bez trafienia, **zielony** = WIN („WIN 9”); ciemnoczerwony = BUST,
+  szary = po BUST. Wiersze modelu bez udziału w grze (także po WIN w tej samej połowie) — neutralna ramka. Gra w toku: migająca
+  ramka następnego kroku („▶ 2”). Gry nie zachodzą na siebie. (1.4.0 miało kolor na całą połowę — użytkownik chce numer przy każdym kroku.)
+- **Opis wybranego modelu**: wynik, CZEKAJ / GRAJ + „Pokaż ▶”, „Na kartach: …” (bieżąca gra / ostatnia + „Idź ▶” / wszystkie),
+  legenda, „📊 Statystyki”, „🔍 Prześledź”.
+- **🔍 Prześledź** (`zeszyt_v1_przesledz`): **WŁ** = wszystkie dotychczasowe gry modelu na całym zeszycie (przewracając karty);
+  **WYŁ** = tylko bieżąca gra (przy CZEKAJ — ostatnia). Osobny ekran z listą / siatką (1.1.1–1.3.0) usunięty — oglądamy na kartach.
+- **Statystyki** (📊): stan (krok, miejsce, stawka, ile już postawione, ile da WIN), gry / WIN / BUST / najdłużej / bilans /
+  największy spadek, WIN na kroku (stawka, ile, zysk), WIN w połowie gry, ostatnie gry (dotknięcie → karta),
+  przyciski Pokaż na kartach / Ukryj, Prześledź, Zamknij.
+- **Kafelek MODELE na pasku**: kwadracik na każdy model — żółty = CZEKAJ, miga = GRAJ (przy jednym grającym — numer kroku ▶n);
+  zielone tło, gdy model jest pokazany na kartach. 1. dotknięcie powiększa, 2. rozwija listę modeli.
+- Karta 0 (brak wiersza 27): przy pokazanym modelu wiersze, które są, w szarej kropkowanej ramce + adnotacja na dole kartki.
+- Wbudowane modele: `MODELE` w `index.html` (`w` wiersze; opcjonalnie `czekaj`, `war: 'boki'`, `limit`).

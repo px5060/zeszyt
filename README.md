@@ -13,9 +13,8 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
 - Dotknięcie wiersza → mecz (skróty drużyn, np. PAO-RAD); Enter = następny wiersz. Własne dane ZESZYTU tylko pod kluczami `zeszyt_…`.
 - Kartka zawsze w kolorach zeszytu (biała, niebieska kratka, czarny tusz, czerwone linie).
 - Na górze pasek przycisków do pozostałych aplikacji (jak w MOJE) + ZESZYT.
-- Kafelek modelu 16·18·27 na pasku: kwadracik żółty = czekaj, miga = graj (z numerem kroku). Dotknij 2× — statystyki modelu
-  i podświetlenie na całym zeszycie: czerwone kroki, zielony WIN, ramki wokół wierszy modelu.
-  Połowa w grze ma jeden kolor: fioletowy start, czerwony bez trafienia, zielony WIN. „🔍 Prześledź” WŁ — wszystkie gry na kartach,
-  WYŁ — tylko bieżąca (albo ostatnia) gra.
+- **Modele** (lista nad kartą, rozwijana; MODELE na pasku): dotknij modelu — jego wiersze na kartach (fioletowy start, czerwone kroki
+  z numerami, zielony WIN) i opis, co się dzieje; „🔍 Prześledź” — wszystkie gry modelu na całym zeszycie; „Zwiń” — oznaczenia znikają.
+  „＋ Dodaj model” — własne modele (3 wiersze, start, warunek „+ z boku”, gra do kroku). Kwadracik żółty = czekaj, miga = graj.
 
 Bez budowania — `index.html` jest gotowy. Ikony: `python3 make_icons.py`. Zasady pracy: `RULES.md`.
