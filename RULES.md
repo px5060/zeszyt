@@ -86,4 +86,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   ile już postawione, ile da WIN), gry / WIN / BUST / najdłużej / bilans / największy spadek, tabela WIN na kroku (stawka, ile, zysk),
   WIN w połowie gry, ostatnie gry (dotknięcie → karta), przyciski: wyłącz / włącz podświetlenie, 🔍 Prześledź, Zamknij.
 - Opis nad kartą (gdy podświetlenie włączone) krótki: wynik, CZEKAJ / GRAJ + „Pokaż ▶”, legenda, „📊 Statystyki”, „🔍 Prześledź”.
+- **Prześledź od 1.3.0 — zakładka „Gry” (domyślna)**, bo siatka kodów była nieczytelna (uwaga użytkownika): jedna gra = jeden wiersz
+  (najnowsze na górze): karty od–do, „pusta …” (połowa z pustą trójką), rząd 9 kwadratów = kroki (czerwony = bez trafienia,
+  zielony = WIN, odstęp co 3 = następna połowa), z prawej „WIN n”. Otwarta gra na górze: „TERAZ”, migający kwadrat, „GRAJ n”.
+  Filtry: Wszystkie / WIN 1–3 / 4–6 / 7–9 (/ BUST). Dotknięcie gry → karta z pustą trójką. Siatka kodów została w zakładce „Karty”.
 - Kolejne modele dopisuje się w `MODELE` w `index.html` (`w` wiersze, `poz` cyfra, `czekaj` pustych trójek, `limit` kroków).
