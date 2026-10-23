@@ -14,7 +14,8 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
 - Kartka zawsze w kolorach zeszytu (biała, niebieska kratka, czarny tusz, czerwone linie).
 - Na górze pasek przycisków do pozostałych aplikacji (jak w MOJE) + ZESZYT.
 - **Modele** (lista nad kartą, rozwijana; MODELE na pasku): dotknij modelu — jego wiersze na kartach (fioletowy start, czerwone kroki
-  z numerami, zielony WIN) i opis, co się dzieje; „🔍 Prześledź” — wszystkie gry modelu na całym zeszycie; „Zwiń” — oznaczenia znikają.
+  z numerami, zielony WIN, kolejne kroki do limitu w pomarańczowych ramkach) i opis, co się dzieje; można wybrać kilka modeli naraz —
+  wspólny wiersz ma „×2”; w grze oznaczenia tylko do limitu (w Prześledź także kroki po limicie, szare, do „LOST”); „🔍 Prześledź” — wszystkie gry na całym zeszycie; „Zwiń” — oznaczenia znikają.
   Modele dodaje się z SZUKAJ W ZESZYCIE (link na dole listy); nazwa modelu ta sama w obu miejscach. Kwadracik żółty = czekaj, miga = graj.
 - **🔎 SZUKAJ W ZESZYCIE** (`/zeszyt/modele/`, na pasku „🔎 SZUKAJ W Z”): wyszukiwarka modeli — sam ustawiasz: gramy na (X+X / +XX / XX+), start (po 1 / 2 pustych,
   od razu), warunek, grę do kroku, ile gier co najmniej i ile BUST najwyżej; widać, które modele są teraz w grze.
