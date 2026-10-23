@@ -93,9 +93,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mi .sq{flex:none;width:13px;height:13px;border-radius:3px;background:#f2c230;box-shadow:0 0 0 1px #0007}.mods .mi .sq.g{animation:sqB .5s steps(1) infinite}
 .mods .mi .mn{min-width:0;line-height:1.2}.mods .mi .mn b{font-size:15.5px}.mods .mi .mn small{display:block;color:var(--mu);font-size:11.5px}
 .mods .mi .ms{margin-left:auto;flex:none;font-size:12.5px}
-.mods .mi .del{flex:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 7px;font-size:14px}
+.mods .mi.lost{border:3px solid transparent;border-image:repeating-linear-gradient(-45deg,#a8423a 0 8px,#e8e2e2 8px 16px) 3}.mods .mi .lo{color:#e0483e;font-weight:800}
+.mods .mi .del{flex:none;text-decoration:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 7px;font-size:14px}
 .mods .mod{margin:0;border:0;border-top:1px dashed var(--bd);border-radius:0}
-.mods .mfoot{display:flex;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
+.mods .mfoot span{flex:1 1 100%}.mods .mfoot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
 .mods .mfoot a{text-decoration:none;margin-left:auto;flex:none;background:#1f8a4c;border:1px solid #1f8a4c;color:#fff;border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
 .ztabs{display:flex;gap:6px;margin:0 0 8px}.ztabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px;font-size:14.5px;font-weight:800}
 .ztabs button.on{background:var(--or);border-color:var(--or);color:#fff}
@@ -218,10 +219,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div id="tB" hidden></div>
 </main>
 
-<script src="silnik.js?v=1.7.2"></script>
+<script src="silnik.js?v=1.8.1"></script>
 <script>
 "use strict";
-const APP_VER = '1.7.3';
+const APP_VER = '1.8.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -353,8 +354,9 @@ function modLista() {   // lista „Modele” nad kartą: zwinięta — bez ozna
   if (otw) {
     for (const M of ML) {
       const on = M.id === sel, T = R(M.id).teraz;
-      h += `<div class="mi${on ? ' sel' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${T && T.gra ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${modDop(M)}</small></span>`
-        + `<span class="ms">${modTeraz(R(M.id), true)}</span>${M.id.startsWith('u') ? `<button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button>` : ''}</div>`;
+      const lo = modLost(R(M.id));   // po LOST-cie (od LOST-u bez WIN) — biało-czerwona ramka jak w MOJE
+      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${T && T.gra ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
+        + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/?m=${modKod(M)}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a>${M.id.startsWith('u') ? `<button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button>` : ''}</div>`;
       if (on) h += modPanel(R(M.id));
     }
     h += `<div class="mfoot">${sel && R(sel) ? '' : '<span>Dotknij modelu — pokaże się na kartach.</span>'}<a href="modele/">🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
@@ -516,6 +518,7 @@ $('tB').addEventListener('click', e => {
 $('mod').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, id = b.dataset.id, t = S.t;
+  if (a === 'szuk') return;   // link do SZUKAJ W ZESZYCIE — bez zmiany wyboru modelu
   if (a === 'tog') lsSet(OTWK, modOtw() ? '0' : '1');
   else if (a === 'sel') lsSet(MODK, lsGet(MODK, '') === id ? '' : id);
   else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); if (lsGet(MODK, '') === id) lsSet(MODK, ''); }
@@ -666,6 +669,8 @@ window.addEventListener('focus', refresh);
 (async () => {
   $('ver').textContent = APP_VER;
   $('info').textContent = 'Wczytuję kody…';
+  { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
+    if (m) { lsSet(MODK, m); lsSet(OTWK, '1'); history.replaceState(null, '', location.pathname); } }
   await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
   render();
 })();
