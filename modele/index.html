@@ -144,6 +144,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <div class="fr"><span>Start gry</span><button class="ch" data-g="czekaj" data-v="1">po 1 pustej trójce</button><button class="ch" data-g="czekaj" data-v="2">po 2 pustych</button></div>
     <div class="fr"><span>Warunek na pustej trójce</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="boki">+ z boku</button></div>
     <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="stan" data-v="od1">od 1. kroku</button></div>
+    <div class="fr" id="krokFr"></div>
     <div class="nums">
       <label>Gra do kroku<select id="fL"></select></label>
       <label>Gier co najmniej<input id="fG" type="number" inputmode="numeric" min="0"></label>
@@ -163,7 +164,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.7';
+const APP_VER = '1.9.8';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -173,7 +174,7 @@ const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === 
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
-const DOMYSL = { poz: ['1'], czekaj: ['1'], war: [''], stan: ['all'], L: 9, G: 100, B: 2, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
+const DOMYSL = { poz: ['1'], czekaj: ['1'], war: [''], stan: ['all'], krok: ['all'], L: 9, G: 100, B: 2, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
 // +XX (początek) i gra „od razu” usunięte — nie ma takich modeli do k9 (decyzja użytkownika); stare zapisy filtrów czyścimy
 let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
 F.poz = F.poz.filter(v => v === '1' || v === '2'); F.czekaj = F.czekaj.filter(v => v === '1' || v === '2');
@@ -224,8 +225,15 @@ const stanSuma = (R, L) => { const c = { gra: 0, czeka: 0, od1: 0 }; R.forEach(x
 
 // ===== filtry =====
 const pokazChipy = () => document.querySelectorAll('.ch[data-g]').forEach(b => b.classList.toggle('on', F[b.dataset.g].includes(b.dataset.v)));
+// filtr „Krok gry” (od 1.9.8): na którym kroku jest model w grze (kilka naraz, od 1. kroku do limitu); „każdy” = bez filtra
+function krokChipy() {
+  F.krok = F.krok.filter(v => v === 'all' || +v <= F.L); if (!F.krok.length) F.krok = ['all'];
+  $('krokFr').innerHTML = '<span>Krok gry (model już w grze)</span><button class="ch" data-g="krok" data-v="all">każdy</button>'
+    + Array.from({ length: F.L }, (_, i) => `<button class="ch" data-g="krok" data-v="${i + 1}">k${i + 1}</button>`).join('');
+}
+const krokOk = (t, za, L) => F.krok[0] === 'all' || !!za && t >= 1 && t <= L && F.krok.includes(String(t));
 function pokazFiltry() {
-  pokazChipy();
+  krokChipy(); pokazChipy();
   $('fL').innerHTML = [5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === F.L ? ' selected' : ''}>${x}</option>`).join('');
   $('fG').value = F.G; $('fB').value = F.B; $('fS').value = F.S; $('lM').value = F.lM; $('lB').value = F.lB; $('lR').value = F.lR;
 }
@@ -233,11 +241,12 @@ const chipKlik = e => {
   const b = e.target.closest('.ch'); if (!b) return;
   const g = b.dataset.g, v = b.dataset.v;
   if (g === 'stan' || g === 'lstan') F[g] = [v];   // stan — jeden wybór
+  else if (g === 'krok') F.krok = v === 'all' ? ['all'] : F.krok.includes(v) ? (F.krok.filter(x => x !== v).length ? F.krok.filter(x => x !== v) : ['all']) : [...F.krok.filter(x => x !== 'all'), v];
   else if (F[g].includes(v)) { if (F[g].length > 1) F[g] = F[g].filter(x => x !== v); }   // co najmniej jeden zaznaczony
   else F[g] = [...F[g], v];
   pokazChipy();
 };
-$('flt').addEventListener('click', chipKlik); $('fltL').addEventListener('click', e => { const b = e.target.closest('.ch[data-g="lstan"]'); if (b) { F.lstan = [b.dataset.v]; pokazChipy(); } });
+$('flt').addEventListener('click', chipKlik); $('fL').addEventListener('change', () => { F.L = +$('fL').value; krokChipy(); pokazChipy(); }); $('fltL').addEventListener('click', e => { const b = e.target.closest('.ch[data-g="lstan"]'); if (b) { F.lstan = [b.dataset.v]; pokazChipy(); } });
 const czytajFiltry = () => { F.L = +$('fL').value; F.G = Math.max(0, +$('fG').value || 0); F.B = Math.max(0, +$('fB').value || 0); F.S = $('fS').value; lsSet(FK, JSON.stringify(F)); };
 
 // ===== szukanie: wszystkie zestawy 3 wierszy × wybrane „gramy na” × start × warunek, w paczkach (żeby ekran nie stał) =====
@@ -258,7 +267,7 @@ function szukaj() {
       for (const x of s) { if (x > L) { bust++; bal -= sumSt(L); } else bal += KURS * STAWKI[x - 1] - sumSt(x); if (x > mx) mx = x; }
       if (bust > F.B) continue;
       const gd = Z.teraz ? gdzieGra(Z) : null, za = gd ? gd.za : 0;
-      if (!stanPasuje(F.stan[0], Z.teraz, za, L)) continue;
+      if (!stanPasuje(F.stan[0], Z.teraz, za, L) || !krokOk(Z.teraz, za, L)) continue;
       wyn.push({ M, g, bust, bal, mx, teraz: Z.teraz, bez: Z.bez, za, gd });
     }
     $('wyn').innerHTML = `Szukam… <b>${Math.round(100 * i / wsz)}%</b> (znaleziono ${fmt(wyn.length)})`;
@@ -300,7 +309,7 @@ function szukajLost() {
       const wToku = Z.teraz > L; if (!wToku && !(s.length && s[s.length - 1] > L)) continue;   // ostatnia gra nie była przegrana
       const D = lostDane(s, L, Z.teraz); if (D.bust < F.lM || D.bust > F.lB || D.rep > F.lR) continue;
       const gd = Z.teraz && !wToku ? gdzieGra(Z) : null, za = gd ? gd.za : 0;
-      if (!stanPasuje(F.lstan[0], Z.teraz, za, L)) continue;
+      if (!stanPasuje(F.lstan[0], Z.teraz, za, L) || !krokOk(Z.teraz, za, L)) continue;
       wyn.push({ M, ...D, teraz: Z.teraz, bez: Z.bez, za, gd, stan: wToku ? 'lost' : stanGry(Z.teraz, za, L) || 'nic' });
     }
     $('wynL').innerHTML = `Szukam… <b>${Math.round(100 * i / wsz)}%</b> (znaleziono ${fmt(wyn.length)})`;
@@ -310,7 +319,7 @@ function szukajLost() {
   };
   krok();
 }
-function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${F.poz.map(v => CEL[+v]).join(', ')}</b> · start <b>${F.czekaj.map(v => `po ${v}`).join(', ')}</b> · warunek <b>${F.war.map(v => v ? '+ z boku' : 'bez').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
+function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${F.poz.map(v => CEL[+v]).join(', ')}</b> · start <b>${F.czekaj.map(v => `po ${v}`).join(', ')}</b> · warunek <b>${F.war.map(v => v ? '+ z boku' : 'bez').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b>${F.krok[0] === 'all' ? '' : ` · krok gry <b>${F.krok.map(v => 'k' + v).join(', ')}</b>`} <button class="ch" id="lsZm">zmień ▶</button>`; }
 function pokazLost() {
   const R = W.lost || [], Z = wZeszycie(), L = F.L;
   $('wynL').innerHTML = `Modele po LOST: <b>${fmt(R.length)}</b> (przeszukano ${fmt(W.przeszukanoL)}) · LOST ${F.lM}–${F.lB}, LOST po LOST ≤ ${F.lR}. ${stanSuma(R, L)}`;
@@ -326,7 +335,7 @@ function pokazLost() {
 }
 function pokazWyniki() {
   const R = W.wynik, Z = wZeszycie(), L = F.L;
-  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (przeszukano ${fmt(W.przeszukano)}): gra do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}.`
+  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (przeszukano ${fmt(W.przeszukano)}): gra do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}${F.krok[0] === 'all' ? '' : `, krok gry ${F.krok.map(v => 'k' + v).join(', ')}`}.`
     + (R.length ? ` ${stanSuma(R, L)}` : '');
   $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => {
     const M = x.M, jest = Z.some(z => sameModel(z, M));
