@@ -192,3 +192,16 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   przytrzymany model trafia też na karty. Zdjęcie modelu z kart (dotknięcie) zamyka jego opis.
 - Puszczenie palca po przytrzymaniu nie przełącza modelu (`S.lpSkip`); przesunięcie palca > 10 px (przewijanie) przerywa przytrzymanie;
   na wierszu modelu bez zaznaczania tekstu i bez menu przytrzymania przeglądarki. Na 🔎 i 🗑 przytrzymanie nie działa.
+
+## SZUKAJ W ZESZYCIE — stan gry: GRAJ teraz / CZEKAJ na grę / od 1. kroku (od 1.9.5)
+- Prośba użytkownika — filtr „Stan teraz” (i „Stan po LOST”) ma trzy możliwości (+ „wszystkie”):
+  - **GRAJ teraz** — następny krok modelu wypada w **następnym wierszu** (Nr ostatniego kodu + 1), dowolny krok;
+  - **CZEKAJ na grę** — model w grze, kolejny krok (2., 3.…) wypada **za kilka wierszy**;
+  - **od 1. kroku** — po pustej trójce (1 albo 2 pustych, „po triggerze”) gra rusza od 1. kroku (także gdy to następny wiersz).
+- Na kafelku modelu w grze linia: „Krok 3 (16 zł) · **za 14 wierszy** · Nr 15 375, karta 273 L w.27” (przy 1. kroku: „— od 1. kroku
+  (po pustej trójce)”; przy następnym wierszu: „następny wiersz”). Za ile wierszy = Nr wiersza kroku − liczba kodów.
+- Znaczki: zielony migający GRAJ teraz, pomarańczowy CZEKAJ na grę, fioletowy OD 1. KROKU; żółty „czeka na pustą trójkę” (bez gry),
+  czerwony „po BUST” (krok za limitem — nie gramy) — te dwa tylko przy „wszystkie”. Sortowanie „najpierw najbliższa gra” = wg za ile wierszy.
+- Silnik: `szybkiModel` zwraca też `at` = [połowa, wiersz] następnego kroku (sprawdzone z `liczModel`: 217/217 zgodnych). Statystyki
+  modelu: „▶ GRAJ teraz / ⏳ CZEKAJ na grę / ⏳ OD 1. KROKU — krok n, za N wierszy”; krok za limitem = „⏸ po BUST”.
+- „Przenieś do zeszytu” dokłada model do wybranych w ZESZYCIE (od 1.9.0 można kilka naraz), nie zastępuje ich.
