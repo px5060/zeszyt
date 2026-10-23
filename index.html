@@ -57,6 +57,25 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .r .nt{min-width:0;display:flex;align-items:center;gap:2px;padding-left:2px;white-space:nowrap;overflow:hidden;font:700 calc(var(--sq)*1.02)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink);text-transform:uppercase}
 .r .nt i{font-style:normal;overflow:hidden;text-overflow:ellipsis}
 .r .hc{text-align:center;font:700 calc(var(--sq)*.72)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
+.r .kd{grid-column:span 3;display:grid;grid-template-columns:repeat(3,1fr);align-items:center;align-self:stretch;margin:1px 0;border-radius:3px}
+/* model: ramka wokół 3 znaków w wierszach modelu; przerywana = pusta trójka (start gry), czerwony = krok bez trafienia, zielony = WIN */
+.kd.mf{outline:1.5px solid var(--ink2);outline-offset:-1px}
+.kd.mp{outline:1.5px dashed var(--ink2);outline-offset:-1px;background:#e9edf5}
+.kd.mk{background:#ffc4bf;outline:2px solid var(--red);outline-offset:-2px}
+.kd.mw{background:#8fd9a3;outline:2px solid #1f8a4c;outline-offset:-2px}
+.kd.mb{background:var(--red);color:#fff;outline:2px solid #7a1512;outline-offset:-2px}
+.kd.mz{background:#f6e3e1;outline:1.5px dashed var(--red);outline-offset:-1px}
+.kd.mn{outline:2px dashed var(--red);outline-offset:-2px;animation:mn 1.2s ease-in-out infinite}
+@keyframes mn{50%{background:#ffd9d6}}
+.r .ks{flex:none;padding:0 3px;border-radius:3px;font:800 calc(var(--sq)*.56)/1.35 system-ui,sans-serif;color:#fff;background:var(--red)}
+.r .ks.w{background:#1f8a4c}.r .ks.b{background:#7a1512}.r .ks.z{background:#c9a3a0}.r .ks.n{background:#fff;color:var(--red);border:1px dashed var(--red)}
+.mod{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;line-height:1.5}
+.mod b{color:var(--tx)}.mod small{color:var(--mu)}
+.mod .now{display:flex;align-items:center;gap:8px;margin-top:2px}.mod .now button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 9px;font-weight:700}
+.mod .lg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:4px;color:var(--mu);font-size:11.5px}.mod .lg span{display:inline-flex;align-items:center;gap:4px}
+.mod .lg i{display:inline-block;width:26px;height:13px;border-radius:3px;background:var(--paper)}
+#appbar .mdl{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:4px 5px;border:1.5px solid #1f8a4c;background:transparent;color:var(--tx);transition:transform .15s;cursor:pointer}
+#appbar .mdl.on{background:#1f8a4c;color:#fff}#appbar .mdl.big{transform:scale(1.45);position:relative;z-index:5;box-shadow:0 0 0 2px #fff6}
 .r.last{background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--hl2)}
 .r.nxt .no::before{content:'▸';position:absolute;left:calc(var(--sq)*-.55);color:var(--hl2);font:700 calc(var(--sq)*.7)/var(--sq) system-ui}
 .r.off{visibility:hidden}
@@ -133,13 +152,14 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   </div>
   <div id="undo"></div>
   <div class="info" id="info"></div>
+  <div id="mod"></div>
   <div id="card" class="stage"></div>
-  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +.</div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. 🟩 na pasku (dotknij 2×) — model podświetlony na całym zeszycie.</div>
 </main>
 
 <script>
 "use strict";
-const APP_VER = '1.0.1';
+const APP_VER = '1.1.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -216,13 +236,71 @@ function readCodes(t) {   // → czy coś się zmieniło
 const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
 const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
 
+// ===== MODEL — układ podświetlony na całym zeszycie (🟩 na pasku, wybór w zeszyt_v1_model) =====
+// W każdej połowie liczą się tylko wiersze modelu (3 kroki na połowę), WIN = + na środku (poz 1). Połowa bez + w tych wierszach
+// = pusta trójka → gra od następnej połowy, krok za krokiem, aż do WIN; po WIN nowy cykl od następnej połowy.
+// Połowy krótsze niż najwyższy wiersz modelu (karta 0) pomijamy. Stawki 8, 8, 16, 32…, kurs 3.0, gra do kroku `limit`.
+const MODELE = { m1: { w: [16, 18, 27], poz: 1, czekaj: 1, limit: 9, nazwa: '16·18·27' } };
+const MODK = 'zeszyt_v1_model', KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
+const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
+const PRI = { f: 0, p: 1, z: 2, k: 3, n: 4, b: 5, w: 6 };   // gdy w jednym wierszu są dwa kody (dopisek) — mocniejszy znak wygrywa
+function liczModel(t, id) {   // → {…model, mx, mk: 'k.p.r' → {c, s: [kroki]}, gry: [{s, h, k, p, r}], teraz}
+  const M = MODELE[id], c = S.codes[t], n = c.length, B = S.book[t], mx = Math.max(...M.w), mk = {}, gry = [];
+  const put = (key, cl, s) => { const o = mk[key] || (mk[key] = { c: cl, s: [] }); if (PRI[cl] > PRI[o.c]) o.c = cl; if (s) o.s.push(s); };
+  let gra = false, nobs = 0, st = 0, h = 0, pus = [], teraz = null;
+  scan: for (let k = 0; k < B.cards.length; k++) for (let p = 0; p < B.cards[k].parts.length; p++) {
+    if (partsOf(k)[p] < mx) continue;
+    const rows = B.cards[k].parts[p], keys = [];
+    if (gra) h++;
+    let hit = false;
+    for (const r of M.w) {
+      const row = rows[r - 1], key = `${k}.${p}.${r}`;
+      if (row.nr > n) { teraz = { k, p, r, nr: row.nr, key }; break scan; }
+      keys.push(key);
+      for (const x of [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop]) {
+        if (x > n) continue;
+        const plus = c[x - 1][M.poz] === '1';
+        if (gra) {
+          st++;
+          put(key, st > M.limit ? 'z' : plus ? 'w' : st === M.limit ? 'b' : 'k', st);
+          if (plus) gry.push({ s: st, h, k, p, r });
+        }
+        if (plus) { hit = true; break; }
+      }
+      if (hit) break;
+    }
+    if (hit) { gra = false; nobs = 0; st = 0; h = 0; pus = []; continue; }
+    if (!gra && ++nobs === M.czekaj) { pus.push(...keys); pus.forEach(x => put(x, 'p')); gra = true; st = 0; h = 0; pus = []; }
+    else if (!gra) pus.push(...keys);
+  }
+  if (teraz) { teraz.gra = gra; teraz.s = st + 1; if (gra) put(teraz.key, 'n', st + 1); }
+  return { ...M, mx, mk, gry, teraz };
+}
+function modPanel(t) {   // opis modelu nad kartą: wynik na całym zeszycie i co teraz
+  const M = S.mod; if (!M) return '';
+  const G = M.gry, win = G.filter(g => g.s <= M.limit), bal = G.reduce((a, g) => a + (g.s <= M.limit ? KURS * STAWKI[g.s - 1] - sumSt(g.s) : -sumSt(M.limit)), 0);
+  const hh = {}; win.forEach(g => hh[g.h] = (hh[g.h] || 0) + 1);
+  const T = M.teraz, gdzie = T ? `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})` : '';
+  const now = !T ? '' : T.gra ? `<b>Teraz: GRA</b> — następny krok <b>${T.s}</b>: ${gdzie}` : `<b>Teraz:</b> czekamy na pustą trójkę — ${gdzie}`;
+  const ch = (cl, tx) => `<span><i class="kd ${cl}"></i>${tx}</span>`;
+  return `<div class="mod"><b>🟩 Model ${M.nazwa}</b> — + na środku, w każdej połowie wiersze ${M.w.join(', ')}; gra po ${M.czekaj} pustej trójce, do ${M.limit}. kroku.<br>
+    Gier <b>${G.length}</b> · WIN <b>${win.length}</b> · BUST <b>${G.length - win.length}</b> · najdłużej <b>${Math.max(0, ...G.map(g => g.s))}</b> kroków · bilans <b>${bal >= 0 ? '+' : '−'}${fmt(Math.abs(bal))} zł</b> <small>(kurs 3.0, stawki 8, 8, 16…)</small><br>
+    WIN w połowie gry: ${Object.keys(hh).sort((a, b) => a - b).map(x => `${x}. — <b>${hh[x]}</b>`).join(' · ')}
+    ${T ? `<div class="now"><span>${now}</span><button id="modGo">Pokaż ▶</button></div>` : ''}
+    <div class="lg">${ch('mf', 'wiersz modelu')}${ch('mp', 'pusta trójka (start)')}${ch('mk', 'krok bez trafienia')}${ch('mw', 'WIN')}${ch('mb', 'BUST')}${ch('mn', 'następny krok')}</div></div>`;
+}
+
 function rowHtml(t, row, r, cls, k, p, notes, q) {
   const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, beg = row.pre.length ? row.pre[0] : nr, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
   cls = [cls, nr ? '' : 'pu', nr && beg <= n && end >= n ? 'last' : '', beg === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
   const ms = cd ? [...cd].map(d => `<span class="m">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
   const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
   const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
-  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span>${ms}<span class="nt">${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
+  // wiersz modelu: ramka wokół znaków, kolor i numer kroku
+  const M = S.mod, mo = M && M.w.includes(r) && partsOf(k)[p] >= M.mx, mm = mo && M.mk[`${k}.${p}.${r}`];
+  const kc = mo ? ' m' + (mm ? mm.c : 'f') : '', s = mm ? mm.s.join('·') : '';
+  const ks = !mm || mm.c === 'p' ? '' : `<span class="ks ${mm.c}">${q ? '' : { w: 'WIN ', b: 'BUST ', n: '▶ ' }[mm.c] || ''}${s}</span>`;
+  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}</span><span class="nt">${ks}${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
 }
 function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
   const notes = jget(K.notes(t)), card = S.book[t].cards[k], P = partsOf(k), q = P.length === 4, W = q ? [5, 4, 4, 4] : [10, 10];
@@ -257,6 +335,10 @@ function render() {
   const z = jobj(LASTK), un = z && z.n === n && c[n - 1] === z.c && S.nAdd[t] > 0;   // cofnąć można tylko kod dopisany tutaj i wciąż ostatni
   $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
   if (un) $('undoB').onclick = undoCode;
+  const mid = lsGet(MODK, ''), mkey = `${mid}:${n}:${c[n - 1]}`;
+  if (!MODELE[mid]) { S.mod = null; S.modKey = ''; } else if (S.modKey !== mkey) { S.mod = liczModel(t, mid); S.modKey = mkey; }
+  $('mod').innerHTML = modPanel(t);
+  if ($('modGo')) $('modGo').onclick = () => { const T = S.mod.teraz; if (T.k !== S.card[t]) { szelest(); go(T.k); } };
   drawStage(k);
 }
 // ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====
@@ -281,6 +363,14 @@ function szelest(len = .4) {
 { const el = $('appbar'), b = document.createElement('button'), upd = () => { b.textContent = lsGet(SNDK, '1') === '1' ? '🔊' : '🔇'; b.title = 'szelest kartki'; };
   b.className = 'thm'; upd(); el.appendChild(b);
   b.onclick = () => { lsSet(SNDK, lsGet(SNDK, '1') === '1' ? '0' : '1'); upd(); szelest(.3); }; }
+// przycisk modelu: 1. dotknięcie powiększa, 2. włącza / wyłącza podświetlenie na całym zeszycie (jak przyciski aplikacji)
+{ const el = $('appbar'), id = 'm1', b = document.createElement('button'), upd = () => { const on = lsGet(MODK, '') === id; b.classList.toggle('on', on); b.title = `model ${MODELE[id].nazwa} — ${on ? 'wyłącz' : 'podświetl'} (dotknij 2×)`; };
+  b.className = 'mdl'; b.textContent = '🟩 ' + MODELE[id].nazwa; upd(); el.appendChild(b);
+  b.onclick = () => {
+    clearTimeout(b._t);
+    if (!b.classList.contains('big')) { el.querySelectorAll('.big').forEach(x => x.classList.remove('big')); b.classList.add('big'); b._t = setTimeout(() => b.classList.remove('big'), 4000); return; }
+    b.classList.remove('big'); lsSet(MODK, lsGet(MODK, '') === id ? '' : id); upd(); if (S.book[S.t]) render();
+  }; }
 
 // ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w lewo = następna, w prawo = poprzednia; karta idzie za palcem =====
 // następna: kartka wychodzi zza spirali i kładzie się na wierzch (wolny brzeg jedzie w lewo, za palcem);

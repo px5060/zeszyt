@@ -20,7 +20,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   (− = 0, + = 1) → kod dopisany na koniec wspólnej listy `t50razem_v1_added` (czytaj-zmień-zapisz, jak w RAZEM / MOJE), więc od razu widzą go
   RAZEM, SZUKAJ i MOJE (MOJE oznacza go jako „wpisany w innej aplikacji”). Tylko kolejny kod (Nr n+1), poprzednich kodów ZESZYT nie zmienia.
   „↩ Cofnij” — tylko kod dopisany w ZESZYCIE i wciąż ostatni (`zeszyt_v1_ostatni`).
-- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`, `zeszyt_v1_dzwiek`, `zeszyt_v1_ostatni`).
+- Własne dane tylko pod kluczami z przedrostkiem `zeszyt_` (`zeszyt_v1_theme`, `zeszyt_v1_notes_t50`, `zeszyt_v1_dzwiek`, `zeszyt_v1_ostatni`,
+  `zeszyt_v1_model`).
 
 ## Karta (zeszyt TRÓJKA)
 
@@ -60,3 +61,15 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Szelest kartki** przy przewracaniu (dźwięk robiony w aplikacji z szumu, bez plików audio); 🔊/🔇 na pasku (`zeszyt_v1_dzwiek`).
   Gra tylko gdy karta się przewróci (nie przy cofnięciu).
 - **Przejście do karty**: pole „nr karty” + „Idź ▶” (albo Enter); dotknięcie „KARTA …” ustawia kursor w tym polu.
+
+## Model — podświetlenie układu (od 1.1.0)
+
+- **Model 16·18·27** (wybrany przez użytkownika z przeszukania zeszytu): + na środku (`x1x`), w każdej połowie liczą się tylko wiersze
+  16, 18 i 27 (3 kroki na połowę). Połowa bez + w tych wierszach = **pusta trójka** → gra od następnej połowy, krok za krokiem do WIN;
+  po WIN nowy cykl od następnej połowy. Gra do 9. kroku. Połowy krótsze niż 27 wierszy (karta 0) pomijane; karta 1 — 4 części po kolei.
+- Wynik na 15 361 kodach: 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, bilans +11 472 zł (kurs 3.0, stawki 8, 8, 16, 32…).
+- Przycisk **🟩 16·18·27** na pasku: 1. dotknięcie powiększa, 2. włącza / wyłącza podświetlenie na całym zeszycie (`zeszyt_v1_model`).
+- Na karcie: ramka wokół 3 znaków w wierszach modelu; przerywana szara = pusta trójka (start gry); **czerwony** = krok bez trafienia
+  (z numerem kroku); **zielony** = WIN (np. „WIN 4”); ciemnoczerwony = BUST; pulsująca przerywana = następny krok otwartej gry.
+- Nad kartą opis: gry / WIN / BUST / bilans, w której połowie gry przyszedł WIN, „Teraz” (czekamy na pustą trójkę albo następny krok) + „Pokaż ▶”.
+- Kolejne modele dopisuje się w `MODELE` w `index.html` (`w` wiersze, `poz` cyfra, `czekaj` pustych trójek, `limit` kroków).

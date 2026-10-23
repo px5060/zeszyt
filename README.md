@@ -13,5 +13,6 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
 - Dotknięcie wiersza → mecz (skróty drużyn, np. PAO-RAD); Enter = następny wiersz. Własne dane ZESZYTU tylko pod kluczami `zeszyt_…`.
 - Kartka zawsze w kolorach zeszytu (biała, niebieska kratka, czarny tusz, czerwone linie).
 - Na górze pasek przycisków do pozostałych aplikacji (jak w MOJE) + ZESZYT.
+- 🟩 16·18·27 na pasku (dotknij 2×) — model podświetlony na całym zeszycie: czerwone kroki, zielony WIN, ramki wokół wierszy modelu.
 
 Bez budowania — `index.html` jest gotowy. Ikony: `python3 make_icons.py`. Zasady pracy: `RULES.md`.
