@@ -80,7 +80,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   na dole listy link „🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶”). Własne modele w `zeszyt_v1_modele` (JSON); 🗑 usuwa model (wbudowanego nie).
 - **Kolory na karcie**: **fioletowy** = start (pusta trójka, cała trójka; „start” przy 3., ostatnim pustym wierszu — on uruchamia grę);
   każdy rozegrany wiersz z **numerem kroku**: **czerwony** = bez trafienia, **zielony** = WIN („WIN 9”); ciemnoczerwony = BUST,
-  kroków za limitem **nie oznaczamy** (od 1.9.0 — ani w bieżącej grze, ani w Prześledź; wcześniej szare). Wiersze modelu bez udziału w grze (także po WIN w tej samej połowie) — neutralna ramka. Gra w toku: migająca
+  kroki za limitem: w bieżącej grze **bez oznaczeń**, w **Prześledź** szare z numerami aż do trafienia kończącego przegraną grę („LOST 14”; od 1.9.1). Wiersze modelu bez udziału w grze (także po WIN w tej samej połowie) — neutralna ramka. Gra w toku: migająca
   ramka następnego kroku („▶ 2”), dalej **pomarańczowe przerywane ramki z numerami kolejnych kroków aż do limitu** (od 1.9.0, np. gra do k6,
   jesteśmy na k3 → ▶3, potem 4, 5, 6 — w tej połowie i następnych; za limitem nic). Gry nie zachodzą na siebie. (1.4.0 miało kolor na całą połowę — użytkownik chce numer przy każdym kroku.)
 - **Opis wybranego modelu**: wynik, CZEKAJ / GRAJ + „Pokaż ▶”, „Na kartach: …” (bieżąca gra / ostatnia + „Idź ▶” / wszystkie),
@@ -179,4 +179,6 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Wiersz oznaczony przez **2 (lub więcej) modele**: przy znaczku **„×2”**; kolor najważniejszy (▶ > WIN > BUST > krok > dalszy krok >
   start), numery kroków obu modeli po „/” (np. „4 / 2 ×2”). Na karcie 1 (wąsko) „×2” na rogu ramki. Legenda pod zeszytem: „×2 — wiersz 2 modeli”.
 - **Gra w toku**: ▶ następny krok miga, a kolejne kroki do limitu modelu mają pomarańczowe przerywane ramki z numerami.
-- **Za limitem — bez oznaczeń** (bieżąca gra i Prześledź): wiersze dalej mają tylko neutralną ramkę modelu. Liczenie gier się nie zmienia.
+- **Za limitem**: w bieżącej grze (i przy dalszych krokach) — bez oznaczeń, tylko neutralna ramka modelu: w grze jeszcze nie wiemy, co będzie,
+  więc oznaczamy tylko do kroku, do którego gra model. W **🔍 Prześledź** (historia) od 1.9.1 kroki po limicie są widoczne — szare
+  z numerami, a wiersz trafienia, które zamknęło przegraną grę: „LOST 14” (legenda: „po limicie (przegrana gra)”). Liczenie gier się nie zmienia.

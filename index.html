@@ -64,11 +64,11 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .kd.mk{background:#ffc4bf;outline:2px solid var(--red);outline-offset:-2px}
 .kd.mw{background:#8fd9a3;outline:2px solid #1f8a4c;outline-offset:-2px}
 .kd.mb{background:var(--red);color:#fff;outline:2px solid #7a1512;outline-offset:-2px}
-.kd.mpl{background:#fbe9db;outline:2px dashed var(--or);outline-offset:-2px}
+.kd.mpl{background:#fbe9db;outline:2px dashed var(--or);outline-offset:-2px}.kd.mz{background:#e6e3e3;outline:1.5px dashed #8a7f7e;outline-offset:-1px}
 .kd.mn{outline:2px dashed var(--red);outline-offset:-2px;animation:mn 1.2s ease-in-out infinite}
 @keyframes mn{50%{background:#ffd9d6}}
 .r .ks{flex:none;padding:0 3px;border-radius:3px;font:800 calc(var(--sq)*.56)/1.35 system-ui,sans-serif;color:#fff;background:var(--red)}
-.r .ks.w{background:#1f8a4c}.r .ks.p{background:#7a3fb0}.r .ks.b{background:#7a1512}.r .ks.pl{background:#fff;color:var(--or);border:1px dashed var(--or)}.r .ks .x2{margin-left:3px;padding:0 2px;border-radius:2px;background:#1d2433;color:#fff}.r .kd{position:relative}.r .kd>.x2{position:absolute;right:-4px;top:-6px;z-index:2;padding:0 2px;border-radius:2px;background:#1d2433;color:#fff;font:800 calc(var(--sq)*.45)/1.15 system-ui,sans-serif}.r .ks.n{background:#fff;color:var(--red);border:1px dashed var(--red)}
+.r .ks.w{background:#1f8a4c}.r .ks.p{background:#7a3fb0}.r .ks.b{background:#7a1512}.r .ks.z{background:#8a7f7e}.r .ks.pl{background:#fff;color:var(--or);border:1px dashed var(--or)}.r .ks .x2{margin-left:3px;padding:0 2px;border-radius:2px;background:#1d2433;color:#fff}.r .kd{position:relative}.r .kd>.x2{position:absolute;right:-4px;top:-6px;z-index:2;padding:0 2px;border-radius:2px;background:#1d2433;color:#fff;font:800 calc(var(--sq)*.45)/1.15 system-ui,sans-serif}.r .ks.n{background:#fff;color:var(--red);border:1px dashed var(--red)}
 .mod{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;line-height:1.5}
 .mod b{color:var(--tx)}.mod small{color:var(--mu)}
 .mod .now{display:flex;align-items:center;gap:8px;margin-top:2px}.mod .now button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 9px;font-weight:700}
@@ -222,7 +222,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.8.1"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.0';
+const APP_VER = '1.9.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -285,10 +285,11 @@ const modWybSet = (id, on) => { const a = modWyb().filter(x => x !== id); if (on
 function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
   // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
   const mk = {}, T = M.teraz, L = M.limit, B = S.book[S.t];
-  const wiersz = o => {   // tylko kroki do limitu (za limitem — bez oznaczeń)
-    const s = o.s.filter(x => x <= L), last = o.s[o.s.length - 1];
+  const wiersz = o => {   // bieżąca gra — kroki do limitu; Prześledź — także kroki po limicie (szare), aż do trafienia kończącego przegraną grę („LOST 14”)
+    const s = all ? o.s : o.s.filter(x => x <= L), last = o.s[o.s.length - 1];
     if (!s.length) return;
-    mk[o.key] = o.hit && last <= L ? { c: 'w', l: `WIN ${last}` } : s.includes(L) ? { c: 'b', l: `BUST ${L}` } : { c: 'k', l: s.join('·') };
+    mk[o.key] = o.hit && last <= L ? { c: 'w', l: `WIN ${last}` } : s.includes(L) ? { c: 'b', l: `BUST ${L}` }
+      : s[0] > L ? { c: 'z', l: o.hit ? `LOST ${last}` : s.join('·') } : { c: 'k', l: s.join('·') };
   };
   const gra = g => { g.pus.forEach((key, i, A) => mk[key] = { c: 'p', l: i === A.length - 1 ? 'start' : '' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };   // „start” przy 3. (ostatnim) pustym wierszu — to on uruchamia grę
   if (all) M.gry.forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
@@ -307,7 +308,7 @@ function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}
   return mk;
 }
 function modMkWsz(ML, all) {   // oznaczenia wszystkich wybranych modeli; wiersz kilku modeli: najważniejszy kolor, kroki po „/”, n = ile modeli
-  const mk = {}, waga = { n: 6, w: 5, b: 4, k: 3, pl: 2, p: 1 };
+  const mk = {}, waga = { n: 7, w: 6, b: 5, k: 4, z: 3, pl: 2, p: 1 };
   for (const M of ML) for (const [key, o] of Object.entries(modMk(M, all))) {
     const a = mk[key] || (mk[key] = { c: o.c, ls: [], n: 0, kto: [] });
     if (waga[o.c] > waga[a.c]) a.c = o.c;
@@ -325,7 +326,7 @@ function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
 const modGdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
 const modTeraz = (M, krot) => { const T = M.teraz; return !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : `: ${modGdzie(T)}`}`
   : `<span class="stan">CZEKAJ</span>${krot ? '' : T.bez ? ` — pusta trójka bez ${bokTx(M.poz)}, nie gramy (czekamy na ${CELTX[M.poz]}) — ${modGdzie(T)}` : ` na pustą trójkę — ${modGdzie(T)}`}`; };
-const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok'], ['mpl', 'dalsze kroki do limitu']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
+const modLeg = all => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok'], ['mpl', 'dalsze kroki do limitu'], ...(all ? [['mz', 'po limicie (przegrana gra)']] : [])].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
 // ===== ZAKŁADY — postawione zakłady na krokach modeli (zeszyt_v1_zaklady), jak „MOJE ZAKŁADY” w MOJE / SZUKAJ:
 // Nr wiersza · krok · postawione zł; wynik z kodu w tym wierszu: + w miejscu gry = WIN (+2 × stawka, kurs 3.0), inaczej przegrany (−stawka).
 const ZAKK = 'zeszyt_v1_zaklady';
@@ -438,7 +439,7 @@ function rowHtml(t, row, r, cls, k, p, notes, q) {
   const kc = mo ? ' m' + (mm ? mm.c : 'f') : sz ? ' msz' : '';
   const zak = mo && nr && S.zakNr.has(nr) ? '💰' : '';   // na tym wierszu postawiony zakład wybranego modelu
   const x2 = mm && mm.n > 1 ? `<b class="x2">×${mm.n}</b>` : '';   // ten sam wiersz w kilku wybranych modelach (karta 1 — wąsko: na rogu ramki)
-  const ks = mm && (mm.l || x2 && !q) ? `<span class="ks ${mm.c}" title="${esc(mm.kto.join('\n'))}">${q ? mm.l.replace(/start/g, 'S').replace(/WIN /g, 'W').replace(/BUST/g, 'B').replace(/ /g, '') : mm.l}${zak}${q ? '' : x2}</span>` : zak ? `<span class="ks n">${zak}</span>` : '';
+  const ks = mm && (mm.l || x2 && !q) ? `<span class="ks ${mm.c}" title="${esc(mm.kto.join('\n'))}">${q ? mm.l.replace(/start/g, 'S').replace(/WIN /g, 'W').replace(/BUST/g, 'B').replace(/LOST /g, 'L').replace(/ /g, '') : mm.l}${zak}${q ? '' : x2}</span>` : zak ? `<span class="ks n">${zak}</span>` : '';
   return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}${q ? x2 : ''}</span><span class="nt">${ks}${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
 }
 function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
@@ -482,7 +483,7 @@ function render() {
   S.modMk = modMkWsz(S.mods, lsGet(PRZK, '0') === '1');
   mdlUpd(ML);
   $('mod').innerHTML = modLista();
-  $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg()}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
+  $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(lsGet(PRZK, '0') === '1')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
   S.zakNr = new Set(zakGet().filter(z => S.mods.some(M => M.id === z.mid)).map(z => z.nr));
   const zp = zakGet().filter(z => zakRes(z) === 'pend').length; $('zbad').textContent = zp ? zp : '';
   $('ztabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.z === (S.tab || 'z')));
