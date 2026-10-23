@@ -72,7 +72,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Wbudowany **16·18·27** (wybrany przez użytkownika): 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, +11 472 zł (kurs 3.0, stawki 8, 8, 16…).
   Sprawdzone w aplikacji też 1·6·17 (138 gier, 0 BUST, +7 968) i 16·18·27 z „+ z boku” (108 gier, 0 BUST, +9 320) — zgodne z analizą.
 - **Lista „Modele” nad kartą (1.5.0)**, rozwijana (`zeszyt_v1_modele_otw`): **zwinięta = żadnych oznaczeń na kartach**.
-  Rozwinięta: każdy model w wierszu (kwadracik żółty CZEKAJ / migający GRAJ, nazwa, opcje, stan). **Dotknięcie modelu** = jego wiersze
+  Rozwinięta: każdy model w wierszu (kwadracik żółty CZEKAJ / migający GRAJ, nazwa, opcje, stan). Nagłówek listy bez znaczka „GRAJ: …”
+  (od 1.7.3, prośba użytkownika) — zielone GRAJ świeci tylko przy modelu na rozwiniętej liście. **Dotknięcie modelu** = jego wiersze
   na kartach + opis pod nim, co się dzieje (`zeszyt_v1_model`); ponowne dotknięcie — odznacza. Jeden model na kartach naraz.
   Modele dodaje się **tylko z SZUKAJ W ZESZYCIE** (od 1.7.2 — ręczne „＋ Dodaj model” w ZESZYCIE usunięte na prośbę użytkownika;
   na dole listy link „🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶”). Własne modele w `zeszyt_v1_modele` (JSON); 🗑 usuwa model (wbudowanego nie).
