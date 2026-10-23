@@ -1,0 +1,13 @@
+{
+  "name": "SZUKAJ MODELI",
+  "short_name": "SZUKAJ M",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#12151c",
+  "theme_color": "#1b1f2a",
+  "icons": [
+    { "src": "../zeszyt-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "../zeszyt-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

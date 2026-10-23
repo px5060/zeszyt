@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pl" data-themable>
+<script>try { const v = localStorage.getItem('zeszyt_v1_theme') || localStorage.getItem('px_theme'); if (v === 'day') document.documentElement.dataset.theme = 'day'; } catch (e) {}</script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1f2a">
+<title>SZUKAJ MODELI</title>
+<link rel="manifest" href="modele.webmanifest">
+<link rel="icon" href="../zeszyt-192.png">
+<link rel="apple-touch-icon" href="../zeszyt-192.png">
+<meta name="apple-mobile-web-app-title" content="SZUKAJ M">
+<style>
+:root{--bg:#12151c;--pan:#1b1f2a;--card:#242a38;--bd:#323a4d;--tx:#e8ebf2;--mu:#8b93a7;--gr:#1f8a4c;--gr2:#2ea85a;--ye:#f2c230;--red:#e0483e}
+:root[data-theme=day]{--bg:#eef1f6;--pan:#ffffff;--card:#e3e7ef;--bd:#c3cad8;--tx:#161a22;--mu:#566074;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:10;background:var(--pan);border-bottom:1px solid var(--bd);padding:8px 12px}
+header .t{display:flex;justify-content:space-between;align-items:center;gap:8px;position:relative;padding-bottom:6px}
+header .n{color:var(--mu);font-size:10px;position:absolute;right:6px;bottom:1px}
+#appbar{display:flex;gap:2px;flex-wrap:wrap;padding:3px 0;min-width:0;flex:1}#appbar a,#appbar b{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:5px 3px;text-decoration:none;color:#e8ebf2;border:1.5px solid;background:transparent}#appbar b{color:#fff;border-color:transparent}#appbar a{transition:transform .15s}#appbar a.big{transform:scale(1.45);background:#2b3245;position:relative;z-index:5;box-shadow:0 0 0 2px #fff6}
+#appbar .thm{flex:none;border:1.5px solid #888;border-radius:6px;background:transparent;padding:2px 4px;font-size:13px;line-height:1;cursor:pointer}
+[data-theme=day] #appbar a{color:#161a22}[data-theme=day] #appbar a.big{background:#fff}
+main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
+.ttl{font-size:18px;font-weight:800;margin:0 2px 6px}.ttl small{font-size:13px;color:var(--mu);font-weight:700}
+.info{color:var(--mu);font-size:12px;margin:0 2px 8px}.info b{color:var(--tx)}
+.err{background:#5a1f1f;border:1px solid #a8423a;color:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+/* filtry */
+.flt{background:var(--pan);border:1px solid var(--gr);border-radius:10px;padding:10px;margin-bottom:10px}
+.fr{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px}.fr>span{width:100%;color:var(--mu);font-size:12px;font-weight:700}
+.ch{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:16px;padding:6px 11px;font-size:13px;font-weight:700}
+.ch.on{background:var(--gr);border-color:var(--gr);color:#fff}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.nums label{display:flex;flex-direction:column;gap:3px;color:var(--mu);font-size:12px;font-weight:700}
+.nums input,.nums select,.srt select{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px;font-size:16px;font-weight:800;width:100%}
+[data-theme=day] .nums input,[data-theme=day] .nums select,[data-theme=day] .srt select{background:#fff}
+.srt{display:flex;align-items:center;gap:8px;color:var(--mu);font-size:12px;font-weight:700}.srt select{flex:1;font-size:14px;font-weight:700}
+.go{display:block;width:100%;margin-top:10px;background:var(--gr);border:0;color:#fff;border-radius:10px;padding:11px;font-size:16px;font-weight:900}
+.go:disabled{opacity:.6}
+/* wyniki */
+.wyn{color:var(--mu);font-size:12.5px;margin:2px 2px 8px}.wyn b{color:var(--tx)}
+.md{background:var(--pan);border:1px solid var(--bd);border-radius:10px;padding:9px 10px;margin-bottom:7px}
+.md.gra{border-color:var(--ye);box-shadow:inset 4px 0 0 var(--ye)}
+.md .l1{display:flex;align-items:center;gap:8px}.md .l1 b{font-size:16.5px}.md .l1 small{color:var(--mu);font-size:11.5px}
+.md .l1 .stan{margin-left:auto;flex:none}
+.md .l2{margin-top:4px;color:var(--mu);font-size:12.5px}.md .l2 b{color:var(--tx)}.md .l2 b.z{color:var(--gr2)}.md .l2 b.r{color:var(--red)}
+.stan{display:inline-block;padding:1px 7px;border-radius:5px;font-weight:900;font-size:12px;color:#1b1f2a;background:var(--ye)}
+.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}.stan.po{background:var(--red);color:#fff}
+@keyframes sqB{50%{background:var(--ye)}}
+.wiecej{display:block;width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14px;font-weight:800}
+.hint{color:var(--mu);font-size:11.5px;margin-top:10px;text-align:center}
+/* zakładki i dopisywanie kodu (− = 0, + = 1) */
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14.5px;font-weight:800}
+.tabs button.on{background:var(--gr);border-color:var(--gr);color:#fff}
+.kd{background:var(--pan);border:1px solid var(--gr);border-radius:10px;padding:12px;margin-bottom:10px}
+.kd h3{margin:0 0 3px;font-size:16px}.kd .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}
+.kod{display:flex;gap:10px;align-items:center;margin:2px 0 12px}
+.kod button{width:68px;height:68px;font:900 38px/1 system-ui,sans-serif;background:var(--card);border:2px solid var(--bd);color:var(--tx);border-radius:12px}
+.kod button.on{background:var(--gr);border-color:var(--gr);color:#fff}.kod b{margin-left:auto;font-size:26px;letter-spacing:4px}
+.kd input{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:17px;text-transform:uppercase}
+[data-theme=day] .kd input{background:#fff}
+.kd .zap{display:block;width:100%;margin-top:10px;background:var(--gr);border:0;color:#fff;border-radius:10px;padding:12px;font-size:16px;font-weight:900}
+.kd .s2{color:var(--mu);font-size:12px;margin-top:8px}.kd .ok{margin-top:8px;color:var(--gr2);font-weight:800}
+.undo{display:flex;align-items:center;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:6px 10px;margin-bottom:10px;font-size:13px}
+.undo b{letter-spacing:2px}.undo button{margin-left:auto;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
+.ost2{background:var(--pan);border:1px solid var(--bd);border-radius:10px;padding:8px 10px}.ost2 h4{margin:0 0 6px;font-size:13px;color:var(--mu)}
+.ost2 div{display:flex;gap:10px;padding:3px 0;border-top:1px solid var(--bd);font-size:13.5px}.ost2 div:first-of-type{border-top:0}
+.ost2 .zn{font-weight:900;letter-spacing:3px}.ost2 small{color:var(--mu);margin-left:auto}
+.md{cursor:pointer}.md .jz{color:var(--gr2);font-weight:800}
+/* okno statystyk modelu */
+.ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--pan);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:min(100%,560px);padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:16px}.sheet .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}.sheet .s b{color:var(--tx)}
+.sheet.stt{max-height:88vh;overflow:auto}
+.stt .nw{border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:13.5px;background:var(--card);border:1px solid var(--bd)}
+.stt .nw.gra{border-color:#2ee66b;box-shadow:0 0 0 1px #2ee66b inset}.stt .nw b.big{font-size:16px}
+.stt .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.stt .nums div{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:6px;text-align:center;font-size:11.5px;color:var(--mu)}.stt .nums b{display:block;font-size:18px;color:var(--tx)}
+.stt table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}.stt th{color:var(--mu);font-weight:600;font-size:11.5px;text-align:right;padding:3px 4px}
+.stt td{padding:3px 4px;text-align:right;border-top:1px solid var(--bd)}.stt td:first-child,.stt th:first-child{text-align:left}
+.stt td.bar{width:38%;text-align:left}.stt td.bar i{display:block;height:10px;border-radius:3px;background:var(--gr)}
+.stt .ost{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.stt .ost span{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:5px 8px;font-size:12px}.stt .ost b{color:var(--gr2)}
+.stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}
+.stt .bb{display:flex;gap:8px;position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}
+.stt .bb>span{flex:2;display:flex}.stt .bb button,.stt .bb a{flex:1;text-align:center;text-decoration:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:11px;font-size:15px;font-weight:800}
+.stt .bb .pri{background:var(--gr);border-color:var(--gr);color:#fff}.stt .bb .pri.jest{background:transparent;color:var(--gr2)}
+</style>
+</head>
+<body>
+<header><div class="t"><div id="appbar"></div><span class="n" id="ver"></span></div></header>
+<script>
+(function () {   // pasek aplikacji — jak w MOJE i ZESZYCIE (ten sam adres px5060.github.io, wspólne kody)
+  const A = [['/moje/', 'MOJE', '#c97a45'], ['/t50razem/', 'R50', '#2e7d4f'], ['/all60/', 'R60', '#2e7d4f'], ['/szukaj50/', 'S50', '#2e75b6'], ['/szukaj60/', 'S60', '#2e75b6'],
+    ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
+    ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
+    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ M', '#1f8a4c']];
+  const el = document.getElementById('appbar'), here = location.pathname.replace(/index\.html$/, '');
+  if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
+  if (el) {   // dzień / noc — wspólny wybór z ZESZYTEM (zeszyt_v1_theme)
+    const tb = document.createElement('button'), root = document.documentElement, upd = () => { tb.textContent = root.dataset.theme === 'day' ? '🌙' : '☀️'; tb.title = root.dataset.theme === 'day' ? 'tryb nocny' : 'tryb dzienny'; };
+    tb.className = 'thm'; upd(); el.appendChild(tb);
+    tb.onclick = () => { const d = root.dataset.theme === 'day' ? 'night' : 'day'; if (d === 'day') root.dataset.theme = 'day'; else delete root.dataset.theme; try { localStorage.setItem('zeszyt_v1_theme', d); } catch (e) {} upd(); };
+  }
+  // 1. dotknięcie powiększa przycisk, 2. dotknięcie powiększonego otwiera aplikację
+  if (el) el.addEventListener('click', e => {
+    const a = e.target.closest('a'); if (!a) return;
+    if (a.classList.contains('big')) return;
+    e.preventDefault(); el.querySelectorAll('a.big').forEach(x => x.classList.remove('big')); a.classList.add('big');
+    clearTimeout(el._t); el._t = setTimeout(() => a.classList.remove('big'), 4000);
+  });
+})();
+</script>
+
+<main>
+  <div class="ttl">SZUKAJ MODELI <small>TRÓJKA T50 · gra 3 kroków na połowę</small></div>
+  <div id="msg"></div>
+  <div class="info" id="info">Wczytuję kody…</div>
+  <div class="tabs" id="tabs"><button data-t="s" class="on">🔎 Szukaj modeli</button><button data-t="k">＋ Dopisz kod</button></div>
+  <div id="tabK" hidden>
+    <div class="kd" id="kd"></div>
+    <div id="undo"></div>
+    <div class="ost2" id="ost2"></div>
+  </div>
+  <div id="tabS">
+  <div class="flt" id="flt">
+    <div class="fr"><span>Gramy na</span><button class="ch" data-g="poz" data-v="1">X+X środek</button><button class="ch" data-g="poz" data-v="2">XX+ koniec</button></div>
+    <div class="fr"><span>Start gry</span><button class="ch" data-g="czekaj" data-v="1">po 1 pustej trójce</button><button class="ch" data-g="czekaj" data-v="2">po 2 pustych</button></div>
+    <div class="fr"><span>Warunek na pustej trójce</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="boki">+ z boku</button></div>
+    <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ</button></div>
+    <div class="nums">
+      <label>Gra do kroku<select id="fL"></select></label>
+      <label>Gier co najmniej<input id="fG" type="number" inputmode="numeric" min="0"></label>
+      <label>BUST najwyżej<input id="fB" type="number" inputmode="numeric" min="0"></label>
+    </div>
+    <div class="srt">Sortuj<select id="fS"><option value="b">najmniej BUST, potem najwięcej gier</option><option value="z">najwyższy bilans</option><option value="g">najwięcej gier</option><option value="t">najpierw w grze (GRAJ)</option></select></div>
+    <button class="go" id="goB">🔎 Szukaj</button>
+  </div>
+  <div class="wyn" id="wyn"></div>
+  <div id="lista"></div>
+  </div>
+  <div class="hint">Model = 3 wiersze połowy. Pusta trójka (3 wiersze bez + w miejscu gry) uruchamia grę od następnej połowy, krok za krokiem do WIN.
+    BUST = gra dłuższa niż „gra do kroku”. Kurs 3.0, stawki 8, 8, 16, 32… Dotknij modelu — statystyki i „Przenieś do zeszytu”;
+    w ZESZYCIE widać na kartach, gdzie model jest i jak się układał.</div>
+</main>
+
+<script src="../silnik.js?v=1.6.0"></script>
+<script>
+"use strict";
+const APP_VER = '1.6.2';
+// wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
+// Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
+const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
+const FK = 'zeszyt_v1_szukaj', MOJEK = 'zeszyt_v1_modele', MODK = 'zeszyt_v1_model', OTWK = 'zeszyt_v1_modele_otw';
+const $ = id => document.getElementById(id);
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
+const DOMYSL = { poz: ['1'], czekaj: ['1'], war: [''], stan: ['all'], L: 9, G: 100, B: 2, S: 'b' };
+// +XX (początek) i gra „od razu” usunięte — nie ma takich modeli do k9 (decyzja użytkownika); stare zapisy filtrów czyścimy
+let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
+F.poz = F.poz.filter(v => v === '1' || v === '2'); F.czekaj = F.czekaj.filter(v => v === '1' || v === '2');
+if (!F.poz.length) F.poz = ['1']; if (!F.czekaj.length) F.czekaj = ['1'];
+const W = { seed: '', seedErr: false, c: [], H: null, wynik: [], ile: 50, klucz: '' };
+
+async function loadSeed() {   // baza kodów z aplikacji MOJE (ten sam adres), kopia na brak internetu w pamięci podręcznej
+  const ok = s => s.length > 0 && s.length % 3 === 0;
+  try {
+    const r = await fetch(SEED, { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status);
+    const s = (await r.text()).replace(/\D/g, ''); if (!ok(s)) throw new Error('zły plik');
+    try { const c = await caches.open(SEED_CACHE); await c.put(SEED, new Response(s)); } catch (e) {}
+    return s;
+  } catch (e) {
+    try { const c = await caches.open(SEED_CACHE), r = await c.match(SEED); if (r) { const s = await r.text(); if (ok(s)) return s; } } catch (e2) {}
+    W.seedErr = true; return '';
+  }
+}
+function czytajKody() {   // → czy coś się zmieniło
+  const add = lsGet(ADDK, ''), s = W.seed + (/^(\d{3})*$/.test(add) ? add : ''), c = s.match(/\d{3}/g) || [];
+  if (W.H && c.length === W.c.length && c[c.length - 1] === W.c[W.c.length - 1]) return false;
+  W.c = c; W.B = buildBook(c.length); W.H = przygotuj(c, W.B); return true;
+}
+const wZeszycie = () => [...MODELE, ...parseModele(lsGet(MOJEK, '[]'))].map(modDef);
+
+// ===== filtry =====
+const pokazChipy = () => document.querySelectorAll('.ch').forEach(b => b.classList.toggle('on', F[b.dataset.g].includes(b.dataset.v)));
+function pokazFiltry() {
+  pokazChipy();
+  $('fL').innerHTML = [5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === F.L ? ' selected' : ''}>${x}</option>`).join('');
+  $('fG').value = F.G; $('fB').value = F.B; $('fS').value = F.S;
+}
+$('flt').addEventListener('click', e => {
+  const b = e.target.closest('.ch'); if (!b) return;
+  const g = b.dataset.g, v = b.dataset.v;
+  if (g === 'stan') F.stan = [v];   // stan — jeden wybór
+  else if (F[g].includes(v)) { if (F[g].length > 1) F[g] = F[g].filter(x => x !== v); }   // co najmniej jeden zaznaczony
+  else F[g] = [...F[g], v];
+  pokazChipy();
+});
+const czytajFiltry = () => { F.L = +$('fL').value; F.G = Math.max(0, +$('fG').value || 0); F.B = Math.max(0, +$('fB').value || 0); F.S = $('fS').value; lsSet(FK, JSON.stringify(F)); };
+
+// ===== szukanie: wszystkie zestawy 3 wierszy × wybrane „gramy na” × start × warunek, w paczkach (żeby ekran nie stał) =====
+function szukaj() {
+  czytajFiltry();
+  if (!W.c.length) return;
+  const L = F.L, defs = [];
+  for (const poz of F.poz.map(Number)) for (const cz of F.czekaj.map(Number)) for (const war of (cz ? F.war : [''])) defs.push({ poz, czekaj: cz, war });
+  const zest = []; for (let a = 1; a <= 28; a++) for (let b = a + 1; b <= 28; b++) for (let d = b + 1; d <= 28; d++) zest.push([a, b, d]);
+  const wsz = defs.length * zest.length, wyn = [];
+  let i = 0; $('goB').disabled = true;
+  const krok = () => {
+    const t0 = performance.now();
+    while (i < wsz && performance.now() - t0 < 40) {
+      const d = defs[Math.floor(i / zest.length)], M = modDef({ w: zest[i % zest.length], ...d, limit: L }); i++;
+      const Z = szybkiModel(W.H, M), s = Z.s, g = s.length; if (g < F.G) continue;
+      let bust = 0, bal = 0, mx = 0;
+      for (const x of s) { if (x > L) { bust++; bal -= sumSt(L); } else bal += KURS * STAWKI[x - 1] - sumSt(x); if (x > mx) mx = x; }
+      if (bust > F.B) continue;
+      const st = Z.teraz ? 'gra' : 'czeka';
+      if (F.stan[0] !== 'all' && F.stan[0] !== st) continue;
+      wyn.push({ M, g, bust, bal, mx, teraz: Z.teraz, bez: Z.bez });
+    }
+    $('wyn').innerHTML = `Szukam… <b>${Math.round(100 * i / wsz)}%</b> (znaleziono ${fmt(wyn.length)})`;
+    if (i < wsz) return setTimeout(krok, 0);
+    const srt = { b: (x, y) => x.bust - y.bust || y.g - x.g || y.bal - x.bal, z: (x, y) => y.bal - x.bal || x.bust - y.bust, g: (x, y) => y.g - x.g || x.bust - y.bust,
+      t: (x, y) => (y.teraz ? 1 : 0) - (x.teraz ? 1 : 0) || x.bust - y.bust || y.g - x.g }[F.S];
+    W.wynik = wyn.sort(srt); W.ile = 50; W.przeszukano = wsz; $('goB').disabled = false; pokazWyniki();
+  };
+  krok();
+}
+function pokazWyniki() {
+  const R = W.wynik, Z = wZeszycie(), L = F.L;
+  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (przeszukano ${fmt(W.przeszukano)}): gra do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}.`
+    + (R.length ? ` W grze teraz: <b>${R.filter(x => x.teraz).length}</b>.` : '');
+  $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => {
+    const M = x.M, jest = Z.some(z => sameModel(z, M));
+    const stan = x.teraz ? (x.teraz > L ? `<span class="stan po">po BUST — krok ${x.teraz}</span>` : `<span class="stan gra">GRAJ krok ${x.teraz} · ${fmt(STAWKI[x.teraz - 1])} zł</span>`) : `<span class="stan">CZEKAJ</span>`;
+    return `<div class="md${x.teraz ? ' gra' : ''}" data-j="${j}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stan}</div>
+      <div class="l2">Gier <b>${x.g}</b> · WIN <b>${x.g - x.bust}</b> · BUST <b class="${x.bust ? 'r' : 'z'}">${x.bust}</b> · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b>${jest ? ' · <span class="jz">✓ w ZESZYCIE</span>' : ''}</div></div>`;
+  }).join('') + (R.length > W.ile ? `<button class="wiecej" id="wiecej">Pokaż więcej (${fmt(R.length - W.ile)})</button>` : '');
+  if ($('wiecej')) $('wiecej').onclick = () => { W.ile += 50; pokazWyniki(); };
+}
+// dotknięcie modelu → statystyki modelu (pełne liczenie, jak w ZESZYCIE) + „Przenieś do zeszytu”
+const partName = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
+const gdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
+function przenies(M) {   // model trafia na listę modeli w ZESZYCIE i jest tam wybrany (pokazany na kartach)
+  if (wZeszycie().some(z => sameModel(z, M))) return true;
+  const id = 'u' + Date.now().toString(36);
+  if (!lsSet(MOJEK, JSON.stringify([...parseModele(lsGet(MOJEK, '[]')), { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  lsSet(MODK, id); lsSet(OTWK, '1'); return true;
+}
+function statystyki(M0) {
+  const M = liczModel(W.c, W.B, M0), N = modNum(M), T = M.teraz, pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+  const now = !T ? 'Brak danych.' : T.gra
+    ? `<b class="big">▶ GRAJ — krok ${T.s}</b><br>${gdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
+    : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez ${bokTx(M.poz)}, tej gry nie gramy; czekamy na ${CELTX[M.poz]}.<br>${gdzie(T)}`
+    : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez ${CELTX[M.poz]}).<br>Patrzymy od: ${gdzie(T)}`;
+  const mxK = Math.max(1, ...Object.values(N.krok));
+  const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
+  const ov = document.createElement('div'); ov.className = 'ov';
+  const przycisk = () => wZeszycie().some(z => sameModel(z, M)) ? '<a class="pri jest" href="../">✓ w ZESZYCIE — otwórz ▶</a>' : '<button id="stP" class="pri">➕ Przenieś do zeszytu</button>';
+  ov.innerHTML = `<div class="sheet stt"><h3>Model ${M.nazwa} — statystyki</h3>
+    <div class="s">${modOpis(M)}. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+    <div class="nw${T && T.gra ? ' gra' : ''}">${now}</div>
+    <div class="nums"><div><b>${N.G.length}</b>gier</div><div><b>${N.win}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
+      <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
+    <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
+    <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
+    <h4>Ostatnie gry</h4><div class="ost">${N.G.slice(-8).reverse().map(g => `<span>${g.k}${pn(g)} w.${g.r} · <b>WIN ${g.s}</b></span>`).join('')}</div>
+    <div class="bb"><span id="stPp">${przycisk()}</span><button id="stX">Zamknij</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('stX').onclick = close;
+  if ($('stP')) $('stP').onclick = () => { if (przenies(M0)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); } };
+}
+$('lista').addEventListener('click', e => { const d = e.target.closest('.md[data-j]'); if (d) statystyki(W.wynik[+d.dataset.j].M); });
+$('goB').onclick = szukaj;
+
+// ===== DOPISZ KOD — − = 0, + = 1 → wspólna lista kodów (t50razem_v1_added), ten sam zapis co w ZESZYCIE / RAZEM / MOJE:
+// kod od razu widzą ZESZYT, MOJE, RAZEM, SZUKAJ, L50… Ostatni kod dopisany tutaj (albo w ZESZYCIE) można cofnąć (zeszyt_v1_ostatni).
+const LASTK = 'zeszyt_v1_ostatni', NOTK = 'zeszyt_v1_notes_t50', KV = [0, 0, 0];
+const znaki = cd => [...cd].map(d => d === '1' ? '+' : '−').join(' ');
+const nazwaPol = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
+function kodTab(ok) {
+  const n = W.c.length, nr = n + 1, w = W.B && W.B.pos[nr];
+  $('kd').innerHTML = `<h3>Nowy kod · Nr ${fmt(nr)}</h3>
+    <div class="s">${w ? `W zeszycie: karta ${w.k}, ${nazwaPol(w.k, w.p)}, wiersz ${w.r}. ` : ''}Dotknij znaku: − = 0, + = 1.</div>
+    <div class="kod">${KV.map((v, i) => `<button data-i="${i}" class="${v ? 'on' : ''}">${v ? '+' : '−'}</button>`).join('')}<b>${KV.join('')}</b></div>
+    <input id="kdN" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="mecz, np. PAO-RAD (nieobowiązkowo)">
+    <button class="zap" id="kdOk">Zapisz kod ${KV.join('')}</button>
+    <div class="s2">Kod trafi do wszystkich aplikacji: ZESZYT, MOJE, RAZEM, SZUKAJ, L50 … — od razu.</div>${ok ? `<div class="ok">${ok}</div>` : ''}`;
+  const z = (() => { try { return JSON.parse(lsGet(LASTK, 'null')); } catch (e) { return null; } })(), add = lsGet(ADDK, '');
+  const un = z && z.n === n && W.c[n - 1] === z.c && add.length >= 3 && add.slice(-3) === z.c;   // cofnąć można tylko kod dopisany tu (albo w ZESZYCIE) i wciąż ostatni
+  $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
+  $('ost2').innerHTML = `<h4>Ostatnie kody</h4>` + W.c.slice(-8).map((cd, i, A) => { const x = n - A.length + 1 + i, p = W.B.pos[x]; return `<div><span>Nr ${fmt(x)}</span><span class="zn">${znaki(cd)}</span><small>karta ${p.k} ${partsOf(p.k).length === 2 ? (p.p ? 'P' : 'L') : 'cz.' + (p.p + 1)} w.${p.r}</small></div>`; }).reverse().join('');
+}
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-t]'); if (!b) return;
+  $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  $('tabS').hidden = b.dataset.t !== 's'; $('tabK').hidden = b.dataset.t !== 'k';
+  if (b.dataset.t === 'k') kodTab();
+});
+$('tabK').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.i) { KV[+b.dataset.i] ^= 1; const nm = $('kdN').value; kodTab(); $('kdN').value = nm; return; }
+  if (b.id === 'kdOk') {
+    const code = KV.join(''), nr = W.c.length + 1, add = lsGet(ADDK, '');   // czytaj-zmień-zapisz: nie gubi kodów dopisanych w innej aplikacji
+    if (!/^(\d{3})*$/.test(add)) { alert('Lista kodów w telefonie jest uszkodzona — nie zapisuję.'); return; }
+    if (czytajKody() || W.c.length + 1 !== nr) { info(); kodTab(); alert('W międzyczasie dopisano kod w innej aplikacji — sprawdź i dopisz jeszcze raz.'); return; }
+    if (!lsSet(ADDK, add + code)) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, JSON.stringify({ n: nr, c: code, t: Date.now() }));
+    const nm = $('kdN').value.trim().toUpperCase().slice(0, 40);
+    if (nm) { try { const a = JSON.parse(lsGet(NOTK, '{}')) || {}; a[nr] = nm; lsSet(NOTK, JSON.stringify(a)); } catch (e) {} }
+    KV.fill(0); czytajKody(); info(); kodTab(`✓ Zapisano ${code} (Nr ${fmt(nr)}) — wyniki modeli przeliczone.`); szukaj();
+  }
+  if (b.id === 'undoB') {
+    const z = JSON.parse(lsGet(LASTK, 'null')), add = lsGet(ADDK, '');
+    if (!z || z.n !== W.c.length || add.slice(-3) !== z.c) { kodTab(); return; }
+    if (!confirm(`Cofnąć kod ${z.c} (Nr ${fmt(z.n)})? Zniknie też w ZESZYCIE, MOJE, RAZEM i SZUKAJ.`)) return;
+    if (!lsSet(ADDK, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, 'null'); czytajKody(); info(); kodTab(`↩ Cofnięto ${z.c}.`); szukaj();
+  }
+});
+
+// kody dopisane w innej aplikacji — po powrocie przelicz
+const odswiez = () => { if (W.seed !== '' || W.seedErr) { if (czytajKody()) { info(); szukaj(); if (!$('tabK').hidden) kodTab(); } else pokazWyniki(); } };
+window.addEventListener('storage', e => { if (!e.key || e.key === ADDK) odswiez(); if (e.key === MOJEK) pokazWyniki(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) odswiez(); });
+function info() {
+  const c = W.c, n = c.length;
+  $('msg').innerHTML = W.seedErr ? '<div class="err">Nie udało się wczytać bazy kodów T50 (plik z aplikacji MOJE). Połącz z internetem i otwórz jeszcze raz. Teraz liczone są tylko kody dopisane w telefonie.</div>' : '';
+  $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)})` : 'Brak kodów.';
+}
+(async () => {
+  $('ver').textContent = APP_VER;
+  pokazFiltry();
+  W.seed = await loadSeed(); czytajKody(); info(); szukaj();
+})();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('../zeszyt-sw.js').catch(() => {});
+</script>
+</body>
+</html>
