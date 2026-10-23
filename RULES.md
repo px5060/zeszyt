@@ -69,7 +69,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   po WIN nowy cykl od następnej połowy. Gra do 9. kroku. Połowy krótsze niż 27 wierszy (karta 0) pomijane; karta 1 — 4 części po kolei.
 - Wynik na 15 361 kodach: 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, bilans +11 472 zł (kurs 3.0, stawki 8, 8, 16, 32…).
 - Przycisk modelu **16·18·27** na pasku (do 1.1.1: 2. dotknięcie włącza / wyłącza podświetlenie; od 1.2.0 — patrz kafelek niżej), wybór w `zeszyt_v1_model`.
-- Na karcie: ramka wokół 3 znaków w wierszach modelu; przerywana szara = pusta trójka (start gry); **czerwony** = krok bez trafienia
+- Na karcie: ramka wokół 3 znaków w wierszach modelu; **fioletowa** przerywana = pusta trójka (start gry, od 1.2.3); **czerwony** = krok bez trafienia
   (z numerem kroku); **zielony** = WIN (np. „WIN 4”); ciemnoczerwony = BUST; pulsująca przerywana = następny krok otwartej gry.
 - Nad kartą opis: gry / WIN / BUST / bilans, w której połowie gry przyszedł WIN, „Teraz” (czekamy na pustą trójkę albo następny krok) + „Pokaż ▶”.
 - **🔍 Prześledź — cały zeszyt** (od 1.1.1, przycisk w opisie modelu): cały zeszyt na jednym ekranie — każda karta to pasek,
