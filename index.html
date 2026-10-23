@@ -90,6 +90,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .tk .c{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:3px;height:24px;border-radius:3px;font:800 13px/1 system-ui,sans-serif;white-space:nowrap;overflow:hidden}
 .tk .c.d2{font-size:9.5px;gap:2px}.tk .c.no{font:italic 400 10.5px/1 system-ui,sans-serif;color:var(--ink2)}
 .tk .c.sz{color:#9aa3b5;outline:1.5px dotted #b5bccb;outline-offset:-1px}
+.tk.an{grid-template-columns:1fr;padding:3px 8px 6px}.tk.an .ant{font:600 11px/1.4 system-ui,sans-serif;color:var(--ink2)}
+.kd.msz{outline:1.5px dotted #8b93a7;outline-offset:-1px}
+.paper .anno{position:absolute;left:calc(var(--sq)*.7);right:calc(var(--sq)*1.7);top:calc(var(--sq)*28.2);padding:2px 6px;border:1.5px dashed #9aa3b5;border-radius:6px;background:#fffbe8;color:var(--ink2);font:600 calc(var(--sq)*.5)/1.3 system-ui,sans-serif}
 .tk .c i{flex:none;font:800 9.5px/1.35 system-ui,sans-serif;font-style:normal;padding:0 3px;border-radius:3px;background:var(--red);color:#fff}
 .tk .c.mw i{background:#1f8a4c}.tk .c.mb i{background:#7a1512}.tk .c.mz i{background:#c9a3a0}.tk .c.mn i{background:#fff;color:var(--red);border:1px dashed var(--red)}
 #appbar .mdl{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:4px 5px;border:1.5px solid #1f8a4c;background:transparent;color:var(--tx);transition:transform .15s;cursor:pointer}
@@ -196,7 +199,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.2.1';
+const APP_VER = '1.2.2';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -360,6 +363,17 @@ function modSheet() {   // STATYSTYKI modelu — po dotknięciu kafelka modelu n
   $('stOn').onclick = () => { lsSet(MODK, on ? '' : MID); close(); render(); };
   $('stTr').onclick = () => { close(); traceOpen(); };
 }
+function modNota(k) {   // adnotacja dla karty krótszej niż model (karta 0: 26 / 25 wierszy, brak wiersza 27) — model jej nie liczy
+  const M = S.modAll, P = partsOf(k); if (!M || P.every(R => R >= M.mx)) return '';
+  const c = S.codes[S.t], n = c.length, B = S.book[S.t], jest = M.w.filter(r => P.every(R => r <= R));
+  const co = P.map((R, p) => {   // gdyby liczyć same dostępne wiersze: pierwszy + na środku albo pusta trójka
+    const r = M.w.find(r => r <= R && (() => { const row = B.cards[k].parts[p][r - 1]; return [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop].some(x => x <= n && c[x - 1][M.poz] === '1'); })());
+    return { s: partName(k, p).split(' ')[0], r };
+  });
+  return `Karta ${k}: model ${M.nazwa} jej nie liczy — nie ma wiersza ${M.mx} (${P.map((R, p) => `${co[p].s} ${R}`).join(', ')} wierszy). `
+    + `Gdyby liczyć same wiersze ${jest.join(' i ')}: ${co.map(x => `${x.s} — ${x.r ? `+ na środku w w.${x.r}` : 'pusta'}`).join(', ')}`
+    + (co.every(x => x.r) ? ' → nie ma pustej trójki, więc i tak bez gry.' : ' → byłaby pusta trójka.');
+}
 function traceOpen() {   // PRZEŚLEDŹ: cały zeszyt na jednym ekranie — karta = pasek, połowy obok siebie, w połowie 3 wiersze modelu
   const t = S.t, M = S.modAll; if (!M) return;
   const c = S.codes[t], n = c.length, B = S.book[t], L = lastCard(t), sg = x => [...c[x - 1]].map(mark).join('');
@@ -380,6 +394,7 @@ function traceOpen() {   // PRZEŚLEDŹ: cały zeszyt na jednym ekranie — kart
     const P = partsOf(k), cur = k === S.card[t] ? ' cur' : '';
     for (let a = 0; a < P.length; a += 2)   // karta 1 (4 części) — dwa paski
       h += `<div class="tk${cur}" data-k="${k}"><span class="kn">${k}${P.length > 2 ? `<small>cz. ${a + 1}–${a + 2}</small>` : ''}</span>${half(k, a, 0)}${half(k, a + 1, 1)}</div>`;
+    const an = modNota(k); if (an) h += `<div class="tk an${cur}" data-k="${k}"><span class="ant">${an}</span></div>`;
   }
   const ov = document.createElement('div'); ov.className = 'trace';
   ov.innerHTML = `<div class="th"><b>🟩 ${M.nazwa} — cały zeszyt</b><button id="trX">✕ Zamknij</button></div>
@@ -399,7 +414,8 @@ function rowHtml(t, row, r, cls, k, p, notes, q) {
   const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
   // wiersz modelu: ramka wokół znaków, kolor i numer kroku
   const M = S.mod, mo = M && M.w.includes(r) && partsOf(k)[p] >= M.mx, mm = mo && M.mk[`${k}.${p}.${r}`];
-  const kc = mo ? ' m' + (mm ? mm.c : 'f') : '', s = mm ? mm.s.join('·') : '';
+  const sz = M && !mo && M.w.includes(r) && r <= partsOf(k)[p];   // krótka połowa (karta 0): wiersz modelu tylko do wglądu
+  const kc = mo ? ' m' + (mm ? mm.c : 'f') : sz ? ' msz' : '', s = mm ? mm.s.join('·') : '';
   const ks = !mm || mm.c === 'p' ? '' : `<span class="ks ${mm.c}">${q ? '' : { w: 'WIN ', b: 'BUST ', n: '▶ ' }[mm.c] || ''}${s}</span>`;
   return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}</span><span class="nt">${ks}${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
 }
@@ -412,7 +428,8 @@ function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 cz
     h += '</div>'; x += W[p];
   });
   for (let i = 0; i < 14; i++) holes += `<i class="hole" style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
-  return `<div class="paper" data-k="${k}"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="grid">${h}<i class="tl" style="top:calc(var(--sq)*10)"></i><i class="tl" style="top:calc(var(--sq)*20)"></i></div>${holes}</div>`;
+  const an = S.mod ? modNota(k) : '';
+  return `<div class="paper" data-k="${k}"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="grid">${h}<i class="tl" style="top:calc(var(--sq)*10)"></i><i class="tl" style="top:calc(var(--sq)*20)"></i></div>${holes}${an ? `<div class="anno">${an}</div>` : ''}</div>`;
 }
 function drawStage(kTop, kUnder, rot) {   // karta na wierzchu (+ karta pod spodem przy przewracaniu) i spirala
   const st = $('card'), sq = Math.max(13, Math.min(26, Math.floor(st.clientWidth / 22)));
