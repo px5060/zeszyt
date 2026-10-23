@@ -14,5 +14,6 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
 - Kartka zawsze w kolorach zeszytu (biała, niebieska kratka, czarny tusz, czerwone linie).
 - Na górze pasek przycisków do pozostałych aplikacji (jak w MOJE) + ZESZYT.
 - 🟩 16·18·27 na pasku (dotknij 2×) — model podświetlony na całym zeszycie: czerwone kroki, zielony WIN, ramki wokół wierszy modelu.
+  „🔍 Prześledź” — model na całym zeszycie na jednym ekranie (karta = pasek), dotknięcie paska otwiera kartę.
 
 Bez budowania — `index.html` jest gotowy. Ikony: `python3 make_icons.py`. Zasady pracy: `RULES.md`.

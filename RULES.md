@@ -72,4 +72,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Na karcie: ramka wokół 3 znaków w wierszach modelu; przerywana szara = pusta trójka (start gry); **czerwony** = krok bez trafienia
   (z numerem kroku); **zielony** = WIN (np. „WIN 4”); ciemnoczerwony = BUST; pulsująca przerywana = następny krok otwartej gry.
 - Nad kartą opis: gry / WIN / BUST / bilans, w której połowie gry przyszedł WIN, „Teraz” (czekamy na pustą trójkę albo następny krok) + „Pokaż ▶”.
+- **🔍 Prześledź — cały zeszyt** (od 1.1.1, przycisk w opisie modelu): cały zeszyt na jednym ekranie — każda karta to pasek,
+  lewa i prawa połowa obok siebie, w każdej 3 komórki (wiersze 16, 18, 27) ze znakami kodu i tymi samymi kolorami co na karcie,
+  w znaczku numer kroku. Karta 1 — dwa paski (cz. 1–2, 3–4), karta 0 — „—”. Otwiera się na bieżącej karcie; dotknięcie paska
+  otwiera tę kartę w zeszycie; „✕ Zamknij” / Esc.
 - Kolejne modele dopisuje się w `MODELE` w `index.html` (`w` wiersze, `poz` cyfra, `czekaj` pustych trójek, `limit` kroków).
