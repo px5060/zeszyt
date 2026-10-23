@@ -55,7 +55,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .r .no{text-align:center;font:700 calc(var(--sq)*.82)/1 Caveat,'Comic Sans MS',cursive}
 .r .m{text-align:center;font:800 calc(var(--sq)*.85)/1 system-ui,sans-serif}
 .r .nt{min-width:0;display:flex;align-items:center;gap:2px;padding-left:2px;white-space:nowrap;overflow:hidden;font:700 calc(var(--sq)*1.02)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink);text-transform:uppercase}
-.r .nt i{font-style:normal;overflow:hidden;text-overflow:ellipsis}
+.r .nt i{font-style:normal;overflow:hidden;text-overflow:ellipsis;padding-right:.22em}
 .r .hc{text-align:center;font:700 calc(var(--sq)*.72)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
 .r .kd{grid-column:span 3;display:grid;grid-template-columns:repeat(3,1fr);align-items:center;align-self:stretch;margin:1px 0;border-radius:3px}
 /* model: ramka wokół 3 znaków w wierszach modelu; fioletowa przerywana = pusta trójka (start gry), czerwony = krok bez trafienia, zielony = WIN */
@@ -82,7 +82,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mh{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;font-weight:800;font-size:15px}
 .mods .mh .ar{width:14px;color:#2ea85a}.mods .mh small{color:var(--mu);font-weight:600}.mods .mh .stan{font-size:11.5px}
 .mods .mh .zw{margin-left:auto;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 10px;font-size:13px}
-.mods .mi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-top:1px solid var(--bd);cursor:pointer}
+.mods .mi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-top:1px solid var(--bd);cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.mods .mi.pan{background:#c97a4526}
 .mods .mi.sel{background:#1f8a4c22;box-shadow:inset 4px 0 0 #1f8a4c}
 .mods .mi .sq{flex:none;width:13px;height:13px;border-radius:3px;background:#f2c230;box-shadow:0 0 0 1px #0007}.mods .mi .sq.g{animation:sqB .5s steps(1) infinite}
 .mods .mi .mn{min-width:0;line-height:1.2}.mods .mi .mn b{font-size:15.5px}.mods .mi .mn small{display:block;color:var(--mu);font-size:11.5px}
@@ -208,7 +208,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div id="mod"></div>
   <div id="card" class="stage"></div>
   <div id="leg"></div>
-  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. MODELE na pasku (dotknij 2×) — lista modeli; dotknij modelu — pokaże się na kartach; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj. Gdy model GRA — „💰 Zapisz zakład” w jego opisie; wszystkie w „💰 Zakłady”.</div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. Lista „Modele” nad kartą — dotknij modelu, pokaże się na kartach (można kilka); przytrzymaj — zakład, Statystyki, Prześledź; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj. Gdy model GRA — „💰 Zapisz zakład” w jego opisie (przytrzymaj model); wszystkie w „💰 Zakłady”.</div>
   </div>
   <div id="tB" hidden></div>
 </main>
@@ -216,7 +216,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.8.1"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.2';
+const APP_VER = '1.9.4';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -239,7 +239,7 @@ const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && ty
 const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-const S = { t: 't50', seed: {}, seedErr: {}, codes: {}, nAdd: {}, book: {}, card: {}, follow: {}, mods: [], modMk: {}, zakNr: new Set() };
+const S = { t: 't50', seed: {}, seedErr: {}, codes: {}, nAdd: {}, book: {}, card: {}, follow: {}, mods: [], modMk: {}, zakNr: new Set(), panel: '', lpSkip: false };
 
 async function loadSeed(t) {
   const url = TABS[t].seed, ok = s => s.length > 0 && s.length % 3 === 0;
@@ -275,7 +275,7 @@ const mojeModele = () => parseModele(lsGet(MOJEK, '[]'));
 const modeleWsz = () => [...MODELE, ...mojeModele()].map(modDef);
 const modOtw = () => lsGet(OTWK, lsGet(MODK, '') ? '1' : '0') === '1';
 const modWyb = () => lsGet(MODK, '').split(',').filter(Boolean);   // wybrane modele (id po przecinku)
-const modWybSet = (id, on) => { const a = modWyb().filter(x => x !== id); if (on) a.push(id); lsSet(MODK, a.join(',')); };
+const modWybSet = (id, on) => { const a = modWyb(); if (on !== a.includes(id)) lsSet(MODK, (on ? [...a, id] : a.filter(x => x !== id)).join(',')); };
 function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
   // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
   const mk = {}, T = M.teraz, L = M.limit, B = S.book[S.t];
@@ -375,11 +375,11 @@ function modLista() {   // lista „Modele” nad kartą: zwinięta — bez ozna
     for (const M of ML) {
       const on = sel.includes(M.id), T = R(M.id).teraz;
       const lo = modLost(R(M.id));   // po LOST-cie (od LOST-u bez WIN) — biało-czerwona ramka jak w MOJE
-      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${T && T.gra ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
+      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}${S.panel === M.id ? ' pan' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${T && T.gra ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
         + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/?m=${modKod(M)}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a>${M.id.startsWith('u') ? `<button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button>` : ''}</div>`;
-      if (on) h += modPanel(R(M.id));
+      if (S.panel === M.id) h += modPanel(R(M.id));   // opis z zakładem, Statystykami i Prześledź — po przytrzymaniu modelu
     }
-    h += `<div class="mfoot"><span>${sel.some(R) ? 'Dotknij modelu jeszcze raz — zniknie z kart.' : 'Dotknij modelu — pokaże się na kartach.'} Można kilka naraz.</span><a href="modele/">🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
+    h += `<div class="mfoot"><span>Dotknij modelu — pokaże się na kartach (jeszcze raz — zniknie; można kilka naraz). <b>Przytrzymaj</b> — zakład, 📊 Statystyki, 🔍 Prześledź.</span><a href="modele/">🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
   }
   return h + '</div>';
 }
@@ -455,8 +455,15 @@ function drawStage(kTop, kUnder, rot) {   // karta na wierzchu (+ karta pod spod
   st.innerHTML = (kUnder != null ? paperHtml(S.t, kUnder) : '') + paperHtml(S.t, kTop) + sp + '</div>';
   const pp = st.querySelectorAll('.paper'), top = pp[pp.length - 1];
   if (rot != null) top.style.transform = `rotateY(${rot}deg)`;
+  fitNt(st);
   return top;
 }
+function fitNt(el) {   // wpisana nazwa meczu mieści się w wierszu: za długa — mniejsze litery (nie ucinamy jej na ostatniej kratce)
+  const A = [...el.querySelectorAll('.r .nt i')].filter(i => i.textContent);
+  A.forEach(i => i.style.fontSize = '');
+  A.map(i => [i, i.scrollWidth, i.clientWidth]).forEach(([i, sw, cw]) => { if (cw > 0 && sw > cw + 1) i.style.fontSize = `${Math.max(40, 97 * cw / sw).toFixed(1)}%`; });
+}
+if (document.fonts) document.fonts.addEventListener('loadingdone', () => fitNt($('card')));   // pismo Caveat doszło później — dopasuj jeszcze raz
 function render() {
   const t = S.t, c = S.codes[t] || [], n = c.length, L = lastCard(t);
   if (S.follow[t] !== false || S.card[t] == null) S.card[t] = L;
@@ -521,9 +528,10 @@ $('mod').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, id = b.dataset.id, t = S.t;
   if (a === 'szuk') return;   // link do SZUKAJ W ZESZYCIE — bez zmiany wyboru modelu
+  if (a === 'sel' && S.lpSkip) { S.lpSkip = false; return; }   // puszczenie palca po przytrzymaniu — nie przełączamy modelu
   if (a === 'tog') lsSet(OTWK, modOtw() ? '0' : '1');
-  else if (a === 'sel') modWybSet(id, !modWyb().includes(id));
-  else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); modWybSet(id, false); }
+  else if (a === 'sel') { const on = !modWyb().includes(id); modWybSet(id, on); if (!on && S.panel === id) S.panel = ''; }   // dotknięcie: tylko pokaż / ukryj na kartach
+  else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
   else if (a === 'stat') return modSheet(id);
   else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
   else if (a === 'bet') return zakZapisz(S.modAll[id]);
@@ -531,6 +539,23 @@ $('mod').addEventListener('click', e => {
   else if (a === 'go' || a === 'last') { const M = S.modAll[id], k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } return; }
   render();
 });
+// przytrzymanie modelu (0,5 s): otwiera / zamyka jego opis — zakład, 📊 Statystyki, 🔍 Prześledź (jeden opis naraz; model idzie też na karty)
+{ const el = $('mod'); let lp = null;
+  const stop = () => { if (lp) clearTimeout(lp.t); lp = null; };
+  el.addEventListener('pointerdown', e => {
+    S.lpSkip = false; stop();
+    const mi = e.target.closest('.mi[data-id]'); if (!mi || e.target.closest('a,button') || e.button > 0) return;
+    const id = mi.dataset.id;
+    lp = { x: e.clientX, y: e.clientY, t: setTimeout(() => {
+      lp = null; S.lpSkip = true; try { navigator.vibrate && navigator.vibrate(25); } catch (er) {}
+      if (S.panel === id) S.panel = ''; else { S.panel = id; modWybSet(id, true); }
+      render();
+    }, 500) };
+  });
+  el.addEventListener('pointermove', e => { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 10) stop(); });   // przewijanie — to nie przytrzymanie
+  ['pointerup', 'pointercancel'].forEach(ev => el.addEventListener(ev, stop));
+  el.addEventListener('contextmenu', e => { if (e.target.closest('.mi')) e.preventDefault(); });
+}
 
 // ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w lewo = następna, w prawo = poprzednia; karta idzie za palcem =====
 // następna: kartka wychodzi zza spirali i kładzie się na wierzch (wolny brzeg jedzie w lewo, za palcem);

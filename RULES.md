@@ -49,6 +49,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 
 - **Kartka zawsze w kolorach zeszytu** (jak karta 273): biała kartka, niebieska kratka, czarny tusz, czerwone linie tercji — także w trybie nocnym.
 - Mecze (skróty drużyn, np. PAO-RAD) obok kodów — wielkie litery, czarnym „pismem”. Zapis w `zeszyt_v1_notes_t50` pod Nr kodu.
+  Od 1.9.3: ostatnia litera nie jest ucinana (pismo Caveat wystaje poza swoje pole — odstęp na końcu), a za długa nazwa
+  dostaje mniejsze litery, żeby zmieścić się w wierszu (`fitNt` po narysowaniu karty i po wczytaniu pisma; najmniej 40%).
 - Wpisywanie: dotknij wiersza → wpisz → **Enter / „Dalej ▶”** zapisuje i otwiera następny wiersz (bez dopisków).
 - Zdjęcia (Claude odczytuje skróty ze zdjęcia karty, z kluczem API) — zrobione i usunięte na prośbę użytkownika: zostaje **zapis ręczny**.
   Kod jest w historii repo (commit „Kartka w kolorach zeszytu, szybkie wpisywanie meczów i mecze ze zdjęcia”).
@@ -182,3 +184,11 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Za limitem**: w bieżącej grze (i przy dalszych krokach) — bez oznaczeń, tylko neutralna ramka modelu: w grze jeszcze nie wiemy, co będzie,
   więc oznaczamy tylko do kroku, do którego gra model. W **🔍 Prześledź** (historia) od 1.9.1 kroki po limicie są widoczne — szare
   z numerami, a wiersz trafienia, które zamknęło przegraną grę: „LOST 14” (legenda: „po limicie (przegrana gra)”). Liczenie gier się nie zmienia.
+
+## Dotknięcie i przytrzymanie modelu na liście (od 1.9.4)
+- Prośba użytkownika: **dotknięcie modelu** = tylko pokaż / ukryj go na kartach (wiersze gry wg legendy), bez opisu pod spodem.
+- **Przytrzymanie** (0,5 s, krótka wibracja) = otwiera / zamyka opis modelu jak dawniej po dotknięciu: wynik, GRAJ + „Pokaż ▶”,
+  💰 Zapisz zakład, „Na kartach…”, 📊 Statystyki, 🔍 Prześledź. Opis otwarty dla jednego modelu naraz (`S.panel`, tylko w pamięci strony);
+  przytrzymany model trafia też na karty. Zdjęcie modelu z kart (dotknięcie) zamyka jego opis.
+- Puszczenie palca po przytrzymaniu nie przełącza modelu (`S.lpSkip`); przesunięcie palca > 10 px (przewijanie) przerywa przytrzymanie;
+  na wierszu modelu bez zaznaczania tekstu i bez menu przytrzymania przeglądarki. Na 🔎 i 🗑 przytrzymanie nie działa.
