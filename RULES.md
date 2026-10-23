@@ -121,6 +121,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Dotknięcie modelu** na liście wyników → okno statystyk (pełne liczenie jak w ZESZYCIE: stan z miejscem i stawką, gry / WIN / BUST /
   najdłużej / bilans / największy spadek, WIN na kroku, WIN w połowie gry, ostatnie gry) i przycisk **„➕ Przenieś do zeszytu”**
   (po przeniesieniu „✓ w ZESZYCIE — otwórz ▶”); na karcie wyniku znaczek „✓ w ZESZYCIE”.
+- **Zakładka „＋ Dopisz kod”** (od 1.6.2, prośba użytkownika): trzy znaki − / + (− = 0, + = 1), mecz nieobowiązkowo → kod dopisany
+  na koniec wspólnej listy `t50razem_v1_added` (czytaj-zmień-zapisz, jak w ZESZYCIE), więc od razu widzą go ZESZYT, MOJE, RAZEM,
+  SZUKAJ, L50…; mecz w `zeszyt_v1_notes_t50` (widać w ZESZYCIE). Pokazuje Nr i miejsce w zeszycie (karta, połowa, wiersz),
+  ostatnie kody, „↩ Cofnij” (wspólne z ZESZYTEM: `zeszyt_v1_ostatni`). Po zapisie wyniki modeli przeliczają się same.
 - Na pasku obu stron przycisk **🔎 SZUKAJ M** (w MOJE jeszcze nie ma — osobne repo).
 - Sprawdzone: domyślne filtry (X+X, po 1 pustej, k9, ≥ 100 gier, BUST ≤ 2) → 217 modeli, tyle samo co w analizie w rozmowie.
 - Analiza „od razu” (bez pustej trójki): żaden model 3 kroków nie zamyka się do k9 (X+X najmniej 7 BUST do k9); bez BUST dopiero do k12

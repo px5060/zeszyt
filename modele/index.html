@@ -49,6 +49,23 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 @keyframes sqB{50%{background:var(--ye)}}
 .wiecej{display:block;width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14px;font-weight:800}
 .hint{color:var(--mu);font-size:11.5px;margin-top:10px;text-align:center}
+/* zakładki i dopisywanie kodu (− = 0, + = 1) */
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14.5px;font-weight:800}
+.tabs button.on{background:var(--gr);border-color:var(--gr);color:#fff}
+.kd{background:var(--pan);border:1px solid var(--gr);border-radius:10px;padding:12px;margin-bottom:10px}
+.kd h3{margin:0 0 3px;font-size:16px}.kd .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}
+.kod{display:flex;gap:10px;align-items:center;margin:2px 0 12px}
+.kod button{width:68px;height:68px;font:900 38px/1 system-ui,sans-serif;background:var(--card);border:2px solid var(--bd);color:var(--tx);border-radius:12px}
+.kod button.on{background:var(--gr);border-color:var(--gr);color:#fff}.kod b{margin-left:auto;font-size:26px;letter-spacing:4px}
+.kd input{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:17px;text-transform:uppercase}
+[data-theme=day] .kd input{background:#fff}
+.kd .zap{display:block;width:100%;margin-top:10px;background:var(--gr);border:0;color:#fff;border-radius:10px;padding:12px;font-size:16px;font-weight:900}
+.kd .s2{color:var(--mu);font-size:12px;margin-top:8px}.kd .ok{margin-top:8px;color:var(--gr2);font-weight:800}
+.undo{display:flex;align-items:center;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:6px 10px;margin-bottom:10px;font-size:13px}
+.undo b{letter-spacing:2px}.undo button{margin-left:auto;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
+.ost2{background:var(--pan);border:1px solid var(--bd);border-radius:10px;padding:8px 10px}.ost2 h4{margin:0 0 6px;font-size:13px;color:var(--mu)}
+.ost2 div{display:flex;gap:10px;padding:3px 0;border-top:1px solid var(--bd);font-size:13.5px}.ost2 div:first-of-type{border-top:0}
+.ost2 .zn{font-weight:900;letter-spacing:3px}.ost2 small{color:var(--mu);margin-left:auto}
 .md{cursor:pointer}.md .jz{color:var(--gr2);font-weight:800}
 /* okno statystyk modelu */
 .ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
@@ -98,6 +115,13 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div class="ttl">SZUKAJ MODELI <small>TRÓJKA T50 · gra 3 kroków na połowę</small></div>
   <div id="msg"></div>
   <div class="info" id="info">Wczytuję kody…</div>
+  <div class="tabs" id="tabs"><button data-t="s" class="on">🔎 Szukaj modeli</button><button data-t="k">＋ Dopisz kod</button></div>
+  <div id="tabK" hidden>
+    <div class="kd" id="kd"></div>
+    <div id="undo"></div>
+    <div class="ost2" id="ost2"></div>
+  </div>
+  <div id="tabS">
   <div class="flt" id="flt">
     <div class="fr"><span>Gramy na</span><button class="ch" data-g="poz" data-v="1">X+X środek</button><button class="ch" data-g="poz" data-v="2">XX+ koniec</button></div>
     <div class="fr"><span>Start gry</span><button class="ch" data-g="czekaj" data-v="1">po 1 pustej trójce</button><button class="ch" data-g="czekaj" data-v="2">po 2 pustych</button></div>
@@ -113,6 +137,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   </div>
   <div class="wyn" id="wyn"></div>
   <div id="lista"></div>
+  </div>
   <div class="hint">Model = 3 wiersze połowy. Pusta trójka (3 wiersze bez + w miejscu gry) uruchamia grę od następnej połowy, krok za krokiem do WIN.
     BUST = gra dłuższa niż „gra do kroku”. Kurs 3.0, stawki 8, 8, 16, 32… Dotknij modelu — statystyki i „Przenieś do zeszytu”;
     w ZESZYCIE widać na kartach, gdzie model jest i jak się układał.</div>
@@ -121,7 +146,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.6.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.6.1';
+const APP_VER = '1.6.2';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -252,8 +277,54 @@ function statystyki(M0) {
 $('lista').addEventListener('click', e => { const d = e.target.closest('.md[data-j]'); if (d) statystyki(W.wynik[+d.dataset.j].M); });
 $('goB').onclick = szukaj;
 
+// ===== DOPISZ KOD — − = 0, + = 1 → wspólna lista kodów (t50razem_v1_added), ten sam zapis co w ZESZYCIE / RAZEM / MOJE:
+// kod od razu widzą ZESZYT, MOJE, RAZEM, SZUKAJ, L50… Ostatni kod dopisany tutaj (albo w ZESZYCIE) można cofnąć (zeszyt_v1_ostatni).
+const LASTK = 'zeszyt_v1_ostatni', NOTK = 'zeszyt_v1_notes_t50', KV = [0, 0, 0];
+const znaki = cd => [...cd].map(d => d === '1' ? '+' : '−').join(' ');
+const nazwaPol = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
+function kodTab(ok) {
+  const n = W.c.length, nr = n + 1, w = W.B && W.B.pos[nr];
+  $('kd').innerHTML = `<h3>Nowy kod · Nr ${fmt(nr)}</h3>
+    <div class="s">${w ? `W zeszycie: karta ${w.k}, ${nazwaPol(w.k, w.p)}, wiersz ${w.r}. ` : ''}Dotknij znaku: − = 0, + = 1.</div>
+    <div class="kod">${KV.map((v, i) => `<button data-i="${i}" class="${v ? 'on' : ''}">${v ? '+' : '−'}</button>`).join('')}<b>${KV.join('')}</b></div>
+    <input id="kdN" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="mecz, np. PAO-RAD (nieobowiązkowo)">
+    <button class="zap" id="kdOk">Zapisz kod ${KV.join('')}</button>
+    <div class="s2">Kod trafi do wszystkich aplikacji: ZESZYT, MOJE, RAZEM, SZUKAJ, L50 … — od razu.</div>${ok ? `<div class="ok">${ok}</div>` : ''}`;
+  const z = (() => { try { return JSON.parse(lsGet(LASTK, 'null')); } catch (e) { return null; } })(), add = lsGet(ADDK, '');
+  const un = z && z.n === n && W.c[n - 1] === z.c && add.length >= 3 && add.slice(-3) === z.c;   // cofnąć można tylko kod dopisany tu (albo w ZESZYCIE) i wciąż ostatni
+  $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
+  $('ost2').innerHTML = `<h4>Ostatnie kody</h4>` + W.c.slice(-8).map((cd, i, A) => { const x = n - A.length + 1 + i, p = W.B.pos[x]; return `<div><span>Nr ${fmt(x)}</span><span class="zn">${znaki(cd)}</span><small>karta ${p.k} ${partsOf(p.k).length === 2 ? (p.p ? 'P' : 'L') : 'cz.' + (p.p + 1)} w.${p.r}</small></div>`; }).reverse().join('');
+}
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-t]'); if (!b) return;
+  $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  $('tabS').hidden = b.dataset.t !== 's'; $('tabK').hidden = b.dataset.t !== 'k';
+  if (b.dataset.t === 'k') kodTab();
+});
+$('tabK').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.i) { KV[+b.dataset.i] ^= 1; const nm = $('kdN').value; kodTab(); $('kdN').value = nm; return; }
+  if (b.id === 'kdOk') {
+    const code = KV.join(''), nr = W.c.length + 1, add = lsGet(ADDK, '');   // czytaj-zmień-zapisz: nie gubi kodów dopisanych w innej aplikacji
+    if (!/^(\d{3})*$/.test(add)) { alert('Lista kodów w telefonie jest uszkodzona — nie zapisuję.'); return; }
+    if (czytajKody() || W.c.length + 1 !== nr) { info(); kodTab(); alert('W międzyczasie dopisano kod w innej aplikacji — sprawdź i dopisz jeszcze raz.'); return; }
+    if (!lsSet(ADDK, add + code)) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, JSON.stringify({ n: nr, c: code, t: Date.now() }));
+    const nm = $('kdN').value.trim().toUpperCase().slice(0, 40);
+    if (nm) { try { const a = JSON.parse(lsGet(NOTK, '{}')) || {}; a[nr] = nm; lsSet(NOTK, JSON.stringify(a)); } catch (e) {} }
+    KV.fill(0); czytajKody(); info(); kodTab(`✓ Zapisano ${code} (Nr ${fmt(nr)}) — wyniki modeli przeliczone.`); szukaj();
+  }
+  if (b.id === 'undoB') {
+    const z = JSON.parse(lsGet(LASTK, 'null')), add = lsGet(ADDK, '');
+    if (!z || z.n !== W.c.length || add.slice(-3) !== z.c) { kodTab(); return; }
+    if (!confirm(`Cofnąć kod ${z.c} (Nr ${fmt(z.n)})? Zniknie też w ZESZYCIE, MOJE, RAZEM i SZUKAJ.`)) return;
+    if (!lsSet(ADDK, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, 'null'); czytajKody(); info(); kodTab(`↩ Cofnięto ${z.c}.`); szukaj();
+  }
+});
+
 // kody dopisane w innej aplikacji — po powrocie przelicz
-const odswiez = () => { if (W.seed !== '' || W.seedErr) { if (czytajKody()) { info(); szukaj(); } else pokazWyniki(); } };
+const odswiez = () => { if (W.seed !== '' || W.seedErr) { if (czytajKody()) { info(); szukaj(); if (!$('tabK').hidden) kodTab(); } else pokazWyniki(); } };
 window.addEventListener('storage', e => { if (!e.key || e.key === ADDK) odswiez(); if (e.key === MOJEK) pokazWyniki(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) odswiez(); });
 function info() {
