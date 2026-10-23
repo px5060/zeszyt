@@ -148,3 +148,16 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Zakłady ZESZYTU są (na razie) tylko w ZESZYCIE — MOJE ich nie pokazuje (MOJE ma swoje zakłady modeli SZUKAJ / RAZEM).
 - Kody T50 dopisane w MOJE, RAZEM, SZUKAJ, L50 (i w SZUKAJ W ZESZYCIE) trafiają do ZESZYTU w kolejny wiersz — wspólny klucz `t50razem_v1_added`
   (sprawdzone w `moje/build.py`: TABS t50 key = `t50razem_v1_added`).
+
+## Zakładka 🔻 LOST w SZUKAJ W ZESZYCIE (od 1.8.0)
+
+- Prośba użytkownika, wzór: aplikacja L50 (SZUKAJ LOST, repo `szukajbust50`): modele **po przegranej** — ostatnia gra modelu była
+  LOST (BUST = gra dłuższa niż „gra do kroku”), albo gra właśnie przekroczyła limit i czeka na koniec cyklu („LOST w toku”).
+- Ustawienia „gramy na / start / warunek / gra do kroku / gier co najmniej” wspólne z zakładką Szukaj („zmień ▶”); w zakładce LOST:
+  **LOST co najmniej** (1), **LOST najwyżej** (5), **LOST po LOST najwyżej** (0 — jak w L50: bez LOST-u zaraz po LOST-cie),
+  stan po LOST (wszystkie / GRAJ teraz / CZEKAJ). Kolejność: najpierw GRAJ, potem CZEKAJ, potem LOST w toku; mniej LOST-ów, więcej gier.
+- Karta modelu (jak historia w L50): gry, LOST-y, **co ile gier LOST** (średnio, najkrócej), **po LOST: WIN / LOST**
+  (co było w grze zaraz po LOST-cie), najdłuższa gra, bilans, **sprawdzenie** = ostatnie 35% gier (gry, LOST, LOST po LOST).
+- Okno statystyk modelu ma sekcję **LOST (przegrane gry)**: lista ostatnich 10 LOST-ów — karty, kroki, odstęp w grach od poprzedniego
+  LOST-u, następna gra (WIN n / LOST / trwa); w „Ostatnie gry” przegrana jako „LOST k…” na czerwono.
+- Na danych (15 361 kodów, X+X po 1 pustej, k9, ≥ 100 gier): 47 modeli po LOST (LOST 1–5, bez LOST po LOST), 24 z nich GRAJ teraz.
