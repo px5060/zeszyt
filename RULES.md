@@ -129,3 +129,18 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Sprawdzone: domyślne filtry (X+X, po 1 pustej, k9, ≥ 100 gier, BUST ≤ 2) → 217 modeli, tyle samo co w analizie w rozmowie.
 - Analiza „od razu” (bez pustej trójki): żaden model 3 kroków nie zamyka się do k9 (X+X najmniej 7 BUST do k9); bez BUST dopiero do k12
   (np. 1·6·17, 6·19·22, 8·24·28 — te same wiersze co najlepsze „po 1 pustej” do k9: 9 kroków gry + 3 kroki pustej trójki).
+
+## Zakłady w ZESZYCIE (od 1.7.0)
+
+- Prośba użytkownika: zakładka **💰 Zakłady** i stawianie zakładów na kolejnych krokach modeli — jak „MOJE ZAKŁADY” w MOJE / SZUKAJ.
+- Zakładki nad kartą: **📓 Zeszyt** · **💰 Zakłady** (znaczek = ile zakładów czeka na wynik).
+- W opisie wybranego modelu, gdy model **GRA**: formularz jak w MOJE — **Nr wiersza** (domyślnie wiersz następnego kroku) · **krok** ·
+  **postawione zł** (stawka kroku: 8, 8, 16, 32…) → „💰 Zapisz zakład”. Postawiony → „💰 Postawiony: Nr … · k… · … zł — czeka na wynik”;
+  następny krok po przegranej podpowiada się sam (kolejny wiersz, krok +1, jego stawka). Na karcie przy tym wierszu znaczek 💰.
+- Zapis: `zeszyt_v1_zaklady` (model z ustawieniami, Nr, krok, zł, czas). Wynik z kodu w tym wierszu: + w miejscu gry = **WIN +2 × stawka**
+  (kurs 3.0), inaczej przegrany −stawka; dopóki kodu nie ma — „czeka”. Kod może przyjść z dowolnej aplikacji (wspólna lista kodów).
+- Zakładka Zakłady: wynik łącznie, postawione (rozliczone), dziś; „⏳ Czekają na wynik” i „Rozliczone” (WIN / przegrane, kod −/+);
+  dotknięcie → karta z tym wierszem i model pokazany; „✕ usuń”.
+- Zakłady ZESZYTU są (na razie) tylko w ZESZYCIE — MOJE ich nie pokazuje (MOJE ma swoje zakłady modeli SZUKAJ / RAZEM).
+- Kody T50 dopisane w MOJE, RAZEM, SZUKAJ, L50 (i w SZUKAJ M) trafiają do ZESZYTU w kolejny wiersz — wspólny klucz `t50razem_v1_added`
+  (sprawdzone w `moje/build.py`: TABS t50 key = `t50razem_v1_added`).

@@ -97,6 +97,25 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mod{margin:0;border:0;border-top:1px dashed var(--bd);border-radius:0}
 .mods .mfoot{display:flex;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
 .mods .mfoot button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
+.ztabs{display:flex;gap:6px;margin:0 0 8px}.ztabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px;font-size:14.5px;font-weight:800}
+.ztabs button.on{background:var(--or);border-color:var(--or);color:#fff}
+#zbad:not(:empty){display:inline-block;min-width:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#f2c230;color:#1b1f2a;font-size:12px}
+/* zakład przy modelu (gdy GRA) i zakładka Zakłady */
+.mod .zf{display:grid;grid-template-columns:1.3fr .7fr 1fr;gap:6px;margin-top:8px;align-items:end}
+.mod .zf label{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--mu)}
+.mod .zf input{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:7px;font-size:15px;font-weight:800}
+[data-theme=day] .mod .zf input{background:#fff}
+.mod .zf button{grid-column:1/-1;background:var(--or);border:0;color:#fff;border-radius:9px;padding:10px;font-size:15px;font-weight:900}
+.mod .zok{margin-top:8px;padding:7px 9px;border-radius:9px;background:#c97a4522;border:1px solid var(--or);font-weight:800}
+.zsum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}.zsum div{background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:7px;text-align:center;font-size:11.5px;color:var(--mu)}.zsum b{display:block;font-size:18px;color:var(--tx)}
+.zsec{color:var(--mu);font-weight:800;font-size:13px;margin:12px 2px 6px}
+.zb{display:flex;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;line-height:1.4}
+.zb.pend{border-color:#f2c230;box-shadow:inset 4px 0 0 #f2c230}.zb.win{box-shadow:inset 4px 0 0 #1f8a4c}.zb.lost{box-shadow:inset 4px 0 0 var(--red)}
+.zb small,.zb .mu{color:var(--mu);font-size:11.5px}.zb .zn{font-weight:900;letter-spacing:2px}
+.zb .r{margin-left:auto;text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.zb .r b{font-size:15px}.zb .r b.w{color:#2ea85a}.zb .r b.l{color:var(--red)}.zb .r b.p{color:#f2c230}
+.zb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-size:12px}
+.zpust{color:var(--mu);text-align:center;padding:24px 10px}
 .nmw{display:flex;gap:8px}.sheet .nmw input{text-align:center;font-size:22px;font-weight:800}
 .nml{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px;color:var(--mu)}
 .nml select{flex:1;min-width:0;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:9px;font-size:15px}
@@ -178,7 +197,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <main id="main">
   <div class="ttl">TRÓJKA <small>T50</small></div>
+  <div class="ztabs" id="ztabs"><button data-z="z" class="on">📓 Zeszyt</button><button data-z="b">💰 Zakłady<span id="zbad"></span></button></div>
   <div id="msg"></div>
+  <div id="tZ">
   <div class="cnav">
     <button id="prev" aria-label="poprzednia karta">◀</button>
     <button id="cardT" class="ct"></button>
@@ -195,13 +216,15 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div id="mod"></div>
   <div id="card" class="stage"></div>
   <div id="leg"></div>
-  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. MODELE na pasku (dotknij 2×) — lista modeli; dotknij modelu — pokaże się na kartach; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj.</div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. MODELE na pasku (dotknij 2×) — lista modeli; dotknij modelu — pokaże się na kartach; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj. Gdy model GRA — „💰 Zapisz zakład” w jego opisie; wszystkie w „💰 Zakłady”.</div>
+  </div>
+  <div id="tB" hidden></div>
 </main>
 
 <script src="silnik.js?v=1.6.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.6.1';
+const APP_VER = '1.7.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -280,12 +303,49 @@ const modGdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${
 const modTeraz = (M, krot) => { const T = M.teraz; return !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : `: ${modGdzie(T)}`}`
   : `<span class="stan">CZEKAJ</span>${krot ? '' : T.bez ? ` — pusta trójka bez ${bokTx(M.poz)}, nie gramy (czekamy na ${CELTX[M.poz]}) — ${modGdzie(T)}` : ` na pustą trójkę — ${modGdzie(T)}`}`; };
 const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
+// ===== ZAKŁADY — postawione zakłady na krokach modeli (zeszyt_v1_zaklady), jak „MOJE ZAKŁADY” w MOJE / SZUKAJ:
+// Nr wiersza · krok · postawione zł; wynik z kodu w tym wierszu: + w miejscu gry = WIN (+2 × stawka, kurs 3.0), inaczej przegrany (−stawka).
+const ZAKK = 'zeszyt_v1_zaklady';
+const zakGet = () => { try { const a = JSON.parse(lsGet(ZAKK, '[]')); return Array.isArray(a) ? a.filter(z => z && z.m && Array.isArray(z.m.w) && z.nr > 0) : []; } catch (e) { return []; } };
+const zakRes = z => { const c = S.codes[S.t]; return z.nr > c.length ? 'pend' : c[z.nr - 1][z.m.poz] === '1' ? 'win' : 'lost'; };
+const zakVal = z => { const r = zakRes(z); return r === 'win' ? (KURS - 1) * z.zl : r === 'lost' ? -z.zl : 0; };
+const kiedy = t => new Date(t).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+function zakZapisz(M) {   // zakład z formularza przy modelu (domyślnie: wiersz następnego kroku, ten krok i jego stawka)
+  const nr = +$('zNr').value, krok = +$('zK').value, kw = +$('zZl').value;
+  if (!(nr >= 1) || !(krok >= 1 && krok <= 40) || !(kw > 0)) { alert('Podaj Nr wiersza, krok i kwotę w zł.'); return; }
+  const a = zakGet();
+  if (a.some(z => z.mid === M.id && z.nr === nr) && !confirm(`Na Nr ${fmt(nr)} jest już zakład modelu ${M.nazwa}. Zapisać jeszcze jeden?`)) return;
+  a.push({ mid: M.id, nazwa: M.nazwa, m: { w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }, nr, krok, zl: kw, t: Date.now() });
+  if (!lsSet(ZAKK, JSON.stringify(a))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+  render();
+}
+function zakTab() {   // zakładka 💰 Zakłady: wynik, czekające na wynik, rozliczone
+  const t = S.t, A = zakGet().map((z, i) => ({ ...z, i, res: zakRes(z), val: zakVal(z) })), done = A.filter(z => z.res !== 'pend');
+  const d0 = new Date().setHours(0, 0, 0, 0), sum = L => L.reduce((a, z) => a + z.val, 0);
+  const row = z => {
+    const p = S.book[t].pos[z.nr], cd = z.nr <= S.codes[t].length ? S.codes[t][z.nr - 1] : '';
+    const gdzie = p ? `karta ${p.k} ${partsOf(p.k).length === 2 ? (p.p ? 'P' : 'L') : 'cz.' + (p.p + 1)} w.${p.r}` : '';
+    const wyn = z.res === 'pend' ? '<b class="p">czeka</b>' : `<b class="${z.res === 'win' ? 'w' : 'l'}">${zl(z.val)}</b><span class="zn">${[...cd].map(mark).join('')}</span>`;
+    return `<div class="zb ${z.res}" data-zi="${z.i}"><div><b>${esc(z.nazwa)}</b> <small>${modDop(modDef(z.m))}</small><br>Nr ${fmt(z.nr)} · ${gdzie} · <b>k${z.krok}</b> · <b>${fmt(z.zl)} zł</b><div class="mu">zapisany ${kiedy(z.t)}</div></div>`
+      + `<div class="r">${wyn}<button data-zdel="${z.i}">✕ usuń</button></div></div>`;
+  };
+  const P = A.filter(z => z.res === 'pend').sort((a, b) => a.nr - b.nr), R = done.sort((a, b) => b.nr - a.nr || b.t - a.t);
+  return `<div class="zsum"><div><b>${zl(sum(done))}</b>wynik łącznie</div><div><b>${fmt(done.reduce((a, z) => a + z.zl, 0))} zł</b>postawione (rozliczone)</div><div><b>${zl(sum(done.filter(z => z.t >= d0)))}</b>dziś</div></div>`
+    + (A.length ? '' : '<div class="zpust">Brak zakładów. Zakład zapisujesz w opisie modelu (lista „Modele”), gdy model GRA: „💰 Zapisz zakład”.</div>')
+    + (P.length ? `<div class="zsec">⏳ Czekają na wynik · ${P.length} · razem ${fmt(P.reduce((a, z) => a + z.zl, 0))} zł</div>` + P.map(row).join('') : '')
+    + (R.length ? `<div class="zsec">Rozliczone · ${R.length} · WIN ${R.filter(z => z.res === 'win').length} · przegrane ${R.filter(z => z.res === 'lost').length}</div>` + R.map(row).join('') : '');
+}
 function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
   const T = M.teraz, all = lsGet(PRZK, '0') === '1', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`;
   const co = all ? `Na kartach: <b>wszystkie gry</b> (${M.gry.length}) — przewracaj karty.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
     : g ? `Na kartach: <b>ostatnia gra</b> — karty ${kk(g)}, WIN ${g.s}.` : 'Na kartach: wiersze modelu (jeszcze bez gier).';
+  const zk = zakGet().filter(z => z.mid === M.id), juz = T && T.gra && zk.find(z => z.nr === T.nr), czeka = zk.filter(z => zakRes(z) === 'pend').length;
+  const zform = !(T && T.gra) ? '' : juz ? `<div class="zok">💰 Postawiony: Nr ${fmt(juz.nr)} · k${juz.krok} · ${fmt(juz.zl)} zł — czeka na wynik</div>`
+    : `<div class="zf"><label>Nr wiersza<input id="zNr" type="number" inputmode="numeric" value="${T.nr}"></label><label>krok<input id="zK" type="number" inputmode="numeric" min="1" value="${T.s}"></label>`
+      + `<label>postawione zł<input id="zZl" type="number" inputmode="numeric" min="1" value="${STAWKI[T.s - 1]}"></label><button data-act="bet">💰 Zapisz zakład</button></div>`;
   return `<div class="mod">${modStat(M)}
-    ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go">Pokaż ▶</button></div>` : ''}
+    ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go">Pokaż ▶</button></div>` : ''}${zform}
+    ${zk.length ? `<div class="now"><span>Zakłady modelu: <b>${zk.length}</b> · wynik <b>${zl(zk.reduce((a, z) => a + zakVal(z), 0))}</b>${czeka ? ` · czeka ${czeka}` : ''}</span><button data-act="zak">💰 Zakłady ▶</button></div>` : ''}
     <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? '<button data-act="last">Idź ▶</button>' : ''}</div>
     <div class="bb2"><button class="sec" data-act="stat">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
 }
@@ -377,7 +437,8 @@ function rowHtml(t, row, r, cls, k, p, notes, q) {
   const M = S.mod, mo = M && M.w.includes(r) && partsOf(k)[p] >= M.mx, mm = mo && S.modMk[`${k}.${p}.${r}`];
   const sz = M && !mo && M.w.includes(r) && r <= partsOf(k)[p];   // krótka połowa (karta 0): wiersz modelu tylko do wglądu
   const kc = mo ? ' m' + (mm ? mm.c : 'f') : sz ? ' msz' : '';
-  const ks = mm && mm.l ? `<span class="ks ${mm.c}">${q ? mm.l.replace('start', 'S').replace('WIN ', 'W').replace('BUST', 'B').replace(' ', '') : mm.l}</span>` : '';
+  const zak = mo && nr && S.zakNr && S.zakNr.has(nr) ? '💰' : '';   // na tym wierszu postawiony zakład wybranego modelu
+  const ks = mm && mm.l ? `<span class="ks ${mm.c}">${q ? mm.l.replace('start', 'S').replace('WIN ', 'W').replace('BUST', 'B').replace(' ', '') : mm.l}${zak}</span>` : zak ? `<span class="ks n">${zak}</span>` : '';
   return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}</span><span class="nt">${ks}${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
 }
 function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
@@ -423,6 +484,11 @@ function render() {
   mdlUpd(ML);
   $('mod').innerHTML = modLista();
   $('leg').innerHTML = S.mod ? `<div class="lg">${modLeg()}</div>` : '';
+  S.zakNr = S.mod ? new Set(zakGet().filter(z => z.mid === S.mod.id).map(z => z.nr)) : null;
+  const zp = zakGet().filter(z => zakRes(z) === 'pend').length; $('zbad').textContent = zp ? zp : '';
+  $('ztabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.z === (S.tab || 'z')));
+  $('tZ').hidden = S.tab === 'b'; $('tB').hidden = S.tab !== 'b';
+  if (S.tab === 'b') { $('tB').innerHTML = zakTab(); return; }
   drawStage(k);
 }
 // ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====
@@ -464,6 +530,16 @@ function mdlUpd(ML) {
     b.classList.remove('big'); if (!S.book[S.t]) return;
     lsSet(OTWK, '1'); render(); $('mod').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }; }
+// zakładki 📓 Zeszyt / 💰 Zakłady; na liście zakładów: dotknięcie — karta z tym wierszem, ✕ — usunięcie
+$('ztabs').addEventListener('click', e => { const b = e.target.closest('button[data-z]'); if (!b) return; S.tab = b.dataset.z; render(); });
+$('tB').addEventListener('click', e => {
+  const d = e.target.closest('[data-zdel]'), A = zakGet();
+  if (d) { const z = A[+d.dataset.zdel]; if (z && confirm(`Usunąć zakład ${z.nazwa} (Nr ${fmt(z.nr)}, k${z.krok}, ${z.zl} zł)?`)) { A.splice(+d.dataset.zdel, 1); lsSet(ZAKK, JSON.stringify(A)); render(); } return; }
+  const r = e.target.closest('.zb[data-zi]'); if (!r) return;
+  const z = A[+r.dataset.zi], p = z && S.book[S.t].pos[z.nr]; if (!p) return;
+  if (modeleWsz().some(M => M.id === z.mid)) { lsSet(MODK, z.mid); lsSet(OTWK, '1'); }
+  S.tab = 'z'; if (p.k !== S.card[S.t]) { szelest(); go(p.k); } else render();
+});
 // lista modeli nad kartą: zwiń / rozwiń, wybór modelu, statystyki, Prześledź, dodawanie i usuwanie własnych modeli
 $('mod').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
@@ -474,6 +550,8 @@ $('mod').addEventListener('click', e => {
   else if (a === 'add') return modDodaj();
   else if (a === 'stat') return modSheet(lsGet(MODK, ''));
   else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
+  else if (a === 'bet') return zakZapisz(S.mod);
+  else if (a === 'zak') S.tab = 'b';
   else if (a === 'go' || a === 'last') { const M = S.mod, k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } return; }
   render();
 });
