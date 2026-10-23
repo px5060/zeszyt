@@ -99,7 +99,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mfoot button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
 .nmw{display:flex;gap:8px}.sheet .nmw input{text-align:center;font-size:22px;font-weight:800}
 .nml{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px;color:var(--mu)}
-.nml select{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:9px;font-size:15px}
+.nml select{flex:1;min-width:0;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:9px;font-size:15px}
 @keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}@keyframes mdlB{50%{border-color:#2ee66b}}
 .mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
 .mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
@@ -313,7 +313,7 @@ function modDodaj() {   // nowy własny model: 3 wiersze połowy, start po 1–2
     <div class="nmw">${num('nm1')}${num('nm2')}${num('nm3')}</div>
     <label class="nml">Gramy na<select id="nmP"><option value="1">+ na środku (X+X)</option><option value="0">+ na początku (+XX)</option><option value="2">+ na końcu (XX+)</option></select></label>
     <label class="nml">Start<select id="nmC"><option value="1">po 1 pustej trójce</option><option value="2">po 2 pustych trójkach</option><option value="0">od razu (bez pustej trójki)</option></select></label>
-    <label class="nml">Warunek<select id="nmW"><option value="">brak</option><option value="boki">w pustej trójce + w innym miejscu (przy X+X: z boku)</option></select></label>
+    <label class="nml">Warunek<select id="nmW"><option value="">brak</option><option value="boki">+ z boku (+ gdzie indziej)</option></select></label>
     <label class="nml">Gra do kroku<select id="nmL">${[5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === 9 ? ' selected' : ''}>${x}</option>`).join('')}</select></label>
     <div class="bb"><button id="nmX">Anuluj</button><button id="nmOk" class="pri">Dodaj</button></div></div>`;
   document.body.appendChild(ov);
