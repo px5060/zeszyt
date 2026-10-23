@@ -1,6 +1,6 @@
 {
-  "name": "SZUKAJ MODELI",
-  "short_name": "SZUKAJ M",
+  "name": "SZUKAJ W ZESZYCIE",
+  "short_name": "SZUKAJ W Z",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
