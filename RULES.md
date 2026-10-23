@@ -184,3 +184,11 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Za limitem**: w bieżącej grze (i przy dalszych krokach) — bez oznaczeń, tylko neutralna ramka modelu: w grze jeszcze nie wiemy, co będzie,
   więc oznaczamy tylko do kroku, do którego gra model. W **🔍 Prześledź** (historia) od 1.9.1 kroki po limicie są widoczne — szare
   z numerami, a wiersz trafienia, które zamknęło przegraną grę: „LOST 14” (legenda: „po limicie (przegrana gra)”). Liczenie gier się nie zmienia.
+
+## Dotknięcie i przytrzymanie modelu na liście (od 1.9.4)
+- Prośba użytkownika: **dotknięcie modelu** = tylko pokaż / ukryj go na kartach (wiersze gry wg legendy), bez opisu pod spodem.
+- **Przytrzymanie** (0,5 s, krótka wibracja) = otwiera / zamyka opis modelu jak dawniej po dotknięciu: wynik, GRAJ + „Pokaż ▶”,
+  💰 Zapisz zakład, „Na kartach…”, 📊 Statystyki, 🔍 Prześledź. Opis otwarty dla jednego modelu naraz (`S.panel`, tylko w pamięci strony);
+  przytrzymany model trafia też na karty. Zdjęcie modelu z kart (dotknięcie) zamyka jego opis.
+- Puszczenie palca po przytrzymaniu nie przełącza modelu (`S.lpSkip`); przesunięcie palca > 10 px (przewijanie) przerywa przytrzymanie;
+  na wierszu modelu bez zaznaczania tekstu i bez menu przytrzymania przeglądarki. Na 🔎 i 🗑 przytrzymanie nie działa.
