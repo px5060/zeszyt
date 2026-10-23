@@ -86,7 +86,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mi.sel{background:#1f8a4c22;box-shadow:inset 4px 0 0 #1f8a4c}
 .mods .mi .sq{flex:none;width:13px;height:13px;border-radius:3px;background:#f2c230;box-shadow:0 0 0 1px #0007}.mods .mi .sq.g{animation:sqB .5s steps(1) infinite}
 .mods .mi .mn{min-width:0;line-height:1.2}.mods .mi .mn b{font-size:15.5px}.mods .mi .mn small{display:block;color:var(--mu);font-size:11.5px}
-.mods .mi .ms{margin-left:auto;flex:none;font-size:12.5px}
+.mods .mi .ms{margin-left:auto;flex:0 1 auto;max-width:48%;text-align:right;font-size:12.5px;line-height:1.5}.mods .mi .mn{flex:1 1 auto}
 .mods .mi.lost{border:3px solid transparent;border-image:repeating-linear-gradient(-45deg,#a8423a 0 8px,#e8e2e2 8px 16px) 3}.mods .mi .lo{color:#e0483e;font-weight:800}
 .mods .mi .del{flex:none;text-decoration:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 7px;font-size:14px}
 .mods .mod{margin:0;border:0;border-top:1px dashed var(--bd);border-radius:0}
@@ -114,7 +114,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 @keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}
 .mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
 .mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
-.stan{display:inline-block;padding:0 6px;border-radius:5px;font-weight:900;color:#1b1f2a;background:#f2c230}.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}
+.stan{display:inline-block;padding:0 6px;border-radius:5px;font-weight:900;color:#1b1f2a;background:#f2c230}.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}.stan.cz{background:#c97a45;color:#fff}.stan.od1{background:#8e4fc9;color:#fff}.stan.po{background:#e0483e;color:#fff}
 /* statystyki modelu (okno po dotknięciu kafelka) */
 .sheet.stt{max-height:88vh;overflow:auto}
 .stt .nw{border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:13.5px;background:var(--card);border:1px solid var(--bd)}
@@ -216,7 +216,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.5';
+const APP_VER = '1.9.6';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -318,7 +318,15 @@ function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
   return `Gier <b>${N.G.length}</b> · WIN <b>${N.win}</b> · BUST <b>${N.bust}</b> · najdłużej <b>${N.max}</b> kroków · bilans <b>${zl(N.bal)}</b>`;
 }
 const modGdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
-const modTeraz = (M, krot) => { const T = M.teraz; return !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : `: ${modGdzie(T)}`}`
+// stan gry (od 1.9.6, jak w SZUKAJ W ZESZYCIE): GRAJ = następny krok wypada w następnym wierszu (tylko wtedy miga);
+// CZEKAJ na grę = kolejny krok za kilka wierszy; OD 1. KROKU = po pustej trójce, 1. krok za kilka wierszy; po BUST = krok za limitem
+const zaW = T => T.nr - S.codes[S.t].length, odmW = n => n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'wiersze' : 'wierszy';
+const zaIle = n => n === 1 ? 'następny wiersz' : `za ${n} ${odmW(n)}`;
+const modGraj = M => { const T = M.teraz; return !!(T && T.gra && T.s <= M.limit && zaW(T) === 1); };
+const modTeraz = (M, krot) => { const T = M.teraz; if (!T) return '';
+  if (T.gra && T.s > M.limit) return `<span class="stan po">po BUST</span> krok ${T.s}${krot ? '' : ` — za limitem, nie gramy: ${modGdzie(T)}`}`;
+  if (T.gra && !modGraj(M)) return `<span class="stan ${T.s === 1 ? 'od1' : 'cz'}">${T.s === 1 ? 'OD 1. KROKU' : 'CZEKAJ na grę'}</span> krok <b>${T.s}</b> ${krot ? (zaW(T) === 1 ? '' : `za ${zaW(T)} w.`) : `${zaIle(zaW(T))}: ${modGdzie(T)}`}`;
+  return T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : ` — następny wiersz: ${modGdzie(T)}`}`
   : `<span class="stan">CZEKAJ</span>${krot ? '' : T.bez ? ` — pusta trójka bez ${bokTx(M.poz)}, nie gramy (czekamy na ${CELTX[M.poz]}) — ${modGdzie(T)}` : ` na pustą trójkę — ${modGdzie(T)}`}`; };
 const modLeg = all => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok'], ['mpl', 'dalsze kroki do limitu'], ...(all ? [['mz', 'po limicie (przegrana gra)']] : [])].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
 // ===== ZAKŁADY — postawione zakłady na krokach modeli (zeszyt_v1_zaklady), jak „MOJE ZAKŁADY” w MOJE / SZUKAJ:
@@ -375,7 +383,7 @@ function modLista() {   // lista „Modele” nad kartą: zwinięta — bez ozna
     for (const M of ML) {
       const on = sel.includes(M.id), T = R(M.id).teraz;
       const lo = modLost(R(M.id));   // po LOST-cie (od LOST-u bez WIN) — biało-czerwona ramka jak w MOJE
-      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}${S.panel === M.id ? ' pan' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${T && T.gra ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
+      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}${S.panel === M.id ? ' pan' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${modGraj(R(M.id)) ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
         + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/?m=${modKod(M)}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a>${M.id.startsWith('u') ? `<button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button>` : ''}</div>`;
       if (S.panel === M.id) h += modPanel(R(M.id));   // opis z zakładem, Statystykami i Prześledź — po przytrzymaniu modelu
     }
@@ -387,7 +395,7 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   const t = S.t, M = S.modAll[id]; if (!M) return;
   const N = modNum(M), T = M.teraz, on = modWyb().includes(id) && modOtw(), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   const now = !T ? 'Brak danych.' : T.gra
-    ? `<b class="big">▶ GRAJ — krok ${T.s}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
+    ? `<b class="big">${T.s > M.limit ? '⏸ po BUST' : modGraj(M) ? '▶ GRAJ' : T.s === 1 ? '⏳ OD 1. KROKU' : '⏳ CZEKAJ na grę'} — krok ${T.s}, ${zaIle(zaW(T))}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
     : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez ${bokTx(M.poz)}, tej gry nie gramy; czekamy na ${CELTX[M.poz]}.<br>${modGdzie(T)}`
     : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez ${CELTX[M.poz]}).<br>Patrzymy od: ${modGdzie(T)}`;
   const mxK = Math.max(1, ...Object.values(N.krok));
@@ -395,7 +403,7 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   const ov = document.createElement('div'); ov.className = 'ov';
   ov.innerHTML = `<div class="sheet stt"><h3>Model ${M.nazwa} — statystyki</h3>
     <div class="s">${modOpis(M)}. Kurs 3.0, stawki 8, 8, 16, 32…</div>
-    <div class="nw${T && T.gra ? ' gra' : ''}">${now}</div>
+    <div class="nw${modGraj(M) ? ' gra' : ''}">${now}</div>
     <div class="nums"><div><b>${N.G.length}</b>gier</div><div><b>${N.win}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
       <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
