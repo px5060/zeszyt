@@ -45,7 +45,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .md .l1 .stan{margin-left:auto;flex:none}
 .md .l2{margin-top:4px;color:var(--mu);font-size:12.5px}.md .l2 b{color:var(--tx)}.md .l2 b.z{color:var(--gr2)}.md .l2 b.r{color:var(--red)}
 .stan{display:inline-block;padding:1px 7px;border-radius:5px;font-weight:900;font-size:12px;color:#1b1f2a;background:var(--ye)}
-.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}.stan.po{background:var(--red);color:#fff}
+.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}.stan.po{background:var(--red);color:#fff}.stan.cz{background:#c97a45;color:#fff}.stan.od1{background:#8e4fc9;color:#fff}
+.md.cz{border-color:#c97a45}.md.od1{border-color:#8e4fc9}.md .l2.gr{color:var(--tx)}.md .l2 b.za{color:#2ee66b}
 @keyframes sqB{50%{background:var(--ye)}}
 .wiecej{display:block;width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14px;font-weight:800}
 .hint{color:var(--mu);font-size:11.5px;margin-top:10px;text-align:center}
@@ -126,7 +127,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
         <label>LOST najwyżej<input id="lB" type="number" inputmode="numeric" min="0"></label>
         <label>LOST po LOST najwyżej<input id="lR" type="number" inputmode="numeric" min="0"></label>
       </div>
-      <div class="fr"><span>Stan po LOST</span><button class="ch" data-g="lstan" data-v="all">wszystkie</button><button class="ch" data-g="lstan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="lstan" data-v="czeka">CZEKAJ</button></div>
+      <div class="fr"><span>Stan po LOST</span><button class="ch" data-g="lstan" data-v="all">wszystkie</button><button class="ch" data-g="lstan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="lstan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="lstan" data-v="od1">od 1. kroku</button></div>
       <button class="go" id="goL">🔻 Szukaj modeli po LOST</button>
     </div>
     <div class="wyn" id="wynL"></div>
@@ -142,13 +143,13 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <div class="fr"><span>Gramy na</span><button class="ch" data-g="poz" data-v="1">X+X środek</button><button class="ch" data-g="poz" data-v="2">XX+ koniec</button></div>
     <div class="fr"><span>Start gry</span><button class="ch" data-g="czekaj" data-v="1">po 1 pustej trójce</button><button class="ch" data-g="czekaj" data-v="2">po 2 pustych</button></div>
     <div class="fr"><span>Warunek na pustej trójce</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="boki">+ z boku</button></div>
-    <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ</button></div>
+    <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="stan" data-v="od1">od 1. kroku</button></div>
     <div class="nums">
       <label>Gra do kroku<select id="fL"></select></label>
       <label>Gier co najmniej<input id="fG" type="number" inputmode="numeric" min="0"></label>
       <label>BUST najwyżej<input id="fB" type="number" inputmode="numeric" min="0"></label>
     </div>
-    <div class="srt">Sortuj<select id="fS"><option value="b">najmniej BUST, potem najwięcej gier</option><option value="z">najwyższy bilans</option><option value="g">najwięcej gier</option><option value="t">najpierw w grze (GRAJ)</option></select></div>
+    <div class="srt">Sortuj<select id="fS"><option value="b">najmniej BUST, potem najwięcej gier</option><option value="z">najwyższy bilans</option><option value="g">najwięcej gier</option><option value="t">najpierw najbliższa gra</option></select></div>
     <button class="go" id="goB">🔎 Szukaj</button>
   </div>
   <div class="wyn" id="wyn"></div>
@@ -159,10 +160,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     w ZESZYCIE widać na kartach, gdzie model jest i jak się układał.</div>
 </main>
 
-<script src="../silnik.js?v=1.8.1"></script>
+<script src="../silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.8.1';
+const APP_VER = '1.9.5';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -197,6 +198,29 @@ function czytajKody() {   // → czy coś się zmieniło
   W.c = c; W.B = buildBook(c.length); W.H = przygotuj(c, W.B); return true;
 }
 const wZeszycie = () => [...MODELE, ...parseModele(lsGet(MOJEK, '[]'))].map(modDef);
+// ===== STAN GRY MODELU (od 1.9.5): GRAJ teraz = następny krok wypada w następnym wierszu; CZEKAJ na grę = kolejny krok (2., 3.…)
+// za kilka wierszy; OD 1. KROKU = po pustej trójce (1 albo 2 pustych) gra rusza od 1. kroku. Na kafelku: krok, za ile wierszy i gdzie.
+// Modele bez gry (czekają na pustą trójkę) i po BUST (kroki za limitem) — tylko przy „wszystkie”.
+const odm = n => n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'wiersze' : 'wierszy';
+const zaIle = n => n === 1 ? 'następny wiersz' : `za ${n} ${odm(n)}`;
+function gdzieGra(Z) {   // szybkiModel → {za: ile wierszy do następnego kroku (1 = następny), nr, k, p, r}
+  if (!Z.at) return null;
+  const h = W.H[Z.at[0]], r = Z.at[1], nr = W.B.cards[h.k].parts[h.p][r - 1].nr;
+  return { za: nr - W.c.length, nr, k: h.k, p: h.p, r };
+}
+const stanGry = (t, za, L) => !t || t > L || !za ? '' : za === 1 ? 'gra' : t === 1 ? 'od1' : 'czeka';
+const stanPasuje = (f, t, za, L) => f === 'all' || !!stanGry(t, za, L) && (f === 'gra' ? za === 1 : f === 'od1' ? t === 1 : f === 'czeka' && t > 1 && za > 1);
+function stanZnak(x, L) {   // znaczek stanu na kafelku
+  const st = stanGry(x.teraz, x.za, L);
+  return st === 'gra' ? '<span class="stan gra">GRAJ teraz</span>' : st === 'od1' ? '<span class="stan od1">OD 1. KROKU</span>' : st === 'czeka' ? '<span class="stan cz">CZEKAJ na grę</span>'
+    : x.teraz > L ? `<span class="stan po">po BUST — krok ${x.teraz}</span>` : x.bez ? '<span class="stan">czeka (bez + z boku)</span>' : '<span class="stan">czeka na pustą trójkę</span>';
+}
+function stanLinia(x, L) {   // linia na kafelku modelu w grze: który krok, za ile wierszy, gdzie
+  if (!stanGry(x.teraz, x.za, L)) return '';
+  const g = x.gd, t = x.teraz, cz = partsOf(g.k).length === 2 ? (g.p ? 'P' : 'L') : `cz.${g.p + 1}`;
+  return `<div class="l2 gr">Krok <b>${t}</b> (${fmt(STAWKI[t - 1])} zł)${t === 1 ? ' — <b>od 1. kroku</b> (po pustej trójce)' : ''} · <b class="za">${zaIle(x.za)}</b> · Nr ${fmt(g.nr)}, karta ${g.k} ${cz} w.${g.r}</div>`;
+}
+const stanSuma = (R, L) => { const c = { gra: 0, czeka: 0, od1: 0 }; R.forEach(x => { const st = stanGry(x.teraz, x.za, L); if (st) c[st]++; }); return `GRAJ teraz: <b>${c.gra}</b> · CZEKAJ na grę: <b>${c.czeka}</b> · od 1. kroku: <b>${c.od1}</b>.`; };
 
 // ===== filtry =====
 const pokazChipy = () => document.querySelectorAll('.ch[data-g]').forEach(b => b.classList.toggle('on', F[b.dataset.g].includes(b.dataset.v)));
@@ -233,14 +257,14 @@ function szukaj() {
       let bust = 0, bal = 0, mx = 0;
       for (const x of s) { if (x > L) { bust++; bal -= sumSt(L); } else bal += KURS * STAWKI[x - 1] - sumSt(x); if (x > mx) mx = x; }
       if (bust > F.B) continue;
-      const st = Z.teraz ? 'gra' : 'czeka';
-      if (F.stan[0] !== 'all' && F.stan[0] !== st) continue;
-      wyn.push({ M, g, bust, bal, mx, teraz: Z.teraz, bez: Z.bez });
+      const gd = Z.teraz ? gdzieGra(Z) : null, za = gd ? gd.za : 0;
+      if (!stanPasuje(F.stan[0], Z.teraz, za, L)) continue;
+      wyn.push({ M, g, bust, bal, mx, teraz: Z.teraz, bez: Z.bez, za, gd });
     }
     $('wyn').innerHTML = `Szukam… <b>${Math.round(100 * i / wsz)}%</b> (znaleziono ${fmt(wyn.length)})`;
     if (i < wsz) return setTimeout(krok, 0);
     const srt = { b: (x, y) => x.bust - y.bust || y.g - x.g || y.bal - x.bal, z: (x, y) => y.bal - x.bal || x.bust - y.bust, g: (x, y) => y.g - x.g || x.bust - y.bust,
-      t: (x, y) => (y.teraz ? 1 : 0) - (x.teraz ? 1 : 0) || x.bust - y.bust || y.g - x.g }[F.S];
+      t: (x, y) => bliz(x) - bliz(y) || x.bust - y.bust || y.g - x.g }[F.S], bliz = x => stanGry(x.teraz, x.za, L) ? x.za : 1e9;   // najbliższa gra
     W.wynik = wyn.sort(srt); W.ile = 50; W.przeszukano = wsz; $('goB').disabled = false; pokazWyniki();
   };
   krok();
@@ -275,14 +299,13 @@ function szukajLost() {
       const Z = szybkiModel(W.H, M), s = Z.s; if (s.length < F.G) continue;
       const wToku = Z.teraz > L; if (!wToku && !(s.length && s[s.length - 1] > L)) continue;   // ostatnia gra nie była przegrana
       const D = lostDane(s, L, Z.teraz); if (D.bust < F.lM || D.bust > F.lB || D.rep > F.lR) continue;
-      const stan = wToku ? 'lost' : Z.teraz ? 'gra' : 'czeka';
-      if (F.lstan[0] === 'gra' && stan !== 'gra') continue;
-      if (F.lstan[0] === 'czeka' && stan === 'gra') continue;
-      wyn.push({ M, ...D, teraz: Z.teraz, stan });
+      const gd = Z.teraz && !wToku ? gdzieGra(Z) : null, za = gd ? gd.za : 0;
+      if (!stanPasuje(F.lstan[0], Z.teraz, za, L)) continue;
+      wyn.push({ M, ...D, teraz: Z.teraz, bez: Z.bez, za, gd, stan: wToku ? 'lost' : stanGry(Z.teraz, za, L) || 'nic' });
     }
     $('wynL').innerHTML = `Szukam… <b>${Math.round(100 * i / wsz)}%</b> (znaleziono ${fmt(wyn.length)})`;
     if (i < wsz) return setTimeout(krok, 0);
-    const kol = { gra: 0, czeka: 1, lost: 2 };
+    const kol = { gra: 0, od1: 1, czeka: 2, nic: 3, lost: 4 };
     W.lost = wyn.sort((x, y) => kol[x.stan] - kol[y.stan] || x.bust - y.bust || y.n - x.n); W.ileL = 50; W.przeszukanoL = wsz; $('goL').disabled = false; pokazLost();
   };
   krok();
@@ -290,11 +313,11 @@ function szukajLost() {
 function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${F.poz.map(v => CEL[+v]).join(', ')}</b> · start <b>${F.czekaj.map(v => `po ${v}`).join(', ')}</b> · warunek <b>${F.war.map(v => v ? '+ z boku' : 'bez').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
 function pokazLost() {
   const R = W.lost || [], Z = wZeszycie(), L = F.L;
-  $('wynL').innerHTML = `Modele po LOST: <b>${fmt(R.length)}</b> (przeszukano ${fmt(W.przeszukanoL)}) · LOST ${F.lM}–${F.lB}, LOST po LOST ≤ ${F.lR}. GRAJ teraz: <b>${R.filter(x => x.stan === 'gra').length}</b>.`;
+  $('wynL').innerHTML = `Modele po LOST: <b>${fmt(R.length)}</b> (przeszukano ${fmt(W.przeszukanoL)}) · LOST ${F.lM}–${F.lB}, LOST po LOST ≤ ${F.lR}. ${stanSuma(R, L)}`;
   $('listaL').innerHTML = R.slice(0, W.ileL).map((x, j) => {
     const M = x.M, jest = Z.some(z => sameModel(z, M));
-    const stan = x.stan === 'gra' ? `<span class="stan gra">GRAJ krok ${x.teraz} · ${fmt(STAWKI[x.teraz - 1])} zł</span>` : x.stan === 'lost' ? `<span class="stan po">LOST w toku · krok ${x.teraz}</span>` : `<span class="stan">CZEKAJ</span>`;
-    return `<div class="md lo${x.stan === 'gra' ? ' gra' : ''}" data-l="${j}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stan}</div>
+    const stan = x.stan === 'lost' ? `<span class="stan po">LOST w toku · krok ${x.teraz}</span>` : stanZnak(x, L);
+    return `<div class="md lo${x.stan === 'gra' ? ' gra' : x.stan === 'czeka' ? ' cz' : x.stan === 'od1' ? ' od1' : ''}" data-l="${j}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stan}</div>${stanLinia(x, L)}
       <div class="l2">Gier <b>${x.n}</b> · LOST <b class="r">${x.bust}</b>${x.gaps.length ? ` · co ~<b>${x.gapAvg.toFixed(0)}</b> gier (najkrócej ${x.gapMin})` : ''} · po LOST: WIN <b class="z">${x.winPo}</b> · LOST <b class="${x.rep ? 'r' : 'z'}">${x.rep}</b></div>
       <div class="l2">Ostatnia gra przegrana${x.stan === 'lost' ? ' (trwa, czeka na koniec cyklu)' : ''} · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b>
         · sprawdzenie (ostatnie 35% gier): ${x.spr.g} gier, LOST ${x.spr.bust}, LOST po LOST ${x.spr.rep}${jest ? ' · <span class="jz">✓ w ZESZYCIE</span>' : ''}</div></div>`;
@@ -304,11 +327,11 @@ function pokazLost() {
 function pokazWyniki() {
   const R = W.wynik, Z = wZeszycie(), L = F.L;
   $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (przeszukano ${fmt(W.przeszukano)}): gra do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}.`
-    + (R.length ? ` W grze teraz: <b>${R.filter(x => x.teraz).length}</b>.` : '');
+    + (R.length ? ` ${stanSuma(R, L)}` : '');
   $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => {
     const M = x.M, jest = Z.some(z => sameModel(z, M));
-    const stan = x.teraz ? (x.teraz > L ? `<span class="stan po">po BUST — krok ${x.teraz}</span>` : `<span class="stan gra">GRAJ krok ${x.teraz} · ${fmt(STAWKI[x.teraz - 1])} zł</span>`) : `<span class="stan">CZEKAJ</span>`;
-    return `<div class="md${x.teraz ? ' gra' : ''}" data-j="${j}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stan}</div>
+    const st = stanGry(x.teraz, x.za, L);
+    return `<div class="md${st === 'gra' ? ' gra' : st ? ' ' + (st === 'od1' ? 'od1' : 'cz') : ''}" data-j="${j}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stanZnak(x, L)}</div>${stanLinia(x, L)}
       <div class="l2">Gier <b>${x.g}</b> · WIN <b>${x.g - x.bust}</b> · BUST <b class="${x.bust ? 'r' : 'z'}">${x.bust}</b> · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b>${jest ? ' · <span class="jz">✓ w ZESZYCIE</span>' : ''}</div></div>`;
   }).join('') + (R.length > W.ile ? `<button class="wiecej" id="wiecej">Pokaż więcej (${fmt(R.length - W.ile)})</button>` : '');
   if ($('wiecej')) $('wiecej').onclick = () => { W.ile += 50; pokazWyniki(); };
@@ -320,7 +343,7 @@ function przenies(M) {   // model trafia na listę modeli w ZESZYCIE i jest tam 
   if (wZeszycie().some(z => sameModel(z, M))) return true;
   const id = 'u' + Date.now().toString(36);
   if (!lsSet(MOJEK, JSON.stringify([...parseModele(lsGet(MOJEK, '[]')), { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
-  lsSet(MODK, id); lsSet(OTWK, '1'); return true;
+  lsSet(MODK, [...lsGet(MODK, '').split(',').filter(Boolean), id].join(',')); lsSet(OTWK, '1'); return true;
 }
 function lostSek(M) {   // LOST-y modelu: kiedy, odstęp od poprzedniego, co było w następnej grze
   const G = M.gry, L = M.limit, D = lostDane(G.map(g => g.s), L, M.teraz && M.teraz.gra ? M.teraz.s : 0); if (!D.bust) return '<h4>LOST</h4><div class="s">Ten model nie miał LOST-u.</div>';
@@ -333,8 +356,9 @@ function lostSek(M) {   // LOST-y modelu: kiedy, odstęp od poprzedniego, co by�
 }
 function statystyki(M0) {
   const M = liczModel(W.c, W.B, M0), N = modNum(M), T = M.teraz, pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
-  const now = !T ? 'Brak danych.' : T.gra
-    ? `<b class="big">▶ GRAJ — krok ${T.s}</b><br>${gdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
+  const za = T && T.gra ? T.nr - W.c.length : 0;
+  const now = !T ? 'Brak danych.' : T.gra && T.s > M.limit ? `<b class="big">⏸ po BUST</b> — krok ${T.s} jest za limitem (k${M.limit}): gra przegrana, czekamy na koniec cyklu.<br>${gdzie(T)}`
+    : T.gra ? `<b class="big">${za === 1 ? '▶ GRAJ teraz' : T.s === 1 ? '⏳ OD 1. KROKU' : '⏳ CZEKAJ na grę'} — krok ${T.s}, ${zaIle(za)}</b>${T.s === 1 ? ' (po pustej trójce)' : ''}<br>${gdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
     : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez ${bokTx(M.poz)}, tej gry nie gramy; czekamy na ${CELTX[M.poz]}.<br>${gdzie(T)}`
     : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez ${CELTX[M.poz]}).<br>Patrzymy od: ${gdzie(T)}`;
   const mxK = Math.max(1, ...Object.values(N.krok));

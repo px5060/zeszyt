@@ -128,15 +128,15 @@ function przygotuj(c, B) {   // dla każdej połowy i wiersza: ile kodów (−1 
   H.FH = [0, 1, 2].map(poz => H.map(h => h.fh[poz])); H.OB = [0, 1, 2].map(poz => H.map(h => h.ob[poz]));
   return H;
 }
-function szybkiModel(H, M) {   // → {s: [długości gier], teraz: następny krok gry w toku (0 = CZEKAJ), bez: czeka bez gry (warunek)}
+function szybkiModel(H, M) {   // → {s: [długości gier], teraz: następny krok gry w toku (0 = CZEKAJ), bez: czeka bez gry (warunek), at: [połowa w H, wiersz] — tu następny krok / stąd patrzymy}
   const w = M.w, mx = Math.max(...w), FH = H.FH[M.poz], OB = H.OB[M.poz], s = [];
-  let gra = -1, graj = true, nobs = 0, bok = false;   // gra: liczba kroków w grze w toku (−1 = brak gry)
+  let gra = -1, graj = true, nobs = 0, bok = false, at = null;   // gra: liczba kroków w grze w toku (−1 = brak gry)
   scan: for (let i = 0; i < H.length; i++) {
     const h = H[i]; if (h.len < mx) continue;
     if (gra < 0 && !M.czekaj) { gra = 0; graj = true; }
     let hit = false, b = false;
     for (const r of w) {
-      const n = h.cnt[r]; if (n < 0) break scan;
+      const n = h.cnt[r]; if (n < 0) { at = [i, r]; break scan; }
       const f = FH[i][r];
       if (f) { if (gra >= 0) gra += f; hit = true; break; }
       if (gra >= 0) gra += n;
@@ -147,5 +147,5 @@ function szybkiModel(H, M) {   // → {s: [długości gier], teraz: następny kr
     bok = bok || b;
     if (++nobs === M.czekaj) { gra = 0; graj = !M.war || bok; bok = false; }
   }
-  return { s, teraz: gra >= 0 && graj ? gra + 1 : 0, bez: gra >= 0 && !graj };
+  return { s, teraz: gra >= 0 && graj ? gra + 1 : 0, bez: gra >= 0 && !graj, at };
 }
