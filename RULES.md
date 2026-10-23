@@ -74,13 +74,15 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Lista „Modele” nad kartą (1.5.0)**, rozwijana (`zeszyt_v1_modele_otw`): **zwinięta = żadnych oznaczeń na kartach**.
   Rozwinięta: każdy model w wierszu (kwadracik żółty CZEKAJ / migający GRAJ, nazwa, opcje, stan). Nagłówek listy bez znaczka „GRAJ: …”
   (od 1.7.3, prośba użytkownika) — zielone GRAJ świeci tylko przy modelu na rozwiniętej liście. **Dotknięcie modelu** = jego wiersze
-  na kartach + opis pod nim, co się dzieje (`zeszyt_v1_model`); ponowne dotknięcie — odznacza. Jeden model na kartach naraz.
+  na kartach + opis pod nim, co się dzieje (`zeszyt_v1_model` — id po przecinku); ponowne dotknięcie — odznacza. Od 1.9.0 **kilka
+  modeli naraz** (patrz niżej).
   Modele dodaje się **tylko z SZUKAJ W ZESZYCIE** (od 1.7.2 — ręczne „＋ Dodaj model” w ZESZYCIE usunięte na prośbę użytkownika;
   na dole listy link „🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶”). Własne modele w `zeszyt_v1_modele` (JSON); 🗑 usuwa model (wbudowanego nie).
 - **Kolory na karcie**: **fioletowy** = start (pusta trójka, cała trójka; „start” przy 3., ostatnim pustym wierszu — on uruchamia grę);
   każdy rozegrany wiersz z **numerem kroku**: **czerwony** = bez trafienia, **zielony** = WIN („WIN 9”); ciemnoczerwony = BUST,
-  szary = po BUST. Wiersze modelu bez udziału w grze (także po WIN w tej samej połowie) — neutralna ramka. Gra w toku: migająca
-  ramka następnego kroku („▶ 2”). Gry nie zachodzą na siebie. (1.4.0 miało kolor na całą połowę — użytkownik chce numer przy każdym kroku.)
+  kroków za limitem **nie oznaczamy** (od 1.9.0 — ani w bieżącej grze, ani w Prześledź; wcześniej szare). Wiersze modelu bez udziału w grze (także po WIN w tej samej połowie) — neutralna ramka. Gra w toku: migająca
+  ramka następnego kroku („▶ 2”), dalej **pomarańczowe przerywane ramki z numerami kolejnych kroków aż do limitu** (od 1.9.0, np. gra do k6,
+  jesteśmy na k3 → ▶3, potem 4, 5, 6 — w tej połowie i następnych; za limitem nic). Gry nie zachodzą na siebie. (1.4.0 miało kolor na całą połowę — użytkownik chce numer przy każdym kroku.)
 - **Opis wybranego modelu**: wynik, CZEKAJ / GRAJ + „Pokaż ▶”, „Na kartach: …” (bieżąca gra / ostatnia + „Idź ▶” / wszystkie),
   „📊 Statystyki”, „🔍 Prześledź”. **Legenda jedna, pod zeszytem** (od 1.5.1, gdy model jest na kartach) — nie przy każdym modelu.
 - **🔍 Prześledź** (`zeszyt_v1_przesledz`): **WŁ** = wszystkie dotychczasowe gry modelu na całym zeszycie (przewracając karty);
@@ -169,3 +171,12 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Przy każdym modelu w ZESZYCIE ikonka **🔎** → SZUKAJ W ZESZYCIE z od razu otwartymi statystykami tego modelu
   (link `modele/?m=<kod>`, kod `poz-wiersze-czekaj-warunek-limit`, np. `1-16.18.27-1-b-9`; `modKod` / `modZKodu` w `silnik.js`).
 - W wyszukiwarce „✓ w ZESZYCIE — otwórz ▶” → ZESZYT z tym modelem wybranym i pokazanym na kartach (link `../?m=<id>`).
+
+## Kilka modeli naraz, kroki do limitu (od 1.9.0)
+- Na prośbę użytkownika: dotknięcie modelu na liście dodaje go do kart, ponowne — zdejmuje; **można rozwinąć kilka modeli naraz**
+  (każdy ma swój opis pod sobą, swój formularz zakładu i przyciski). `zeszyt_v1_model` = id wybranych po przecinku (stary zapis
+  jednego id dalej działa). Link `?m=` z SZUKAJ W ZESZYCIE, „Pokaż na kartach” w Statystykach i dotknięcie zakładu **dodają** model.
+- Wiersz oznaczony przez **2 (lub więcej) modele**: przy znaczku **„×2”**; kolor najważniejszy (▶ > WIN > BUST > krok > dalszy krok >
+  start), numery kroków obu modeli po „/” (np. „4 / 2 ×2”). Na karcie 1 (wąsko) „×2” na rogu ramki. Legenda pod zeszytem: „×2 — wiersz 2 modeli”.
+- **Gra w toku**: ▶ następny krok miga, a kolejne kroki do limitu modelu mają pomarańczowe przerywane ramki z numerami.
+- **Za limitem — bez oznaczeń** (bieżąca gra i Prześledź): wiersze dalej mają tylko neutralną ramkę modelu. Liczenie gier się nie zmienia.
