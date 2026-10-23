@@ -68,7 +68,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   16, 18 i 27 (3 kroki na połowę). Połowa bez + w tych wierszach = **pusta trójka** → gra od następnej połowy, krok za krokiem do WIN;
   po WIN nowy cykl od następnej połowy. Gra do 9. kroku. Połowy krótsze niż 27 wierszy (karta 0) pomijane; karta 1 — 4 części po kolei.
 - Wynik na 15 361 kodach: 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, bilans +11 472 zł (kurs 3.0, stawki 8, 8, 16, 32…).
-- Przycisk **🟩 16·18·27** na pasku: 1. dotknięcie powiększa, 2. włącza / wyłącza podświetlenie na całym zeszycie (`zeszyt_v1_model`).
+- Przycisk modelu **16·18·27** na pasku (do 1.1.1: 2. dotknięcie włącza / wyłącza podświetlenie; od 1.2.0 — patrz kafelek niżej), wybór w `zeszyt_v1_model`.
 - Na karcie: ramka wokół 3 znaków w wierszach modelu; przerywana szara = pusta trójka (start gry); **czerwony** = krok bez trafienia
   (z numerem kroku); **zielony** = WIN (np. „WIN 4”); ciemnoczerwony = BUST; pulsująca przerywana = następny krok otwartej gry.
 - Nad kartą opis: gry / WIN / BUST / bilans, w której połowie gry przyszedł WIN, „Teraz” (czekamy na pustą trójkę albo następny krok) + „Pokaż ▶”.
@@ -76,4 +76,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   lewa i prawa połowa obok siebie, w każdej 3 komórki (wiersze 16, 18, 27) ze znakami kodu i tymi samymi kolorami co na karcie,
   w znaczku numer kroku. Karta 1 — dwa paski (cz. 1–2, 3–4), karta 0 — „—”. Otwiera się na bieżącej karcie; dotknięcie paska
   otwiera tę kartę w zeszycie; „✕ Zamknij” / Esc.
+- **Kafelek modelu na pasku** (od 1.2.0): kwadracik **żółty = CZEKAJ** (na pustą trójkę), **miga (żółty/zielony) = GRAJ** — otwarta gra,
+  obok numer następnego kroku (np. ▶2). Stan liczony zawsze, także gdy podświetlenie kart jest wyłączone.
+  1. dotknięcie powiększa, 2. włącza podświetlenie i otwiera **statystyki modelu**: stan (CZEKAJ / GRAJ — krok, miejsce, stawka,
+  ile już postawione, ile da WIN), gry / WIN / BUST / najdłużej / bilans / największy spadek, tabela WIN na kroku (stawka, ile, zysk),
+  WIN w połowie gry, ostatnie gry (dotknięcie → karta), przyciski: wyłącz / włącz podświetlenie, 🔍 Prześledź, Zamknij.
+- Opis nad kartą (gdy podświetlenie włączone) krótki: wynik, CZEKAJ / GRAJ + „Pokaż ▶”, legenda, „📊 Statystyki”, „🔍 Prześledź”.
 - Kolejne modele dopisuje się w `MODELE` w `index.html` (`w` wiersze, `poz` cyfra, `czekaj` pustych trójek, `limit` kroków).

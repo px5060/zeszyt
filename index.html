@@ -92,7 +92,26 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .tk .c i{flex:none;font:800 9.5px/1.35 system-ui,sans-serif;font-style:normal;padding:0 3px;border-radius:3px;background:var(--red);color:#fff}
 .tk .c.mw i{background:#1f8a4c}.tk .c.mb i{background:#7a1512}.tk .c.mz i{background:#c9a3a0}.tk .c.mn i{background:#fff;color:var(--red);border:1px dashed var(--red)}
 #appbar .mdl{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:4px 5px;border:1.5px solid #1f8a4c;background:transparent;color:var(--tx);transition:transform .15s;cursor:pointer}
-#appbar .mdl.on{background:#1f8a4c;color:#fff}#appbar .mdl.big{transform:scale(1.45);position:relative;z-index:5;box-shadow:0 0 0 2px #fff6}
+#appbar .mdl.on{background:#1f8a4c;color:#fff}
+#appbar .mdl .sq{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:#f2c230;box-shadow:0 0 0 1px #0007}
+#appbar .mdl .st{margin-left:3px;font-weight:900}
+#appbar .mdl.gra{border-color:#f2c230;animation:mdlB 1s steps(1) infinite}#appbar .mdl.gra .sq{animation:sqB .5s steps(1) infinite}
+@keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}@keyframes mdlB{50%{border-color:#2ee66b}}
+.mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
+.mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
+.mod .stan{display:inline-block;padding:0 6px;border-radius:5px;font-weight:900;color:#1b1f2a;background:#f2c230}.mod .stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}
+/* statystyki modelu (okno po dotknięciu kafelka) */
+.sheet.stt{max-height:88vh;overflow:auto}
+.stt .nw{border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:13.5px;background:var(--card);border:1px solid var(--bd)}
+.stt .nw.gra{border-color:#2ee66b;box-shadow:0 0 0 1px #2ee66b inset}.stt .nw b.big{font-size:16px}
+.stt .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.stt .nums div{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:6px;text-align:center;font-size:11.5px;color:var(--mu)}.stt .nums b{display:block;font-size:18px;color:var(--tx)}
+.stt table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}.stt th{color:var(--mu);font-weight:600;font-size:11.5px;text-align:right;padding:3px 4px}
+.stt td{padding:3px 4px;text-align:right;border-top:1px solid var(--bd)}.stt td:first-child,.stt th:first-child{text-align:left}
+.stt td.bar{width:38%;text-align:left}.stt td.bar i{display:block;height:10px;border-radius:3px;background:#1f8a4c}
+.stt .ost{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.stt .ost button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 8px;font-size:12px}
+.stt .ost button b{color:#2ea85a}
+.stt .bb{position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}.stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}#appbar .mdl.big{transform:scale(1.45);position:relative;z-index:5;box-shadow:0 0 0 2px #fff6}
 .r.last{background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--hl2)}
 .r.nxt .no::before{content:'▸';position:absolute;left:calc(var(--sq)*-.55);color:var(--hl2);font:700 calc(var(--sq)*.7)/var(--sq) system-ui}
 .r.off{visibility:hidden}
@@ -171,12 +190,12 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div class="info" id="info"></div>
   <div id="mod"></div>
   <div id="card" class="stage"></div>
-  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. 🟩 na pasku (dotknij 2×) — model podświetlony na całym zeszycie.</div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. Kafelek modelu na pasku (dotknij 2×) — podświetlenie na zeszycie i statystyki; kwadracik żółty = czekaj, miga = graj.</div>
 </main>
 
 <script>
 "use strict";
-const APP_VER = '1.1.1';
+const APP_VER = '1.2.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -258,7 +277,7 @@ const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyf
 // = pusta trójka → gra od następnej połowy, krok za krokiem, aż do WIN; po WIN nowy cykl od następnej połowy.
 // Połowy krótsze niż najwyższy wiersz modelu (karta 0) pomijamy. Stawki 8, 8, 16, 32…, kurs 3.0, gra do kroku `limit`.
 const MODELE = { m1: { w: [16, 18, 27], poz: 1, czekaj: 1, limit: 9, nazwa: '16·18·27' } };
-const MODK = 'zeszyt_v1_model', KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
+const MID = 'm1', MODK = 'zeszyt_v1_model', KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
 const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const PRI = { f: 0, p: 1, z: 2, k: 3, n: 4, b: 5, w: 6 };   // gdy w jednym wierszu są dwa kody (dopisek) — mocniejszy znak wygrywa
 function liczModel(t, id) {   // → {…model, mx, mk: 'k.p.r' → {c, s: [kroki]}, gry: [{s, h, k, p, r}], teraz}
@@ -293,25 +312,55 @@ function liczModel(t, id) {   // → {…model, mx, mk: 'k.p.r' → {c, s: [krok
   if (teraz) { teraz.gra = gra; teraz.s = st + 1; if (gra) put(teraz.key, 'n', st + 1); }
   return { ...M, mx, mk, gry, teraz };
 }
-function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
-  const G = M.gry, win = G.filter(g => g.s <= M.limit), bal = G.reduce((a, g) => a + (g.s <= M.limit ? KURS * STAWKI[g.s - 1] - sumSt(g.s) : -sumSt(M.limit)), 0);
-  return `Gier <b>${G.length}</b> · WIN <b>${win.length}</b> · BUST <b>${G.length - win.length}</b> · najdłużej <b>${Math.max(0, ...G.map(g => g.s))}</b> kroków · bilans <b>${bal >= 0 ? '+' : '−'}${fmt(Math.abs(bal))} zł</b>`;
+const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
+function modNum(M) {   // liczby modelu: gry, WIN, BUST, najdłużej, bilans, największy spadek (ze stawkami w trakcie gry), WIN wg kroku i połowy
+  const G = M.gry, L = M.limit, zysk = s => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
+  let bal = 0, top = 0, dd = 0;
+  for (const g of G) { dd = Math.max(dd, top - (bal - sumSt(Math.min(g.s, L)))); bal += zysk(g.s); top = Math.max(top, bal); }
+  const krok = {}, pol = {}; G.filter(g => g.s <= L).forEach(g => { krok[g.s] = (krok[g.s] || 0) + 1; pol[g.h] = (pol[g.h] || 0) + 1; });
+  return { G, win: G.filter(g => g.s <= L).length, bust: G.filter(g => g.s > L).length, max: Math.max(0, ...G.map(g => g.s)), bal, dd, krok, pol, zysk };
 }
+function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
+  const N = modNum(M);
+  return `Gier <b>${N.G.length}</b> · WIN <b>${N.win}</b> · BUST <b>${N.bust}</b> · najdłużej <b>${N.max}</b> kroków · bilans <b>${zl(N.bal)}</b>`;
+}
+const modGdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
 const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'pusta trójka (start)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
-function modPanel(t) {   // opis modelu nad kartą: wynik na całym zeszycie i co teraz
+function modPanel(t) {   // krótki opis nad kartą (gdy podświetlenie włączone): wynik, co teraz, legenda, statystyki i Prześledź
   const M = S.mod; if (!M) return '';
-  const hh = {}; M.gry.filter(g => g.s <= M.limit).forEach(g => hh[g.h] = (hh[g.h] || 0) + 1);
-  const T = M.teraz, gdzie = T ? `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})` : '';
-  const now = !T ? '' : T.gra ? `<b>Teraz: GRA</b> — następny krok <b>${T.s}</b>: ${gdzie}` : `<b>Teraz:</b> czekamy na pustą trójkę — ${gdzie}`;
-  return `<div class="mod"><b>🟩 Model ${M.nazwa}</b> — + na środku, w każdej połowie wiersze ${M.w.join(', ')}; gra po ${M.czekaj} pustej trójce, do ${M.limit}. kroku.<br>
-    ${modStat(M)} <small>(kurs 3.0, stawki 8, 8, 16…)</small><br>
-    WIN w połowie gry: ${Object.keys(hh).sort((a, b) => a - b).map(x => `${x}. — <b>${hh[x]}</b>`).join(' · ')}
+  const T = M.teraz, now = !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł): ${modGdzie(T)}` : `<span class="stan">CZEKAJ</span> na pustą trójkę — ${modGdzie(T)}`;
+  return `<div class="mod"><b>🟩 Model ${M.nazwa}</b> · ${modStat(M)}
     ${T ? `<div class="now"><span>${now}</span><button id="modGo">Pokaż ▶</button></div>` : ''}
     <div class="lg">${modLeg()}</div>
-    <button class="trB" id="trB">🔍 Prześledź — cały zeszyt</button></div>`;
+    <div class="bb2"><button class="sec" id="stB">📊 Statystyki</button><button id="trB">🔍 Prześledź</button></div></div>`;
+}
+function modSheet() {   // STATYSTYKI modelu — po dotknięciu kafelka modelu na pasku (2. dotknięcie)
+  const t = S.t, M = S.modAll; if (!M) return;
+  const N = modNum(M), T = M.teraz, on = lsGet(MODK, '') === MID, pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+  const now = !T ? 'Brak danych.' : T.gra
+    ? `<b class="big">▶ GRAJ — krok ${T.s}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
+    : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez + na środku).<br>Patrzymy od: ${modGdzie(T)}`;
+  const mxK = Math.max(1, ...Object.values(N.krok));
+  const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="sheet stt"><h3>🟩 Model ${M.nazwa} — statystyki</h3>
+    <div class="s">+ na środku; w każdej połowie wiersze ${M.w.join(', ')}; gra po ${M.czekaj} pustej trójce, do ${M.limit}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+    <div class="nw${T && T.gra ? ' gra' : ''}">${now}</div>
+    <div class="nums"><div><b>${N.G.length}</b>gier</div><div><b>${N.win}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
+      <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
+    <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
+    <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
+    <h4>Ostatnie gry (dotknij — karta)</h4><div class="ost">${N.G.slice(-8).reverse().map(g => `<button data-k="${g.k}">${g.k}${pn(g)} w.${g.r} · <b>WIN ${g.s}</b></button>`).join('')}</div>
+    <div class="bb"><button id="stOn">${on ? 'Wyłącz podświetlenie' : 'Podświetl na zeszycie'}</button><button id="stTr" class="pri">🔍 Prześledź</button><button id="stX">Zamknij</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) close(); const b = e.target.closest('.ost button'); if (b) { close(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } } };
+  $('stX').onclick = close;
+  $('stOn').onclick = () => { lsSet(MODK, on ? '' : MID); close(); render(); };
+  $('stTr').onclick = () => { close(); traceOpen(); };
 }
 function traceOpen() {   // PRZEŚLEDŹ: cały zeszyt na jednym ekranie — karta = pasek, połowy obok siebie, w połowie 3 wiersze modelu
-  const t = S.t, M = S.mod; if (!M) return;
+  const t = S.t, M = S.modAll; if (!M) return;
   const c = S.codes[t], n = c.length, B = S.book[t], L = lastCard(t), sg = x => [...c[x - 1]].map(mark).join('');
   const cell = (k, p, r) => {
     const row = B.cards[k].parts[p][r - 1], mm = M.mk[`${k}.${p}.${r}`], xs = [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop].filter(x => x <= n);
@@ -381,11 +430,15 @@ function render() {
   const z = jobj(LASTK), un = z && z.n === n && c[n - 1] === z.c && S.nAdd[t] > 0;   // cofnąć można tylko kod dopisany tutaj i wciąż ostatni
   $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
   if (un) $('undoB').onclick = undoCode;
-  const mid = lsGet(MODK, ''), mkey = `${mid}:${n}:${c[n - 1]}`;
-  if (!MODELE[mid]) { S.mod = null; S.modKey = ''; } else if (S.modKey !== mkey) { S.mod = liczModel(t, mid); S.modKey = mkey; }
+  // model liczony zawsze (kafelek na pasku pokazuje CZEKAJ / GRAJ), podświetlenie kart tylko gdy włączone
+  const mkey = `${MID}:${n}:${c[n - 1]}`;
+  if (S.modKey !== mkey) { S.modAll = liczModel(t, MID); S.modKey = mkey; }
+  S.mod = lsGet(MODK, '') === MID ? S.modAll : null;
+  mdlUpd();
   $('mod').innerHTML = modPanel(t);
   if ($('modGo')) $('modGo').onclick = () => { const T = S.mod.teraz; if (T.k !== S.card[t]) { szelest(); go(T.k); } };
   if ($('trB')) $('trB').onclick = traceOpen;
+  if ($('stB')) $('stB').onclick = modSheet;
   drawStage(k);
 }
 // ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====
@@ -410,13 +463,23 @@ function szelest(len = .4) {
 { const el = $('appbar'), b = document.createElement('button'), upd = () => { b.textContent = lsGet(SNDK, '1') === '1' ? '🔊' : '🔇'; b.title = 'szelest kartki'; };
   b.className = 'thm'; upd(); el.appendChild(b);
   b.onclick = () => { lsSet(SNDK, lsGet(SNDK, '1') === '1' ? '0' : '1'); upd(); szelest(.3); }; }
-// przycisk modelu: 1. dotknięcie powiększa, 2. włącza / wyłącza podświetlenie na całym zeszycie (jak przyciski aplikacji)
-{ const el = $('appbar'), id = 'm1', b = document.createElement('button'), upd = () => { const on = lsGet(MODK, '') === id; b.classList.toggle('on', on); b.title = `model ${MODELE[id].nazwa} — ${on ? 'wyłącz' : 'podświetl'} (dotknij 2×)`; };
-  b.className = 'mdl'; b.textContent = '🟩 ' + MODELE[id].nazwa; upd(); el.appendChild(b);
+// kafelek modelu: kwadracik żółty = CZEKAJ (na pustą trójkę), miga = GRAJ (otwarta gra, obok numer kroku).
+// 1. dotknięcie powiększa, 2. włącza podświetlenie na zeszycie i otwiera statystyki modelu.
+const mdlB = document.createElement('button');
+function mdlUpd() {
+  const b = mdlB, M = S.modAll, T = M && M.teraz, gra = !!(T && T.gra);
+  b.classList.toggle('on', lsGet(MODK, '') === MID); b.classList.toggle('gra', gra);
+  b.querySelector('.st').textContent = gra ? '▶' + T.s : '';
+  b.title = `model ${MODELE[MID].nazwa} — ${gra ? `GRAJ krok ${T.s}` : 'CZEKAJ'} (dotknij 2× — statystyki)`;
+}
+{ const el = $('appbar'), b = mdlB;
+  b.className = 'mdl'; b.innerHTML = `<i class="sq"></i>${MODELE[MID].nazwa}<span class="st"></span>`; el.appendChild(b);
   b.onclick = () => {
     clearTimeout(b._t);
     if (!b.classList.contains('big')) { el.querySelectorAll('.big').forEach(x => x.classList.remove('big')); b.classList.add('big'); b._t = setTimeout(() => b.classList.remove('big'), 4000); return; }
-    b.classList.remove('big'); lsSet(MODK, lsGet(MODK, '') === id ? '' : id); upd(); if (S.book[S.t]) render();
+    b.classList.remove('big'); if (!S.book[S.t]) return;
+    if (lsGet(MODK, '') !== MID) { lsSet(MODK, MID); render(); }
+    modSheet();
   }; }
 
 // ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w lewo = następna, w prawo = poprzednia; karta idzie za palcem =====
