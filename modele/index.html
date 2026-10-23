@@ -44,14 +44,29 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .md .l1{display:flex;align-items:center;gap:8px}.md .l1 b{font-size:16.5px}.md .l1 small{color:var(--mu);font-size:11.5px}
 .md .l1 .stan{margin-left:auto;flex:none}
 .md .l2{margin-top:4px;color:var(--mu);font-size:12.5px}.md .l2 b{color:var(--tx)}.md .l2 b.z{color:var(--gr2)}.md .l2 b.r{color:var(--red)}
-.md .l3{display:flex;gap:6px;margin-top:7px}
-.md .l3 button,.md .l3 a{flex:1;text-align:center;text-decoration:none;border-radius:9px;padding:8px;font-size:13.5px;font-weight:800;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
-.md .l3 .add{background:var(--gr);border-color:var(--gr);color:#fff}.md .l3 .jest{background:transparent;color:var(--gr2);border-color:var(--gr)}
 .stan{display:inline-block;padding:1px 7px;border-radius:5px;font-weight:900;font-size:12px;color:#1b1f2a;background:var(--ye)}
 .stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}.stan.po{background:var(--red);color:#fff}
 @keyframes sqB{50%{background:var(--ye)}}
 .wiecej{display:block;width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14px;font-weight:800}
 .hint{color:var(--mu);font-size:11.5px;margin-top:10px;text-align:center}
+.md{cursor:pointer}.md .jz{color:var(--gr2);font-weight:800}
+/* okno statystyk modelu */
+.ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--pan);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:min(100%,560px);padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:16px}.sheet .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}.sheet .s b{color:var(--tx)}
+.sheet.stt{max-height:88vh;overflow:auto}
+.stt .nw{border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:13.5px;background:var(--card);border:1px solid var(--bd)}
+.stt .nw.gra{border-color:#2ee66b;box-shadow:0 0 0 1px #2ee66b inset}.stt .nw b.big{font-size:16px}
+.stt .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.stt .nums div{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:6px;text-align:center;font-size:11.5px;color:var(--mu)}.stt .nums b{display:block;font-size:18px;color:var(--tx)}
+.stt table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}.stt th{color:var(--mu);font-weight:600;font-size:11.5px;text-align:right;padding:3px 4px}
+.stt td{padding:3px 4px;text-align:right;border-top:1px solid var(--bd)}.stt td:first-child,.stt th:first-child{text-align:left}
+.stt td.bar{width:38%;text-align:left}.stt td.bar i{display:block;height:10px;border-radius:3px;background:var(--gr)}
+.stt .ost{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.stt .ost span{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:5px 8px;font-size:12px}.stt .ost b{color:var(--gr2)}
+.stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}
+.stt .bb{display:flex;gap:8px;position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}
+.stt .bb>span{flex:2;display:flex}.stt .bb button,.stt .bb a{flex:1;text-align:center;text-decoration:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:11px;font-size:15px;font-weight:800}
+.stt .bb .pri{background:var(--gr);border-color:var(--gr);color:#fff}.stt .bb .pri.jest{background:transparent;color:var(--gr2)}
 </style>
 </head>
 <body>
@@ -84,9 +99,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div id="msg"></div>
   <div class="info" id="info">Wczytuję kody…</div>
   <div class="flt" id="flt">
-    <div class="fr"><span>Gramy na</span><button class="ch" data-g="poz" data-v="1">X+X środek</button><button class="ch" data-g="poz" data-v="0">+XX początek</button><button class="ch" data-g="poz" data-v="2">XX+ koniec</button></div>
-    <div class="fr"><span>Start gry</span><button class="ch" data-g="czekaj" data-v="1">po 1 pustej trójce</button><button class="ch" data-g="czekaj" data-v="2">po 2 pustych</button><button class="ch" data-g="czekaj" data-v="0">od razu</button></div>
-    <div class="fr"><span>Warunek na pustej trójce</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="boki">+ z boku (+ gdzie indziej)</button></div>
+    <div class="fr"><span>Gramy na</span><button class="ch" data-g="poz" data-v="1">X+X środek</button><button class="ch" data-g="poz" data-v="2">XX+ koniec</button></div>
+    <div class="fr"><span>Start gry</span><button class="ch" data-g="czekaj" data-v="1">po 1 pustej trójce</button><button class="ch" data-g="czekaj" data-v="2">po 2 pustych</button></div>
+    <div class="fr"><span>Warunek na pustej trójce</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="boki">+ z boku</button></div>
     <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ</button></div>
     <div class="nums">
       <label>Gra do kroku<select id="fL"></select></label>
@@ -98,15 +113,15 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   </div>
   <div class="wyn" id="wyn"></div>
   <div id="lista"></div>
-  <div class="hint">Model = 3 wiersze połowy. Pusta trójka (3 wiersze bez + w miejscu gry) uruchamia grę od następnej połowy, krok za krokiem do WIN;
-    „od razu” — gramy bez czekania, zaraz po każdym WIN. BUST = gra dłuższa niż „gra do kroku”. Kurs 3.0, stawki 8, 8, 16, 32…
-    „➕ Do zeszytu” dodaje model do listy w ZESZYCIE — tam widać na kartach, gdzie jest i jak się układał.</div>
+  <div class="hint">Model = 3 wiersze połowy. Pusta trójka (3 wiersze bez + w miejscu gry) uruchamia grę od następnej połowy, krok za krokiem do WIN.
+    BUST = gra dłuższa niż „gra do kroku”. Kurs 3.0, stawki 8, 8, 16, 32… Dotknij modelu — statystyki i „Przenieś do zeszytu”;
+    w ZESZYCIE widać na kartach, gdzie model jest i jak się układał.</div>
 </main>
 
 <script src="../silnik.js?v=1.6.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.6.0';
+const APP_VER = '1.6.1';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -117,7 +132,10 @@ const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
 const DOMYSL = { poz: ['1'], czekaj: ['1'], war: [''], stan: ['all'], L: 9, G: 100, B: 2, S: 'b' };
+// +XX (początek) i gra „od razu” usunięte — nie ma takich modeli do k9 (decyzja użytkownika); stare zapisy filtrów czyścimy
 let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
+F.poz = F.poz.filter(v => v === '1' || v === '2'); F.czekaj = F.czekaj.filter(v => v === '1' || v === '2');
+if (!F.poz.length) F.poz = ['1']; if (!F.czekaj.length) F.czekaj = ['1'];
 const W = { seed: '', seedErr: false, c: [], H: null, wynik: [], ile: 50, klucz: '' };
 
 async function loadSeed() {   // baza kodów z aplikacji MOJE (ten sam adres), kopia na brak internetu w pamięci podręcznej
@@ -135,7 +153,7 @@ async function loadSeed() {   // baza kodów z aplikacji MOJE (ten sam adres), k
 function czytajKody() {   // → czy coś się zmieniło
   const add = lsGet(ADDK, ''), s = W.seed + (/^(\d{3})*$/.test(add) ? add : ''), c = s.match(/\d{3}/g) || [];
   if (W.H && c.length === W.c.length && c[c.length - 1] === W.c[W.c.length - 1]) return false;
-  W.c = c; W.H = przygotuj(c, buildBook(c.length)); return true;
+  W.c = c; W.B = buildBook(c.length); W.H = przygotuj(c, W.B); return true;
 }
 const wZeszycie = () => [...MODELE, ...parseModele(lsGet(MOJEK, '[]'))].map(modDef);
 
@@ -192,21 +210,46 @@ function pokazWyniki() {
   $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => {
     const M = x.M, jest = Z.some(z => sameModel(z, M));
     const stan = x.teraz ? (x.teraz > L ? `<span class="stan po">po BUST — krok ${x.teraz}</span>` : `<span class="stan gra">GRAJ krok ${x.teraz} · ${fmt(STAWKI[x.teraz - 1])} zł</span>`) : `<span class="stan">CZEKAJ</span>`;
-    return `<div class="md${x.teraz ? ' gra' : ''}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stan}</div>
-      <div class="l2">Gier <b>${x.g}</b> · WIN <b>${x.g - x.bust}</b> · BUST <b class="${x.bust ? 'r' : 'z'}">${x.bust}</b> · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b></div>
-      <div class="l3">${jest ? `<a class="jest" href="../">✓ w ZESZYCIE — otwórz ▶</a>` : `<button class="add" data-j="${j}">➕ Do zeszytu</button>`}</div></div>`;
+    return `<div class="md${x.teraz ? ' gra' : ''}" data-j="${j}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stan}</div>
+      <div class="l2">Gier <b>${x.g}</b> · WIN <b>${x.g - x.bust}</b> · BUST <b class="${x.bust ? 'r' : 'z'}">${x.bust}</b> · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b>${jest ? ' · <span class="jz">✓ w ZESZYCIE</span>' : ''}</div></div>`;
   }).join('') + (R.length > W.ile ? `<button class="wiecej" id="wiecej">Pokaż więcej (${fmt(R.length - W.ile)})</button>` : '');
   if ($('wiecej')) $('wiecej').onclick = () => { W.ile += 50; pokazWyniki(); };
 }
-$('lista').addEventListener('click', e => {   // „Do zeszytu”: model trafia na listę modeli w ZESZYCIE i jest tam od razu pokazany na kartach
-  const b = e.target.closest('button.add'); if (!b) return;
-  const M = W.wynik[+b.dataset.j].M, moje = parseModele(lsGet(MOJEK, '[]'));
-  if (wZeszycie().some(z => sameModel(z, M))) return pokazWyniki();
+// dotknięcie modelu → statystyki modelu (pełne liczenie, jak w ZESZYCIE) + „Przenieś do zeszytu”
+const partName = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
+const gdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
+function przenies(M) {   // model trafia na listę modeli w ZESZYCIE i jest tam wybrany (pokazany na kartach)
+  if (wZeszycie().some(z => sameModel(z, M))) return true;
   const id = 'u' + Date.now().toString(36);
-  if (!lsSet(MOJEK, JSON.stringify([...moje, { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
-  lsSet(MODK, id); lsSet(OTWK, '1');
-  pokazWyniki();
-});
+  if (!lsSet(MOJEK, JSON.stringify([...parseModele(lsGet(MOJEK, '[]')), { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  lsSet(MODK, id); lsSet(OTWK, '1'); return true;
+}
+function statystyki(M0) {
+  const M = liczModel(W.c, W.B, M0), N = modNum(M), T = M.teraz, pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+  const now = !T ? 'Brak danych.' : T.gra
+    ? `<b class="big">▶ GRAJ — krok ${T.s}</b><br>${gdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
+    : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez ${bokTx(M.poz)}, tej gry nie gramy; czekamy na ${CELTX[M.poz]}.<br>${gdzie(T)}`
+    : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez ${CELTX[M.poz]}).<br>Patrzymy od: ${gdzie(T)}`;
+  const mxK = Math.max(1, ...Object.values(N.krok));
+  const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
+  const ov = document.createElement('div'); ov.className = 'ov';
+  const przycisk = () => wZeszycie().some(z => sameModel(z, M)) ? '<a class="pri jest" href="../">✓ w ZESZYCIE — otwórz ▶</a>' : '<button id="stP" class="pri">➕ Przenieś do zeszytu</button>';
+  ov.innerHTML = `<div class="sheet stt"><h3>Model ${M.nazwa} — statystyki</h3>
+    <div class="s">${modOpis(M)}. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+    <div class="nw${T && T.gra ? ' gra' : ''}">${now}</div>
+    <div class="nums"><div><b>${N.G.length}</b>gier</div><div><b>${N.win}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
+      <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
+    <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
+    <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
+    <h4>Ostatnie gry</h4><div class="ost">${N.G.slice(-8).reverse().map(g => `<span>${g.k}${pn(g)} w.${g.r} · <b>WIN ${g.s}</b></span>`).join('')}</div>
+    <div class="bb"><span id="stPp">${przycisk()}</span><button id="stX">Zamknij</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('stX').onclick = close;
+  if ($('stP')) $('stP').onclick = () => { if (przenies(M0)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); } };
+}
+$('lista').addEventListener('click', e => { const d = e.target.closest('.md[data-j]'); if (d) statystyki(W.wynik[+d.dataset.j].M); });
 $('goB').onclick = szukaj;
 
 // kody dopisane w innej aplikacji — po powrocie przelicz

@@ -201,7 +201,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.6.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.6.0';
+const APP_VER = '1.6.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -311,8 +311,8 @@ function modDodaj() {   // nowy własny model: 3 wiersze połowy, start po 1–2
   ov.innerHTML = `<div class="sheet"><h3>＋ Nowy model</h3>
     <div class="s">Wpisz 3 wiersze połowy (1–28), np. 1, 6, 17.</div>
     <div class="nmw">${num('nm1')}${num('nm2')}${num('nm3')}</div>
-    <label class="nml">Gramy na<select id="nmP"><option value="1">+ na środku (X+X)</option><option value="0">+ na początku (+XX)</option><option value="2">+ na końcu (XX+)</option></select></label>
-    <label class="nml">Start<select id="nmC"><option value="1">po 1 pustej trójce</option><option value="2">po 2 pustych trójkach</option><option value="0">od razu (bez pustej trójki)</option></select></label>
+    <label class="nml">Gramy na<select id="nmP"><option value="1">+ na środku (X+X)</option><option value="2">+ na końcu (XX+)</option></select></label>
+    <label class="nml">Start<select id="nmC"><option value="1">po 1 pustej trójce</option><option value="2">po 2 pustych trójkach</option></select></label>
     <label class="nml">Warunek<select id="nmW"><option value="">brak</option><option value="boki">+ z boku (+ gdzie indziej)</option></select></label>
     <label class="nml">Gra do kroku<select id="nmL">${[5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === 9 ? ' selected' : ''}>${x}</option>`).join('')}</select></label>
     <div class="bb"><button id="nmX">Anuluj</button><button id="nmOk" class="pri">Dodaj</button></div></div>`;

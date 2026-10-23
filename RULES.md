@@ -114,6 +114,13 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   **„➕ Do zeszytu”** dopisuje model do `zeszyt_v1_modele` i wybiera go w ZESZYCIE (`zeszyt_v1_model`, lista rozwinięta);
   model już w ZESZYCIE → „✓ w ZESZYCIE — otwórz ▶”.
 - Kody: te same co w innych aplikacjach (baza `/moje/seed_t50.txt` + `t50razem_v1_added`); przelicza po powrocie / zmianie kodów.
+- **Od 1.6.1 bez „+XX” (początek) i bez startu „od razu”** — decyzja użytkownika: nie ma takich modeli do k9 (+XX: najmniej 5 BUST
+  przy ≥ 100 grach; „od razu”: żaden nie zamyka się do k9), więc nie pokazujemy ich w wyszukiwarce ani w formularzu ZESZYTU
+  (silnik dalej je umie). **XX+ zostaje** — są modele do k9 (np. XX+ 5·13·28 z „+ gdzie indziej”: 111 gier, 1 BUST; po 2 pustych
+  trójkach modele bez BUST ok. 60 gier). Stare zapisy filtrów z tymi opcjami są czyszczone.
+- **Dotknięcie modelu** na liście wyników → okno statystyk (pełne liczenie jak w ZESZYCIE: stan z miejscem i stawką, gry / WIN / BUST /
+  najdłużej / bilans / największy spadek, WIN na kroku, WIN w połowie gry, ostatnie gry) i przycisk **„➕ Przenieś do zeszytu”**
+  (po przeniesieniu „✓ w ZESZYCIE — otwórz ▶”); na karcie wyniku znaczek „✓ w ZESZYCIE”.
 - Na pasku obu stron przycisk **🔎 SZUKAJ M** (w MOJE jeszcze nie ma — osobne repo).
 - Sprawdzone: domyślne filtry (X+X, po 1 pustej, k9, ≥ 100 gier, BUST ≤ 2) → 217 modeli, tyle samo co w analizie w rozmowie.
 - Analiza „od razu” (bez pustej trójki): żaden model 3 kroków nie zamyka się do k9 (X+X najmniej 7 BUST do k9); bez BUST dopiero do k12
