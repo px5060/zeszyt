@@ -46,10 +46,13 @@ const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const CEL = ['+XX', 'X+X', 'XX+'], CELTX = ['+ na początku', '+ na środku', '+ na końcu'];
 const pustych = n => n > 1 ? `${n} pustych trójkach` : '1 pustej trójce';
 const bokTx = poz => poz === 1 ? '+ z boku' : '+ gdzie indziej';
-function modDef(m) {   // model z wartościami domyślnymi i nazwą (np. „16·18·27”, „+XX 3·16·26”)
+// NAZWA MODELU — jednoznaczna, ta sama w SZUKAJ W ZESZYCIE i w ZESZYCIE (kiedyś: szukanie po nazwie):
+// [cel, gdy nie X+X] wiersze [+bok = warunek „+ z boku”] [×2 = start po 2 pustych trójkach] [k8 = gra do kroku, gdy nie 9],
+// np. „16·18·27”, „16·18·27 +bok”, „XX+ 5·13·28 +bok”, „20·23·24 ×2”, „1·6·17 k8”.
+function modDef(m) {   // model z wartościami domyślnymi i nazwą
   const M = { poz: 1, czekaj: 1, war: '', limit: 9, ...m };
   if (!M.czekaj) M.war = '';
-  M.nazwa = (M.poz === 1 ? '' : CEL[M.poz] + ' ') + M.w.join('·');
+  M.nazwa = (M.poz === 1 ? '' : CEL[M.poz] + ' ') + M.w.join('·') + (M.war ? ' +bok' : '') + (M.czekaj !== 1 ? ` ×${M.czekaj}` : '') + (M.limit !== 9 ? ` k${M.limit}` : '');
   return M;
 }
 const modDop = M => [M.poz === 1 ? '' : CELTX[M.poz], M.war ? bokTx(M.poz) : '', M.czekaj ? `po ${pustych(M.czekaj)}` : 'od razu', `do k${M.limit}`].filter(Boolean).join(' · ');

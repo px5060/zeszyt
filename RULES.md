@@ -74,8 +74,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Lista „Modele” nad kartą (1.5.0)**, rozwijana (`zeszyt_v1_modele_otw`): **zwinięta = żadnych oznaczeń na kartach**.
   Rozwinięta: każdy model w wierszu (kwadracik żółty CZEKAJ / migający GRAJ, nazwa, opcje, stan). **Dotknięcie modelu** = jego wiersze
   na kartach + opis pod nim, co się dzieje (`zeszyt_v1_model`); ponowne dotknięcie — odznacza. Jeden model na kartach naraz.
-  „＋ Dodaj model”: 3 wiersze (1–28), start po 1 / 2 pustych, warunek brak / + z boku, gra do kroku 5–12 → własne modele w
-  `zeszyt_v1_modele` (JSON); 🗑 usuwa własny model (wbudowanego nie).
+  Modele dodaje się **tylko z SZUKAJ W ZESZYCIE** (od 1.7.2 — ręczne „＋ Dodaj model” w ZESZYCIE usunięte na prośbę użytkownika;
+  na dole listy link „🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶”). Własne modele w `zeszyt_v1_modele` (JSON); 🗑 usuwa model (wbudowanego nie).
 - **Kolory na karcie**: **fioletowy** = start (pusta trójka, cała trójka; „start” przy 3., ostatnim pustym wierszu — on uruchamia grę);
   każdy rozegrany wiersz z **numerem kroku**: **czerwony** = bez trafienia, **zielony** = WIN („WIN 9”); ciemnoczerwony = BUST,
   szary = po BUST. Wiersze modelu bez udziału w grze (także po WIN w tej samej połowie) — neutralna ramka. Gra w toku: migająca
@@ -92,7 +92,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Karta 0 (brak wiersza 27): przy pokazanym modelu wiersze, które są, w szarej kropkowanej ramce + adnotacja na dole kartki.
 - Od 1.6.0 model ma też **`poz`** — gramy na + na początku (0, „+XX”), na środku (1, domyślnie) albo na końcu (2, „XX+”) — i **start
   „od razu”** (`czekaj: 0`): gra bez pustej trójki, od pierwszej połowy i zaraz po każdym WIN. Warunek `war: 'boki'` = w pustej trójce
-  jest + w innym miejscu niż `poz` (przy X+X: „+ z boku”). „＋ Dodaj model” w ZESZYCIE ma te opcje.
+  jest + w innym miejscu niż `poz` (przy X+X: „+ z boku”).
+- **Nazwa modelu** (od 1.7.2) jednoznaczna i ta sama w SZUKAJ W ZESZYCIE i w ZESZYCIE (`modDef` w `silnik.js`):
+  [cel, gdy nie X+X] wiersze [`+bok` = warunek] [`×2` = start po 2 pustych] [`k8` = gra do kroku, gdy nie 9] — np. „16·18·27”,
+  „16·18·27 +bok”, „XX+ 5·13·28 +bok”, „20·23·24 ×2”. Użytkownik myśli o przyszłym szukaniu modeli po nazwie (nie po parametrach).
 - Wbudowane modele: `MODELE` w `silnik.js` (`w` wiersze; opcjonalnie `poz`, `czekaj`, `war: 'boki'`, `limit`).
 
 ## Silnik wspólny — `silnik.js` (od 1.6.0)

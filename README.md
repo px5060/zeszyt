@@ -15,7 +15,7 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
 - Na górze pasek przycisków do pozostałych aplikacji (jak w MOJE) + ZESZYT.
 - **Modele** (lista nad kartą, rozwijana; MODELE na pasku): dotknij modelu — jego wiersze na kartach (fioletowy start, czerwone kroki
   z numerami, zielony WIN) i opis, co się dzieje; „🔍 Prześledź” — wszystkie gry modelu na całym zeszycie; „Zwiń” — oznaczenia znikają.
-  „＋ Dodaj model” — własne modele (3 wiersze, start, warunek „+ z boku”, gra do kroku). Kwadracik żółty = czekaj, miga = graj.
+  Modele dodaje się z SZUKAJ W ZESZYCIE (link na dole listy); nazwa modelu ta sama w obu miejscach. Kwadracik żółty = czekaj, miga = graj.
 - **🔎 SZUKAJ W ZESZYCIE** (`/zeszyt/modele/`, na pasku „🔎 SZUKAJ W Z”): wyszukiwarka modeli — sam ustawiasz: gramy na (X+X / +XX / XX+), start (po 1 / 2 pustych,
   od razu), warunek, grę do kroku, ile gier co najmniej i ile BUST najwyżej; widać, które modele są teraz w grze.
   „➕ Do zeszytu” — model trafia do listy modeli w ZESZYCIE. Silnik wspólny: `silnik.js`.

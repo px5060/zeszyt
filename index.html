@@ -96,7 +96,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mi .del{flex:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 7px;font-size:14px}
 .mods .mod{margin:0;border:0;border-top:1px dashed var(--bd);border-radius:0}
 .mods .mfoot{display:flex;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
-.mods .mfoot button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
+.mods .mfoot a{text-decoration:none;margin-left:auto;flex:none;background:#1f8a4c;border:1px solid #1f8a4c;color:#fff;border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
 .ztabs{display:flex;gap:6px;margin:0 0 8px}.ztabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px;font-size:14.5px;font-weight:800}
 .ztabs button.on{background:var(--or);border-color:var(--or);color:#fff}
 #zbad:not(:empty){display:inline-block;min-width:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#f2c230;color:#1b1f2a;font-size:12px}
@@ -116,9 +116,6 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .zb .r b{font-size:15px}.zb .r b.w{color:#2ea85a}.zb .r b.l{color:var(--red)}.zb .r b.p{color:#f2c230}
 .zb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-size:12px}
 .zpust{color:var(--mu);text-align:center;padding:24px 10px}
-.nmw{display:flex;gap:8px}.sheet .nmw input{text-align:center;font-size:22px;font-weight:800}
-.nml{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px;color:var(--mu)}
-.nml select{flex:1;min-width:0;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:9px;font-size:15px}
 @keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}@keyframes mdlB{50%{border-color:#2ee66b}}
 .mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
 .mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
@@ -221,10 +218,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div id="tB" hidden></div>
 </main>
 
-<script src="silnik.js?v=1.6.0"></script>
+<script src="silnik.js?v=1.7.2"></script>
 <script>
 "use strict";
-const APP_VER = '1.7.1';
+const APP_VER = '1.7.2';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -361,33 +358,9 @@ function modLista() {   // lista „Modele” nad kartą: zwinięta — bez ozna
         + `<span class="ms">${modTeraz(R(M.id), true)}</span>${M.id.startsWith('u') ? `<button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button>` : ''}</div>`;
       if (on) h += modPanel(R(M.id));
     }
-    h += `<div class="mfoot">${sel && R(sel) ? '' : '<span>Dotknij modelu — pokaże się na kartach.</span>'}<button data-act="add">＋ Dodaj model</button></div>`;
+    h += `<div class="mfoot">${sel && R(sel) ? '' : '<span>Dotknij modelu — pokaże się na kartach.</span>'}<a href="modele/">🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
   }
   return h + '</div>';
-}
-function modDodaj() {   // nowy własny model: 3 wiersze połowy, start po 1–2 pustych trójkach, warunek „+ z boku”, gra do kroku
-  const ov = document.createElement('div'); ov.className = 'ov';
-  const num = id => `<input id="${id}" type="number" inputmode="numeric" min="1" max="28" placeholder="—">`;
-  ov.innerHTML = `<div class="sheet"><h3>＋ Nowy model</h3>
-    <div class="s">Wpisz 3 wiersze połowy (1–28), np. 1, 6, 17.</div>
-    <div class="nmw">${num('nm1')}${num('nm2')}${num('nm3')}</div>
-    <label class="nml">Gramy na<select id="nmP"><option value="1">+ na środku (X+X)</option><option value="2">+ na końcu (XX+)</option></select></label>
-    <label class="nml">Start<select id="nmC"><option value="1">po 1 pustej trójce</option><option value="2">po 2 pustych trójkach</option></select></label>
-    <label class="nml">Warunek<select id="nmW"><option value="">brak</option><option value="boki">+ z boku (+ gdzie indziej)</option></select></label>
-    <label class="nml">Gra do kroku<select id="nmL">${[5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === 9 ? ' selected' : ''}>${x}</option>`).join('')}</select></label>
-    <div class="bb"><button id="nmX">Anuluj</button><button id="nmOk" class="pri">Dodaj</button></div></div>`;
-  document.body.appendChild(ov);
-  const close = () => ov.remove(); $('nm1').focus();
-  ov.onclick = e => { if (e.target === ov) close(); };
-  $('nmX').onclick = close;
-  $('nmOk').onclick = () => {
-    const w = ['nm1', 'nm2', 'nm3'].map(id => +$(id).value).sort((a, b) => a - b), poz = +$('nmP').value, czekaj = +$('nmC').value, war = czekaj ? $('nmW').value : '', limit = +$('nmL').value;
-    if (w.some(x => !Number.isInteger(x) || x < 1 || x > 28) || new Set(w).size < 3) { alert('Wpisz 3 różne wiersze od 1 do 28.'); return; }
-    if (modeleWsz().some(M => sameModel(M, modDef({ w, poz, czekaj, war, limit })))) { alert('Taki model już jest na liście.'); return; }
-    const id = 'u' + Date.now().toString(36);
-    if (!lsSet(MOJEK, JSON.stringify([...mojeModele(), { id, w, poz, czekaj, war, limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
-    lsSet(MODK, id); lsSet(OTWK, '1'); close(); render();
-  };
 }
 function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   const t = S.t, M = S.modAll[id]; if (!M) return;
@@ -547,7 +520,6 @@ $('mod').addEventListener('click', e => {
   if (a === 'tog') lsSet(OTWK, modOtw() ? '0' : '1');
   else if (a === 'sel') lsSet(MODK, lsGet(MODK, '') === id ? '' : id);
   else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); if (lsGet(MODK, '') === id) lsSet(MODK, ''); }
-  else if (a === 'add') return modDodaj();
   else if (a === 'stat') return modSheet(lsGet(MODK, ''));
   else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
   else if (a === 'bet') return zakZapisz(S.mod);
