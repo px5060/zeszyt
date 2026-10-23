@@ -205,3 +205,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Silnik: `szybkiModel` zwraca też `at` = [połowa, wiersz] następnego kroku (sprawdzone z `liczModel`: 217/217 zgodnych). Statystyki
   modelu: „▶ GRAJ teraz / ⏳ CZEKAJ na grę / ⏳ OD 1. KROKU — krok n, za N wierszy”; krok za limitem = „⏸ po BUST”.
 - „Przenieś do zeszytu” dokłada model do wybranych w ZESZYCIE (od 1.9.0 można kilka naraz), nie zastępuje ich.
+
+## ZESZYT — stan modelu na liście jak w SZUKAJ (od 1.9.6)
+- Prośba użytkownika: na liście „Modele” **GRAJ (miga, zielony kwadracik) tylko gdy następny krok wypada w następnym wierszu**.
+  Model w grze z krokiem dalej: pomarańczowe „CZEKAJ na grę · krok n za N wierszy”, po pustej trójce fioletowe „OD 1. KROKU · za N wierszy”;
+  krok za limitem: czerwone „po BUST”. Nie gra = żółte CZEKAJ (na pustą trójkę). To samo w Statystykach modelu.
