@@ -74,7 +74,9 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Nad kartą opis: gry / WIN / BUST / bilans, w której połowie gry przyszedł WIN, „Teraz” (czekamy na pustą trójkę albo następny krok) + „Pokaż ▶”.
 - **🔍 Prześledź — cały zeszyt** (od 1.1.1, przycisk w opisie modelu): cały zeszyt na jednym ekranie — każda karta to pasek,
   lewa i prawa połowa obok siebie, w każdej 3 komórki (wiersze 16, 18, 27) ze znakami kodu i tymi samymi kolorami co na karcie,
-  w znaczku numer kroku. Karta 1 — dwa paski (cz. 1–2, 3–4), karta 0 — „—”. Otwiera się na bieżącej karcie; dotknięcie paska
+  w znaczku numer kroku. Karta 1 — dwa paski (cz. 1–2, 3–4). Karta 0 (od 1.2.1) — kody z wierszy 16 i 18
+  na szaro, „brak w.27” (tylko do wglądu, model jej nie liczy; policzone z kartą 0 na 2 krokach — wynik bez zmian, bo w obu połowach
+  wiersz 16 ma + na środku). Otwiera się na bieżącej karcie; dotknięcie paska
   otwiera tę kartę w zeszycie; „✕ Zamknij” / Esc.
 - **Kafelek modelu na pasku** (od 1.2.0): kwadracik **żółty = CZEKAJ** (na pustą trójkę), **miga (żółty/zielony) = GRAJ** — otwarta gra,
   obok numer następnego kroku (np. ▶2). Stan liczony zawsze, także gdy podświetlenie kart jest wyłączone.

@@ -88,7 +88,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .tk .kn{font:700 17px/1 Caveat,'Comic Sans MS',cursive;text-align:center}.tk .kn small{display:block;font:600 8.5px/1.2 system-ui,sans-serif;color:var(--ink2)}
 .tk .hf{display:flex;gap:4px;min-width:0}.tk .hf.p1{border-left:2px solid var(--ink);margin-left:-3px;padding-left:5px}
 .tk .c{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:3px;height:24px;border-radius:3px;font:800 13px/1 system-ui,sans-serif;white-space:nowrap;overflow:hidden}
-.tk .c.d2{font-size:9.5px;gap:2px}.tk .c.no{font-weight:400;color:var(--ink2)}
+.tk .c.d2{font-size:9.5px;gap:2px}.tk .c.no{font:italic 400 10.5px/1 system-ui,sans-serif;color:var(--ink2)}
+.tk .c.sz{color:#9aa3b5;outline:1.5px dotted #b5bccb;outline-offset:-1px}
 .tk .c i{flex:none;font:800 9.5px/1.35 system-ui,sans-serif;font-style:normal;padding:0 3px;border-radius:3px;background:var(--red);color:#fff}
 .tk .c.mw i{background:#1f8a4c}.tk .c.mb i{background:#7a1512}.tk .c.mz i{background:#c9a3a0}.tk .c.mn i{background:#fff;color:var(--red);border:1px dashed var(--red)}
 #appbar .mdl{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:4px 5px;border:1.5px solid #1f8a4c;background:transparent;color:var(--tx);transition:transform .15s;cursor:pointer}
@@ -195,7 +196,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.2.0';
+const APP_VER = '1.2.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -367,7 +368,12 @@ function traceOpen() {   // PRZEŚLEDŹ: cały zeszyt na jednym ekranie — kart
     const s = mm && mm.s.length ? `<i>${mm.c === 'n' ? '▶' : ''}${mm.s.join('·')}</i>` : '';   // kolor mówi WIN / BUST, w znaczku sam numer kroku
     return `<span class="c kd m${mm ? mm.c : 'f'}${xs.length > 1 ? ' d2' : ''}">${xs.map(sg).join(' ')}${s}</span>`;
   };
-  const half = (k, p, i) => `<span class="hf${i ? ' p1' : ''}">${partsOf(k)[p] < M.mx ? '<span class="c no">—</span>' : M.w.map(r => cell(k, p, r)).join('')}</span>`;
+  const krot = (k, p, r) => {   // połowa krótsza niż model (karta 0: 26 / 25 wierszy) — kody tylko do wglądu, na szaro, bez liczenia
+    if (r > partsOf(k)[p]) return `<span class="c no">brak w.${r}</span>`;
+    const row = B.cards[k].parts[p][r - 1], xs = [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop].filter(x => x <= n);
+    return `<span class="c sz">${xs.map(sg).join(' ')}</span>`;
+  };
+  const half = (k, p, i) => `<span class="hf${i ? ' p1' : ''}">${M.w.map(r => partsOf(k)[p] < M.mx ? krot(k, p, r) : cell(k, p, r)).join('')}</span>`;
   let h = `<div class="tk hd"><span class="kn"><small>karta</small></span>${[0, 1].map(i => `<span class="hf${i ? ' p1' : ''}">${M.w.map(r => `<span class="c">${i ? 'P' : 'L'} w.${r}</span>`).join('')}</span>`).join('')}</div>`;
   const kMax = M.teraz && M.teraz.k > L ? M.teraz.k : L;
   for (let k = 0; k <= kMax; k++) {
@@ -377,7 +383,7 @@ function traceOpen() {   // PRZEŚLEDŹ: cały zeszyt na jednym ekranie — kart
   }
   const ov = document.createElement('div'); ov.className = 'trace';
   ov.innerHTML = `<div class="th"><b>🟩 ${M.nazwa} — cały zeszyt</b><button id="trX">✕ Zamknij</button></div>
-    <div class="ts">${modStat(M)}. Dotknij karty — otworzy się w zeszycie.<div class="lg">${modLeg()}</div></div>
+    <div class="ts">${modStat(M)}. Dotknij karty — otworzy się w zeszycie. Karta 0 na szaro — nie ma wiersza ${M.mx}, model jej nie liczy.<div class="lg">${modLeg()}</div></div>
     <div class="tw">${h}</div>`;
   document.body.appendChild(ov);
   const cr = ov.querySelector('.tk.cur'); if (cr) cr.scrollIntoView({ block: 'center' });
