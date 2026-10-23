@@ -90,8 +90,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Statystyki** (📊): stan (krok, miejsce, stawka, ile już postawione, ile da WIN), gry / WIN / BUST / najdłużej / bilans /
   największy spadek, WIN na kroku (stawka, ile, zysk), WIN w połowie gry, ostatnie gry (dotknięcie → karta),
   przyciski Pokaż na kartach / Ukryj, Prześledź, Zamknij.
-- **Kafelek MODELE na pasku**: kwadracik na każdy model — żółty = CZEKAJ, miga = GRAJ (przy jednym grającym — numer kroku ▶n);
-  zielone tło, gdy model jest pokazany na kartach. 1. dotknięcie powiększa, 2. rozwija listę modeli.
+- ~~Kafelek MODELE na pasku~~ — **usunięty w 1.9.2** (prośba użytkownika: „zakładka modele z góry strony nie jest nam potrzebna”).
+  Stan modeli (żółty CZEKAJ / migający GRAJ) widać tylko na liście „Modele” nad kartą.
 - Karta 0 (brak wiersza 27): przy pokazanym modelu wiersze, które są, w szarej kropkowanej ramce + adnotacja na dole kartki.
 - Od 1.6.0 model ma też **`poz`** — gramy na + na początku (0, „+XX”), na środku (1, domyślnie) albo na końcu (2, „XX+”) — i **start
   „od razu”** (`czekaj: 0`): gra bez pustej trójki, od pierwszej połowy i zaraz po każdym WIN. Warunek `war: 'boki'` = w pustej trójce
