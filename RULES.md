@@ -69,11 +69,11 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   po WIN nowy cykl od następnej połowy. Gra do 9. kroku. Połowy krótsze niż 27 wierszy (karta 0) pomijane; karta 1 — 4 części po kolei.
 - Wynik na 15 361 kodach: 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, bilans +11 472 zł (kurs 3.0, stawki 8, 8, 16, 32…).
 - Przycisk modelu **16·18·27** na pasku (do 1.1.1: 2. dotknięcie włącza / wyłącza podświetlenie; od 1.2.0 — patrz kafelek niżej), wybór w `zeszyt_v1_model`.
-- **Kolory na karcie (od 1.4.0, życzenie użytkownika: „jedna linia = jeden kolor”)**: każda połowa w grze ma **jeden kolor na całej
-  trójce** (wiersze 16, 18, 27): **fioletowy** = start (pusta trójka), **czerwony** = połowa bez trafienia, **zielony** = połowa z WIN,
-  ciemnoczerwony = BUST, szary = po BUST. Jeden znaczek na połowę (przy wierszu 16): „start”, „1–3”, „4–6”, „WIN 5”, „BUST”.
-  Wiersze modelu, które nie biorą udziału w grze — tylko neutralna ramka. Gra w toku: rozegrane kroki bieżącej połowy na czerwono
-  i migająca ramka następnego kroku („▶ 2”). Gry nie zachodzą na siebie.
+- **Kolory na karcie (od 1.4.1)**: **fioletowy** = start (pusta trójka, cała trójka, znaczek „start”); każdy rozegrany wiersz
+  z **numerem kroku**: **czerwony** = krok bez trafienia (np. 4, 5, 6, 7, 8), **zielony** = WIN („WIN 9”); ciemnoczerwony = BUST,
+  szary = po BUST. Wiersze modelu bez udziału w grze (także te po WIN w tej samej połowie) — tylko neutralna ramka.
+  Gra w toku: rozegrane kroki na czerwono z numerami i migająca ramka następnego kroku („▶ 2”). Gry nie zachodzą na siebie.
+  (1.4.0 miało jeden kolor na całą połowę i znaczki „4–6” — użytkownik chce numer przy każdym kroku.)
 - **🔍 Prześledź** (od 1.4.0 — przełącznik, `zeszyt_v1_przesledz`): **WŁ** = kolory wszystkich gier na całym zeszycie (na kartach,
   przewracając karty); **WYŁ** = tylko bieżąca gra (otwarta; przy CZEKAJ — ostatnia gra, „Idź ▶” przenosi do niej).
   Osobny ekran z listą gier / siatką kodów (1.1.1–1.3.0) usunięty — użytkownik chce oglądać model na kartach zeszytu.

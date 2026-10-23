@@ -180,7 +180,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.4.0';
+const APP_VER = '1.4.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -265,28 +265,27 @@ const MODELE = { m1: { w: [16, 18, 27], poz: 1, czekaj: 1, limit: 9, nazwa: '16�
 const MID = 'm1', MODK = 'zeszyt_v1_model', KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
 const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const PRZK = 'zeszyt_v1_przesledz';   // Prześledź: '1' = wszystkie gry na całym zeszycie, inaczej tylko bieżąca gra
-function liczModel(t, id) {   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp, pus: [klucze], pol: [{keys, a, b, c}]}], teraz, otw (otwarta gra)}
+function liczModel(t, id) {   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp, pus: [klucze], pol: [{rs: [{key, s: [kroki], hit}]}]}], teraz, otw (otwarta gra)}
   const M = MODELE[id], c = S.codes[t], n = c.length, B = S.book[t], mx = Math.max(...M.w), gry = [];
   let gra = null, nobs = 0, pus = [], teraz = null;   // gra: {sk, sp, pus, pol, st, h} — gra w toku
   scan: for (let k = 0; k < B.cards.length; k++) for (let p = 0; p < B.cards[k].parts.length; p++) {
     if (partsOf(k)[p] < mx) continue;
-    const rows = B.cards[k].parts[p], keys = M.w.map(r => `${k}.${p}.${r}`), a = gra ? gra.st + 1 : 0, done = [];
+    const rows = B.cards[k].parts[p], keys = M.w.map(r => `${k}.${p}.${r}`), rs = [];   // rs: rozegrane wiersze połowy z numerami kroków
     let hit = 0;
     for (const r of M.w) {
       const row = rows[r - 1], key = `${k}.${p}.${r}`;
-      if (row.nr > n) { teraz = { k, p, r, nr: row.nr, key, done }; break scan; }
-      done.push(key);
+      if (row.nr > n) { teraz = { k, p, r, nr: row.nr, key, rs }; break scan; }
+      const o = { key, s: [], hit: false }; rs.push(o);
       for (const x of [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop]) {
         if (x > n) continue;
-        if (gra) gra.st++;
-        if (c[x - 1][M.poz] === '1') { hit = r; break; }
+        if (gra) o.s.push(++gra.st);
+        if (c[x - 1][M.poz] === '1') { hit = r; o.hit = true; break; }
       }
       if (hit) break;
     }
-    if (gra) {   // połowa w grze — cała trójka jednym kolorem: zielony WIN, czerwony bez trafienia, BUST, po BUST szary
-      const L = M.limit, st = gra.st; gra.h++;
-      gra.pol.push({ keys, a, b: st, c: hit ? (st <= L ? 'w' : a <= L ? 'b' : 'z') : a > L ? 'z' : st >= L ? 'b' : 'k' });
-      if (hit) { gry.push({ s: st, h: gra.h, k, p, r: hit, sk: gra.sk, sp: gra.sp, pus: gra.pus, pol: gra.pol }); gra = null; nobs = 0; }
+    if (gra) {
+      gra.h++; gra.pol.push({ rs });
+      if (hit) { gry.push({ s: gra.st, h: gra.h, k, p, r: hit, sk: gra.sk, sp: gra.sp, pus: gra.pus, pol: gra.pol }); gra = null; nobs = 0; }
       continue;
     }
     if (hit) { nobs = 0; pus = []; continue; }
@@ -297,17 +296,16 @@ function liczModel(t, id) {   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp
   return { ...M, mx, gry, teraz, otw: gra };
 }
 function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (otwarta, przy CZEKAJ ostatnia)
-  const mk = {}, T = M.teraz, gra = g => {
-    g.pus.forEach((key, i) => mk[key] = { c: 'p', l: i ? '' : 'start' });
-    g.pol.forEach(h => h.keys.forEach((key, i) => mk[key] = { c: h.c, l: i ? '' : h.c === 'w' ? `WIN ${h.b}` : h.c === 'b' ? 'BUST' : h.a === h.b ? `${h.a}` : `${h.a}–${h.b}` }));
+  // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
+  const mk = {}, T = M.teraz, L = M.limit;
+  const wiersz = o => {
+    const s = o.s, last = s[s.length - 1], l = s.join('·');
+    if (!s.length) return;
+    mk[o.key] = o.hit ? (last <= L ? { c: 'w', l: `WIN ${last}` } : { c: 'z', l }) : s.includes(L) ? { c: 'b', l: `BUST ${L}` } : { c: last > L ? 'z' : 'k', l };
   };
+  const gra = g => { g.pus.forEach((key, i) => mk[key] = { c: 'p', l: i ? '' : 'start' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };
   if (all) M.gry.forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
-  if (T && T.gra) {   // gra w toku: rozegrane połowy + w bieżącej połowie kroki bez trafienia i migający następny krok
-    gra(M.otw);
-    const a = (M.otw.pol.length ? M.otw.pol[M.otw.pol.length - 1].b : 0) + 1;
-    T.done.forEach((key, i) => mk[key] = { c: 'k', l: i ? '' : a === T.s - 1 ? `${a}` : `${a}–${T.s - 1}` });
-    mk[T.key] = { c: 'n', l: `▶ ${T.s}` };
-  }
+  if (T && T.gra) { gra(M.otw); T.rs.forEach(wiersz); mk[T.key] = { c: 'n', l: `▶ ${T.s}` }; }   // gra w toku: migający następny krok
   return mk;
 }
 const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
@@ -323,7 +321,7 @@ function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
   return `Gier <b>${N.G.length}</b> · WIN <b>${N.win}</b> · BUST <b>${N.bust}</b> · najdłużej <b>${N.max}</b> kroków · bilans <b>${zl(N.bal)}</b>`;
 }
 const modGdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
-const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'połowa bez trafienia'], ['mw', 'połowa z WIN'], ['mb', 'BUST'], ['mn', 'następny krok']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
+const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
 function modPanel(t) {   // krótki opis nad kartą (gdy podświetlenie włączone): wynik, co teraz, legenda, statystyki i Prześledź
   const M = S.mod; if (!M) return '';
   const T = M.teraz, now = !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł): ${modGdzie(T)}` : `<span class="stan">CZEKAJ</span> na pustą trójkę — ${modGdzie(T)}`;
