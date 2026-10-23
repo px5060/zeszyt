@@ -58,9 +58,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .r .nt i{font-style:normal;overflow:hidden;text-overflow:ellipsis}
 .r .hc{text-align:center;font:700 calc(var(--sq)*.72)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
 .r .kd{grid-column:span 3;display:grid;grid-template-columns:repeat(3,1fr);align-items:center;align-self:stretch;margin:1px 0;border-radius:3px}
-/* model: ramka wokół 3 znaków w wierszach modelu; przerywana = pusta trójka (start gry), czerwony = krok bez trafienia, zielony = WIN */
+/* model: ramka wokół 3 znaków w wierszach modelu; fioletowa przerywana = pusta trójka (start gry), czerwony = krok bez trafienia, zielony = WIN */
 .kd.mf{outline:1.5px solid var(--ink2);outline-offset:-1px}
-.kd.mp{outline:1.5px dashed var(--ink2);outline-offset:-1px;background:#e9edf5}
+.kd.mp{outline:2px dashed #7a3fb0;outline-offset:-2px;background:#e4d2f7}
 .kd.mk{background:#ffc4bf;outline:2px solid var(--red);outline-offset:-2px}
 .kd.mw{background:#8fd9a3;outline:2px solid #1f8a4c;outline-offset:-2px}
 .kd.mb{background:var(--red);color:#fff;outline:2px solid #7a1512;outline-offset:-2px}
@@ -68,34 +68,38 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .kd.mn{outline:2px dashed var(--red);outline-offset:-2px;animation:mn 1.2s ease-in-out infinite}
 @keyframes mn{50%{background:#ffd9d6}}
 .r .ks{flex:none;padding:0 3px;border-radius:3px;font:800 calc(var(--sq)*.56)/1.35 system-ui,sans-serif;color:#fff;background:var(--red)}
-.r .ks.w{background:#1f8a4c}.r .ks.b{background:#7a1512}.r .ks.z{background:#c9a3a0}.r .ks.n{background:#fff;color:var(--red);border:1px dashed var(--red)}
+.r .ks.w{background:#1f8a4c}.r .ks.p{background:#7a3fb0}.r .ks.b{background:#7a1512}.r .ks.z{background:#c9a3a0}.r .ks.n{background:#fff;color:var(--red);border:1px dashed var(--red)}
 .mod{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;line-height:1.5}
 .mod b{color:var(--tx)}.mod small{color:var(--mu)}
 .mod .now{display:flex;align-items:center;gap:8px;margin-top:2px}.mod .now button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 9px;font-weight:700}
-.mod .lg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:4px;color:var(--mu);font-size:11.5px}.mod .lg span{display:inline-flex;align-items:center;gap:4px}
-:where(.mod .lg) i{display:inline-block;width:26px;height:13px;border-radius:3px;background:var(--paper)}
-.mod .trB{display:block;width:100%;margin-top:6px;background:#1f8a4c;border:0;color:#fff;border-radius:9px;padding:9px;font-size:14.5px;font-weight:800}
-/* PRZEŚLEDŹ: model na całym zeszycie — karta = jeden pasek, połowy obok siebie, w połowie 3 wiersze modelu */
-.trace{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;flex-direction:column}
-.trace .th{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--pan);border-bottom:1px solid var(--bd)}
-.trace .th b{font-size:15px}.trace .th button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
-.trace .ts{padding:6px 12px;font-size:12px;color:var(--mu);line-height:1.45}.trace .ts b{color:var(--tx)}.trace .ts .lg{display:flex;flex-wrap:wrap;gap:3px 10px;margin-top:3px}
-.trace .ts .lg span{display:inline-flex;align-items:center;gap:4px}:where(.trace .ts .lg) i{display:inline-block;width:24px;height:12px;border-radius:3px;background:var(--paper)}
-.trace .tw{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:0 8px calc(20px + env(safe-area-inset-bottom))}
-.tk{display:grid;grid-template-columns:36px 1fr 1fr;gap:6px;align-items:center;background:var(--paper);color:var(--ink);border-bottom:1px solid var(--grid);padding:3px 6px;cursor:pointer}
-.tk.hd{position:sticky;top:0;z-index:2;cursor:default;border-bottom:2px solid var(--ink)}.tk.hd .c{height:16px;font:700 10.5px/1 system-ui,sans-serif;color:var(--ink2)}
-.tk.cur{background:var(--hl);box-shadow:inset 4px 0 0 var(--hl2)}
-.tk .kn{font:700 17px/1 Caveat,'Comic Sans MS',cursive;text-align:center}.tk .kn small{display:block;font:600 8.5px/1.2 system-ui,sans-serif;color:var(--ink2)}
-.tk .hf{display:flex;gap:4px;min-width:0}.tk .hf.p1{border-left:2px solid var(--ink);margin-left:-3px;padding-left:5px}
-.tk .c{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:3px;height:24px;border-radius:3px;font:800 13px/1 system-ui,sans-serif;white-space:nowrap;overflow:hidden}
-.tk .c.d2{font-size:9.5px;gap:2px}.tk .c.no{font-weight:400;color:var(--ink2)}
-.tk .c i{flex:none;font:800 9.5px/1.35 system-ui,sans-serif;font-style:normal;padding:0 3px;border-radius:3px;background:var(--red);color:#fff}
-.tk .c.mw i{background:#1f8a4c}.tk .c.mb i{background:#7a1512}.tk .c.mz i{background:#c9a3a0}.tk .c.mn i{background:#fff;color:var(--red);border:1px dashed var(--red)}
+/* legenda modelu — jedna, pod zeszytem (gdy model jest na kartach) */
+#leg .lg{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 12px;margin-top:10px;color:var(--mu);font-size:12px}#leg .lg span{display:inline-flex;align-items:center;gap:4px}
+:where(#leg .lg) i{display:inline-block;width:26px;height:13px;border-radius:3px;background:var(--paper)}
+.kd.msz{outline:1.5px dotted #8b93a7;outline-offset:-1px}
+.paper .anno{position:absolute;left:calc(var(--sq)*.7);right:calc(var(--sq)*1.7);top:calc(var(--sq)*28.2);padding:2px 6px;border:1.5px dashed #9aa3b5;border-radius:6px;background:#fffbe8;color:var(--ink2);font:600 calc(var(--sq)*.5)/1.3 system-ui,sans-serif}
 #appbar .mdl{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:4px 5px;border:1.5px solid #1f8a4c;background:transparent;color:var(--tx);transition:transform .15s;cursor:pointer}
 #appbar .mdl.on{background:#1f8a4c;color:#fff}
-#appbar .mdl .sq{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:#f2c230;box-shadow:0 0 0 1px #0007}
+#appbar .mdl .sq{display:inline-block;width:10px;height:10px;border-radius:2px;margin-left:4px;vertical-align:-1px;background:#f2c230;box-shadow:0 0 0 1px #0007}
+#appbar .mdl .sq.g{animation:sqB .5s steps(1) infinite}
 #appbar .mdl .st{margin-left:3px;font-weight:900}
-#appbar .mdl.gra{border-color:#f2c230;animation:mdlB 1s steps(1) infinite}#appbar .mdl.gra .sq{animation:sqB .5s steps(1) infinite}
+#appbar .mdl.gra{border-color:#f2c230;animation:mdlB 1s steps(1) infinite}
+/* lista modeli nad kartą */
+.mods{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.mods .mh{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;font-weight:800;font-size:15px}
+.mods .mh .ar{width:14px;color:#2ea85a}.mods .mh small{color:var(--mu);font-weight:600}.mods .mh .stan{font-size:11.5px}
+.mods .mh .zw{margin-left:auto;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 10px;font-size:13px}
+.mods .mi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-top:1px solid var(--bd);cursor:pointer}
+.mods .mi.sel{background:#1f8a4c22;box-shadow:inset 4px 0 0 #1f8a4c}
+.mods .mi .sq{flex:none;width:13px;height:13px;border-radius:3px;background:#f2c230;box-shadow:0 0 0 1px #0007}.mods .mi .sq.g{animation:sqB .5s steps(1) infinite}
+.mods .mi .mn{min-width:0;line-height:1.2}.mods .mi .mn b{font-size:15.5px}.mods .mi .mn small{display:block;color:var(--mu);font-size:11.5px}
+.mods .mi .ms{margin-left:auto;flex:none;font-size:12.5px}
+.mods .mi .del{flex:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 7px;font-size:14px}
+.mods .mod{margin:0;border:0;border-top:1px dashed var(--bd);border-radius:0}
+.mods .mfoot{display:flex;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
+.mods .mfoot button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
+.nmw{display:flex;gap:8px}.sheet .nmw input{text-align:center;font-size:22px;font-weight:800}
+.nml{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:14px;color:var(--mu)}
+.nml select{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:9px;font-size:15px}
 @keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}@keyframes mdlB{50%{border-color:#2ee66b}}
 .mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
 .mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
@@ -190,12 +194,13 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div class="info" id="info"></div>
   <div id="mod"></div>
   <div id="card" class="stage"></div>
-  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. Kafelek modelu na pasku (dotknij 2×) — podświetlenie na zeszycie i statystyki; kwadracik żółty = czekaj, miga = graj.</div>
+  <div id="leg"></div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. MODELE na pasku (dotknij 2×) — lista modeli; dotknij modelu — pokaże się na kartach; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj.</div>
 </main>
 
 <script>
 "use strict";
-const APP_VER = '1.2.0';
+const APP_VER = '1.5.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -272,45 +277,67 @@ function readCodes(t) {   // → czy coś się zmieniło
 const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
 const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
 
-// ===== MODEL — układ podświetlony na całym zeszycie (🟩 na pasku, wybór w zeszyt_v1_model) =====
+// ===== MODELE — układy podświetlane na kartach zeszytu (rozwijana lista „Modele” nad kartą) =====
 // W każdej połowie liczą się tylko wiersze modelu (3 kroki na połowę), WIN = + na środku (poz 1). Połowa bez + w tych wierszach
 // = pusta trójka → gra od następnej połowy, krok za krokiem, aż do WIN; po WIN nowy cykl od następnej połowy.
+// Warunek „boki”: gramy tylko, gdy w pustej trójce jest kod z + na początku albo na końcu; inaczej czekamy bez gry na + na środku.
 // Połowy krótsze niż najwyższy wiersz modelu (karta 0) pomijamy. Stawki 8, 8, 16, 32…, kurs 3.0, gra do kroku `limit`.
-const MODELE = { m1: { w: [16, 18, 27], poz: 1, czekaj: 1, limit: 9, nazwa: '16·18·27' } };
-const MID = 'm1', MODK = 'zeszyt_v1_model', KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
+// Lista zwinięta = żadnych oznaczeń na kartach. Dotknięcie modelu = jego wiersze na kartach + opis, co się dzieje (bieżąca gra);
+// 🔍 Prześledź = wszystkie dotychczasowe gry tego modelu na całym zeszycie.
+const MODELE = [{ id: 'm1', w: [16, 18, 27] }];   // wbudowane; własne modele użytkownika w zeszyt_v1_modele
+const MOJEK = 'zeszyt_v1_modele', MODK = 'zeszyt_v1_model', OTWK = 'zeszyt_v1_modele_otw', PRZK = 'zeszyt_v1_przesledz';
+const KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
 const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
-const PRI = { f: 0, p: 1, z: 2, k: 3, n: 4, b: 5, w: 6 };   // gdy w jednym wierszu są dwa kody (dopisek) — mocniejszy znak wygrywa
-function liczModel(t, id) {   // → {…model, mx, mk: 'k.p.r' → {c, s: [kroki]}, gry: [{s, h, k, p, r}], teraz}
-  const M = MODELE[id], c = S.codes[t], n = c.length, B = S.book[t], mx = Math.max(...M.w), mk = {}, gry = [];
-  const put = (key, cl, s) => { const o = mk[key] || (mk[key] = { c: cl, s: [] }); if (PRI[cl] > PRI[o.c]) o.c = cl; if (s) o.s.push(s); };
-  let gra = false, nobs = 0, st = 0, h = 0, pus = [], teraz = null;
+const mojeModele = () => { try { const a = JSON.parse(lsGet(MOJEK, '[]')); return Array.isArray(a) ? a.filter(m => m && m.id && Array.isArray(m.w) && m.w.length === 3) : []; } catch (e) { return []; } };
+const modeleWsz = () => [...MODELE, ...mojeModele()].map(m => ({ poz: 1, czekaj: 1, war: '', limit: 9, ...m, nazwa: m.w.join('·') }));
+const modOtw = () => lsGet(OTWK, lsGet(MODK, '') ? '1' : '0') === '1';
+const pustych = n => n > 1 ? `${n} pustych trójkach` : '1 pustej trójce';
+const modDop = M => [M.war ? '+ z boku' : '', `po ${pustych(M.czekaj)}`, `do k${M.limit}`].filter(Boolean).join(' · ');
+const modOpis = M => `+ na środku; w każdej połowie wiersze ${M.w.join(', ')}; gra po ${pustych(M.czekaj)}${M.war ? ' (tylko gdy w pustej trójce jest + z boku)' : ''}, do ${M.limit}. kroku`;
+function liczModel(t, M) {   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp, pus: [klucze], pol: [{rs: [{key, s: [kroki], hit}]}]}], teraz, otw (gra w toku)}
+  const c = S.codes[t], n = c.length, B = S.book[t], mx = Math.max(...M.w), gry = [];
+  let gra = null, nobs = 0, pus = [], pusK = [], teraz = null;   // gra: {sk, sp, pus, pol, st, h, graj} — cykl w toku (graj = false: warunek niespełniony, bez gry)
   scan: for (let k = 0; k < B.cards.length; k++) for (let p = 0; p < B.cards[k].parts.length; p++) {
     if (partsOf(k)[p] < mx) continue;
-    const rows = B.cards[k].parts[p], keys = [];
-    if (gra) h++;
-    let hit = false;
+    const rows = B.cards[k].parts[p], keys = M.w.map(r => `${k}.${p}.${r}`), rs = [], kody = [];   // rs: rozegrane wiersze połowy z numerami kroków
+    let hit = 0;
     for (const r of M.w) {
       const row = rows[r - 1], key = `${k}.${p}.${r}`;
-      if (row.nr > n) { teraz = { k, p, r, nr: row.nr, key }; break scan; }
-      keys.push(key);
+      if (row.nr > n) { teraz = { k, p, r, nr: row.nr, key, rs }; break scan; }
+      const o = { key, s: [], hit: false }; rs.push(o);
       for (const x of [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop]) {
         if (x > n) continue;
-        const plus = c[x - 1][M.poz] === '1';
-        if (gra) {
-          st++;
-          put(key, st > M.limit ? 'z' : plus ? 'w' : st === M.limit ? 'b' : 'k', st);
-          if (plus) gry.push({ s: st, h, k, p, r });
-        }
-        if (plus) { hit = true; break; }
+        kody.push(c[x - 1]);
+        if (gra) o.s.push(++gra.st);
+        if (c[x - 1][M.poz] === '1') { hit = r; o.hit = true; break; }
       }
       if (hit) break;
     }
-    if (hit) { gra = false; nobs = 0; st = 0; h = 0; pus = []; continue; }
-    if (!gra && ++nobs === M.czekaj) { pus.push(...keys); pus.forEach(x => put(x, 'p')); gra = true; st = 0; h = 0; pus = []; }
-    else if (!gra) pus.push(...keys);
+    if (gra) {
+      gra.h++; gra.pol.push({ rs });
+      if (hit) { if (gra.graj) gry.push({ s: gra.st, h: gra.h, k, p, r: hit, sk: gra.sk, sp: gra.sp, pus: gra.pus, pol: gra.pol }); gra = null; nobs = 0; }
+      continue;
+    }
+    if (hit) { nobs = 0; pus = []; pusK = []; continue; }
+    pus.push(...keys); pusK.push(...kody);
+    if (++nobs === M.czekaj) { gra = { sk: k, sp: p, pus, pol: [], st: 0, h: 0, graj: !M.war || pusK.some(x => x[0] === '1' || x[2] === '1') }; pus = []; pusK = []; }
   }
-  if (teraz) { teraz.gra = gra; teraz.s = st + 1; if (gra) put(teraz.key, 'n', st + 1); }
-  return { ...M, mx, mk, gry, teraz };
+  const otw = gra && gra.graj ? gra : null;
+  if (teraz) { teraz.gra = !!otw; teraz.bez = !!(gra && !gra.graj); teraz.s = otw ? otw.st + 1 : 1; }
+  return { ...M, mx, gry, teraz, otw };
+}
+function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
+  // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
+  const mk = {}, T = M.teraz, L = M.limit;
+  const wiersz = o => {
+    const s = o.s, last = s[s.length - 1], l = s.join('·');
+    if (!s.length) return;
+    mk[o.key] = o.hit ? (last <= L ? { c: 'w', l: `WIN ${last}` } : { c: 'z', l }) : s.includes(L) ? { c: 'b', l: `BUST ${L}` } : { c: last > L ? 'z' : 'k', l };
+  };
+  const gra = g => { g.pus.forEach((key, i, A) => mk[key] = { c: 'p', l: i === A.length - 1 ? 'start' : '' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };   // „start” przy 3. (ostatnim) pustym wierszu — to on uruchamia grę
+  if (all) M.gry.forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
+  if (T && T.gra) { gra(M.otw); T.rs.forEach(wiersz); mk[T.key] = { c: 'n', l: `▶ ${T.s}` }; }   // gra w toku: migający następny krok
+  return mk;
 }
 const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
 function modNum(M) {   // liczby modelu: gry, WIN, BUST, najdłużej, bilans, największy spadek (ze stawkami w trakcie gry), WIN wg kroku i połowy
@@ -325,66 +352,95 @@ function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
   return `Gier <b>${N.G.length}</b> · WIN <b>${N.win}</b> · BUST <b>${N.bust}</b> · najdłużej <b>${N.max}</b> kroków · bilans <b>${zl(N.bal)}</b>`;
 }
 const modGdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
-const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'pusta trójka (start)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
-function modPanel(t) {   // krótki opis nad kartą (gdy podświetlenie włączone): wynik, co teraz, legenda, statystyki i Prześledź
-  const M = S.mod; if (!M) return '';
-  const T = M.teraz, now = !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł): ${modGdzie(T)}` : `<span class="stan">CZEKAJ</span> na pustą trójkę — ${modGdzie(T)}`;
-  return `<div class="mod"><b>🟩 Model ${M.nazwa}</b> · ${modStat(M)}
-    ${T ? `<div class="now"><span>${now}</span><button id="modGo">Pokaż ▶</button></div>` : ''}
-    <div class="lg">${modLeg()}</div>
-    <div class="bb2"><button class="sec" id="stB">📊 Statystyki</button><button id="trB">🔍 Prześledź</button></div></div>`;
+const modTeraz = (M, krot) => { const T = M.teraz; return !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : `: ${modGdzie(T)}`}`
+  : `<span class="stan">CZEKAJ</span>${krot ? '' : T.bez ? ` — pusta trójka bez + z boku, nie gramy (czekamy na + na środku) — ${modGdzie(T)}` : ` na pustą trójkę — ${modGdzie(T)}`}`; };
+const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
+function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
+  const T = M.teraz, all = lsGet(PRZK, '0') === '1', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`;
+  const co = all ? `Na kartach: <b>wszystkie gry</b> (${M.gry.length}) — przewracaj karty.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
+    : g ? `Na kartach: <b>ostatnia gra</b> — karty ${kk(g)}, WIN ${g.s}.` : 'Na kartach: wiersze modelu (jeszcze bez gier).';
+  return `<div class="mod">${modStat(M)}
+    ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go">Pokaż ▶</button></div>` : ''}
+    <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? '<button data-act="last">Idź ▶</button>' : ''}</div>
+    <div class="bb2"><button class="sec" data-act="stat">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
 }
-function modSheet() {   // STATYSTYKI modelu — po dotknięciu kafelka modelu na pasku (2. dotknięcie)
-  const t = S.t, M = S.modAll; if (!M) return;
-  const N = modNum(M), T = M.teraz, on = lsGet(MODK, '') === MID, pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+function modLista() {   // lista „Modele” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
+  const otw = modOtw(), sel = lsGet(MODK, ''), ML = modeleWsz(), R = id => S.modAll[id];
+  const grajace = ML.filter(M => R(M.id).teraz && R(M.id).teraz.gra);
+  let h = `<div class="mods"><div class="mh" data-act="tog"><span class="ar">${otw ? '▾' : '▸'}</span>Modele <small>(${ML.length})</small>`
+    + `${grajace.length ? `<span class="stan gra">GRAJ: ${grajace.map(M => M.nazwa).join(', ')}</span>` : ''}<span class="zw">${otw ? 'Zwiń' : 'Rozwiń'}</span></div>`;
+  if (otw) {
+    for (const M of ML) {
+      const on = M.id === sel, T = R(M.id).teraz;
+      h += `<div class="mi${on ? ' sel' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${T && T.gra ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${modDop(M)}</small></span>`
+        + `<span class="ms">${modTeraz(R(M.id), true)}</span>${M.id.startsWith('u') ? `<button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button>` : ''}</div>`;
+      if (on) h += modPanel(R(M.id));
+    }
+    h += `<div class="mfoot">${sel && R(sel) ? '' : '<span>Dotknij modelu — pokaże się na kartach.</span>'}<button data-act="add">＋ Dodaj model</button></div>`;
+  }
+  return h + '</div>';
+}
+function modDodaj() {   // nowy własny model: 3 wiersze połowy, start po 1–2 pustych trójkach, warunek „+ z boku”, gra do kroku
+  const ov = document.createElement('div'); ov.className = 'ov';
+  const num = id => `<input id="${id}" type="number" inputmode="numeric" min="1" max="28" placeholder="—">`;
+  ov.innerHTML = `<div class="sheet"><h3>＋ Nowy model</h3>
+    <div class="s">Gra na + na środku. Wpisz 3 wiersze połowy (1–28), np. 1, 6, 17.</div>
+    <div class="nmw">${num('nm1')}${num('nm2')}${num('nm3')}</div>
+    <label class="nml">Start<select id="nmC"><option value="1">po 1 pustej trójce</option><option value="2">po 2 pustych trójkach</option></select></label>
+    <label class="nml">Warunek<select id="nmW"><option value="">brak</option><option value="boki">w pustej trójce + z boku</option></select></label>
+    <label class="nml">Gra do kroku<select id="nmL">${[5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === 9 ? ' selected' : ''}>${x}</option>`).join('')}</select></label>
+    <div class="bb"><button id="nmX">Anuluj</button><button id="nmOk" class="pri">Dodaj</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove(); $('nm1').focus();
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('nmX').onclick = close;
+  $('nmOk').onclick = () => {
+    const w = ['nm1', 'nm2', 'nm3'].map(id => +$(id).value).sort((a, b) => a - b), czekaj = +$('nmC').value, war = $('nmW').value, limit = +$('nmL').value;
+    if (w.some(x => !Number.isInteger(x) || x < 1 || x > 28) || new Set(w).size < 3) { alert('Wpisz 3 różne wiersze od 1 do 28.'); return; }
+    if (modeleWsz().some(M => M.w.join() === w.join() && M.czekaj === czekaj && M.war === war && M.limit === limit)) { alert('Taki model już jest na liście.'); return; }
+    const id = 'u' + Date.now().toString(36);
+    if (!lsSet(MOJEK, JSON.stringify([...mojeModele(), { id, w, czekaj, war, limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(MODK, id); lsSet(OTWK, '1'); close(); render();
+  };
+}
+function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
+  const t = S.t, M = S.modAll[id]; if (!M) return;
+  const N = modNum(M), T = M.teraz, on = lsGet(MODK, '') === id && modOtw(), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   const now = !T ? 'Brak danych.' : T.gra
     ? `<b class="big">▶ GRAJ — krok ${T.s}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
+    : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez + z boku, tej gry nie gramy; czekamy na + na środku.<br>${modGdzie(T)}`
     : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez + na środku).<br>Patrzymy od: ${modGdzie(T)}`;
   const mxK = Math.max(1, ...Object.values(N.krok));
   const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
   const ov = document.createElement('div'); ov.className = 'ov';
-  ov.innerHTML = `<div class="sheet stt"><h3>🟩 Model ${M.nazwa} — statystyki</h3>
-    <div class="s">+ na środku; w każdej połowie wiersze ${M.w.join(', ')}; gra po ${M.czekaj} pustej trójce, do ${M.limit}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+  ov.innerHTML = `<div class="sheet stt"><h3>Model ${M.nazwa} — statystyki</h3>
+    <div class="s">${modOpis(M)}. Kurs 3.0, stawki 8, 8, 16, 32…</div>
     <div class="nw${T && T.gra ? ' gra' : ''}">${now}</div>
     <div class="nums"><div><b>${N.G.length}</b>gier</div><div><b>${N.win}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
       <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
     <h4>Ostatnie gry (dotknij — karta)</h4><div class="ost">${N.G.slice(-8).reverse().map(g => `<button data-k="${g.k}">${g.k}${pn(g)} w.${g.r} · <b>WIN ${g.s}</b></button>`).join('')}</div>
-    <div class="bb"><button id="stOn">${on ? 'Wyłącz podświetlenie' : 'Podświetl na zeszycie'}</button><button id="stTr" class="pri">🔍 Prześledź</button><button id="stX">Zamknij</button></div></div>`;
+    <div class="bb"><button id="stOn">${on ? 'Ukryj z kart' : 'Pokaż na kartach'}</button><button id="stTr" class="pri">${on && lsGet(PRZK, '0') === '1' ? '🔍 Prześledź: wyłącz' : '🔍 Prześledź'}</button><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
-  ov.onclick = e => { if (e.target === ov) close(); const b = e.target.closest('.ost button'); if (b) { close(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } } };
+  ov.onclick = e => { if (e.target === ov) close(); const b = e.target.closest('.ost button'); if (b) { close(); lsSet(MODK, id); lsSet(OTWK, '1'); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } } };
   $('stX').onclick = close;
-  $('stOn').onclick = () => { lsSet(MODK, on ? '' : MID); close(); render(); };
-  $('stTr').onclick = () => { close(); traceOpen(); };
+  $('stOn').onclick = () => { lsSet(MODK, on ? '' : id); lsSet(OTWK, '1'); close(); render(); };
+  $('stTr').onclick = () => { lsSet(PRZK, on && lsGet(PRZK, '0') === '1' ? '0' : '1'); lsSet(MODK, id); lsSet(OTWK, '1'); close(); render(); };
 }
-function traceOpen() {   // PRZEŚLEDŹ: cały zeszyt na jednym ekranie — karta = pasek, połowy obok siebie, w połowie 3 wiersze modelu
-  const t = S.t, M = S.modAll; if (!M) return;
-  const c = S.codes[t], n = c.length, B = S.book[t], L = lastCard(t), sg = x => [...c[x - 1]].map(mark).join('');
-  const cell = (k, p, r) => {
-    const row = B.cards[k].parts[p][r - 1], mm = M.mk[`${k}.${p}.${r}`], xs = [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop].filter(x => x <= n);
-    const s = mm && mm.s.length ? `<i>${mm.c === 'n' ? '▶' : ''}${mm.s.join('·')}</i>` : '';   // kolor mówi WIN / BUST, w znaczku sam numer kroku
-    return `<span class="c kd m${mm ? mm.c : 'f'}${xs.length > 1 ? ' d2' : ''}">${xs.map(sg).join(' ')}${s}</span>`;
-  };
-  const half = (k, p, i) => `<span class="hf${i ? ' p1' : ''}">${partsOf(k)[p] < M.mx ? '<span class="c no">—</span>' : M.w.map(r => cell(k, p, r)).join('')}</span>`;
-  let h = `<div class="tk hd"><span class="kn"><small>karta</small></span>${[0, 1].map(i => `<span class="hf${i ? ' p1' : ''}">${M.w.map(r => `<span class="c">${i ? 'P' : 'L'} w.${r}</span>`).join('')}</span>`).join('')}</div>`;
-  const kMax = M.teraz && M.teraz.k > L ? M.teraz.k : L;
-  for (let k = 0; k <= kMax; k++) {
-    const P = partsOf(k), cur = k === S.card[t] ? ' cur' : '';
-    for (let a = 0; a < P.length; a += 2)   // karta 1 (4 części) — dwa paski
-      h += `<div class="tk${cur}" data-k="${k}"><span class="kn">${k}${P.length > 2 ? `<small>cz. ${a + 1}–${a + 2}</small>` : ''}</span>${half(k, a, 0)}${half(k, a + 1, 1)}</div>`;
-  }
-  const ov = document.createElement('div'); ov.className = 'trace';
-  ov.innerHTML = `<div class="th"><b>🟩 ${M.nazwa} — cały zeszyt</b><button id="trX">✕ Zamknij</button></div>
-    <div class="ts">${modStat(M)}. Dotknij karty — otworzy się w zeszycie.<div class="lg">${modLeg()}</div></div>
-    <div class="tw">${h}</div>`;
-  document.body.appendChild(ov);
-  const cr = ov.querySelector('.tk.cur'); if (cr) cr.scrollIntoView({ block: 'center' });
-  $('trX').onclick = () => ov.remove();
-  ov.querySelector('.tw').onclick = e => { const r = e.target.closest('.tk[data-k]'); if (!r) return; ov.remove(); const k = +r.dataset.k; if (k !== S.card[t]) { szelest(); go(k); } };
+function modNota(k) {   // adnotacja dla karty krótszej niż model (karta 0: 26 / 25 wierszy) — model jej nie liczy
+  const M = S.mod, P = partsOf(k); if (!M || P.every(R => R >= M.mx)) return '';
+  const c = S.codes[S.t], n = c.length, B = S.book[S.t], jest = M.w.filter(r => P.every(R => r <= R));
+  const co = P.map((R, p) => {   // gdyby liczyć same dostępne wiersze: pierwszy + na środku albo pusta trójka
+    const r = M.w.find(r => r <= R && (() => { const row = B.cards[k].parts[p][r - 1]; return [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop].some(x => x <= n && c[x - 1][M.poz] === '1'); })());
+    return { s: partName(k, p).split(' ')[0], r };
+  });
+  if (!jest.length) return `Karta ${k}: model ${M.nazwa} jej nie liczy — nie ma wiersza ${M.mx} (${P.map((R, p) => `${co[p].s} ${R}`).join(', ')} wierszy).`;
+  return `Karta ${k}: model ${M.nazwa} jej nie liczy — nie ma wiersza ${M.mx} (${P.map((R, p) => `${co[p].s} ${R}`).join(', ')} wierszy). `
+    + `Gdyby liczyć same wiersze ${jest.join(' i ')}: ${co.map(x => `${x.s} — ${x.r ? `+ na środku w w.${x.r}` : 'pusta'}`).join(', ')}`
+    + (co.every(x => x.r) ? ' → nie ma pustej trójki, więc i tak bez gry.' : ' → byłaby pusta trójka.');
 }
-
 function rowHtml(t, row, r, cls, k, p, notes, q) {
   const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, beg = row.pre.length ? row.pre[0] : nr, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
   cls = [cls, nr ? '' : 'pu', nr && beg <= n && end >= n ? 'last' : '', beg === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
@@ -392,9 +448,10 @@ function rowHtml(t, row, r, cls, k, p, notes, q) {
   const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
   const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
   // wiersz modelu: ramka wokół znaków, kolor i numer kroku
-  const M = S.mod, mo = M && M.w.includes(r) && partsOf(k)[p] >= M.mx, mm = mo && M.mk[`${k}.${p}.${r}`];
-  const kc = mo ? ' m' + (mm ? mm.c : 'f') : '', s = mm ? mm.s.join('·') : '';
-  const ks = !mm || mm.c === 'p' ? '' : `<span class="ks ${mm.c}">${q ? '' : { w: 'WIN ', b: 'BUST ', n: '▶ ' }[mm.c] || ''}${s}</span>`;
+  const M = S.mod, mo = M && M.w.includes(r) && partsOf(k)[p] >= M.mx, mm = mo && S.modMk[`${k}.${p}.${r}`];
+  const sz = M && !mo && M.w.includes(r) && r <= partsOf(k)[p];   // krótka połowa (karta 0): wiersz modelu tylko do wglądu
+  const kc = mo ? ' m' + (mm ? mm.c : 'f') : sz ? ' msz' : '';
+  const ks = mm && mm.l ? `<span class="ks ${mm.c}">${q ? mm.l.replace('start', 'S').replace('WIN ', 'W').replace('BUST', 'B').replace(' ', '') : mm.l}</span>` : '';
   return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}</span><span class="nt">${ks}${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
 }
 function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
@@ -406,7 +463,8 @@ function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 cz
     h += '</div>'; x += W[p];
   });
   for (let i = 0; i < 14; i++) holes += `<i class="hole" style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
-  return `<div class="paper" data-k="${k}"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="grid">${h}<i class="tl" style="top:calc(var(--sq)*10)"></i><i class="tl" style="top:calc(var(--sq)*20)"></i></div>${holes}</div>`;
+  const an = S.mod ? modNota(k) : '';
+  return `<div class="paper" data-k="${k}"><span class="lbl">TRÓJKA ${TABS[t].name}</span><span class="cno">${k}</span><div class="grid">${h}<i class="tl" style="top:calc(var(--sq)*10)"></i><i class="tl" style="top:calc(var(--sq)*20)"></i></div>${holes}${an ? `<div class="anno">${an}</div>` : ''}</div>`;
 }
 function drawStage(kTop, kUnder, rot) {   // karta na wierzchu (+ karta pod spodem przy przewracaniu) i spirala
   const st = $('card'), sq = Math.max(13, Math.min(26, Math.floor(st.clientWidth / 22)));
@@ -430,15 +488,15 @@ function render() {
   const z = jobj(LASTK), un = z && z.n === n && c[n - 1] === z.c && S.nAdd[t] > 0;   // cofnąć można tylko kod dopisany tutaj i wciąż ostatni
   $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
   if (un) $('undoB').onclick = undoCode;
-  // model liczony zawsze (kafelek na pasku pokazuje CZEKAJ / GRAJ), podświetlenie kart tylko gdy włączone
-  const mkey = `${MID}:${n}:${c[n - 1]}`;
-  if (S.modKey !== mkey) { S.modAll = liczModel(t, MID); S.modKey = mkey; }
-  S.mod = lsGet(MODK, '') === MID ? S.modAll : null;
-  mdlUpd();
-  $('mod').innerHTML = modPanel(t);
-  if ($('modGo')) $('modGo').onclick = () => { const T = S.mod.teraz; if (T.k !== S.card[t]) { szelest(); go(T.k); } };
-  if ($('trB')) $('trB').onclick = traceOpen;
-  if ($('stB')) $('stB').onclick = modSheet;
+  // modele liczone zawsze (kafelek MODELE pokazuje CZEKAJ / GRAJ); oznaczenia na kartach tylko wybranego modelu przy rozwiniętej liście
+  const ML = modeleWsz(), mkey = `${n}:${c[n - 1]}:${lsGet(MOJEK, '[]')}`;
+  if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(t, M)); S.modKey = mkey; }
+  const sel = lsGet(MODK, '');
+  S.mod = modOtw() && S.modAll[sel] ? S.modAll[sel] : null;
+  S.modMk = S.mod ? modMk(S.mod, lsGet(PRZK, '0') === '1') : {};
+  mdlUpd(ML);
+  $('mod').innerHTML = modLista();
+  $('leg').innerHTML = S.mod ? `<div class="lg">${modLeg()}</div>` : '';
   drawStage(k);
 }
 // ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====
@@ -463,24 +521,36 @@ function szelest(len = .4) {
 { const el = $('appbar'), b = document.createElement('button'), upd = () => { b.textContent = lsGet(SNDK, '1') === '1' ? '🔊' : '🔇'; b.title = 'szelest kartki'; };
   b.className = 'thm'; upd(); el.appendChild(b);
   b.onclick = () => { lsSet(SNDK, lsGet(SNDK, '1') === '1' ? '0' : '1'); upd(); szelest(.3); }; }
-// kafelek modelu: kwadracik żółty = CZEKAJ (na pustą trójkę), miga = GRAJ (otwarta gra, obok numer kroku).
-// 1. dotknięcie powiększa, 2. włącza podświetlenie na zeszycie i otwiera statystyki modelu.
+// kafelek MODELE na pasku: kwadracik na każdy model — żółty = CZEKAJ, miga = GRAJ (przy jednym grającym modelu obok numer kroku).
+// 1. dotknięcie powiększa, 2. rozwija listę modeli nad kartą.
 const mdlB = document.createElement('button');
-function mdlUpd() {
-  const b = mdlB, M = S.modAll, T = M && M.teraz, gra = !!(T && T.gra);
-  b.classList.toggle('on', lsGet(MODK, '') === MID); b.classList.toggle('gra', gra);
-  b.querySelector('.st').textContent = gra ? '▶' + T.s : '';
-  b.title = `model ${MODELE[MID].nazwa} — ${gra ? `GRAJ krok ${T.s}` : 'CZEKAJ'} (dotknij 2× — statystyki)`;
+function mdlUpd(ML) {
+  const T = M => S.modAll[M.id].teraz, gr = ML.filter(M => T(M) && T(M).gra);
+  mdlB.classList.toggle('on', !!S.mod); mdlB.classList.toggle('gra', gr.length > 0);
+  mdlB.innerHTML = `MODELE${ML.map(M => `<i class="sq${T(M) && T(M).gra ? ' g' : ''}"></i>`).join('')}${gr.length === 1 ? `<span class="st">▶${T(gr[0]).s}</span>` : ''}`;
+  mdlB.title = gr.length ? `GRAJ: ${gr.map(M => `${M.nazwa} krok ${T(M).s}`).join(', ')}` : 'modele — CZEKAJ (dotknij 2× — lista modeli)';
 }
 { const el = $('appbar'), b = mdlB;
-  b.className = 'mdl'; b.innerHTML = `<i class="sq"></i>${MODELE[MID].nazwa}<span class="st"></span>`; el.appendChild(b);
+  b.className = 'mdl'; b.textContent = 'MODELE'; el.appendChild(b);
   b.onclick = () => {
     clearTimeout(b._t);
     if (!b.classList.contains('big')) { el.querySelectorAll('.big').forEach(x => x.classList.remove('big')); b.classList.add('big'); b._t = setTimeout(() => b.classList.remove('big'), 4000); return; }
     b.classList.remove('big'); if (!S.book[S.t]) return;
-    if (lsGet(MODK, '') !== MID) { lsSet(MODK, MID); render(); }
-    modSheet();
+    lsSet(OTWK, '1'); render(); $('mod').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }; }
+// lista modeli nad kartą: zwiń / rozwiń, wybór modelu, statystyki, Prześledź, dodawanie i usuwanie własnych modeli
+$('mod').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, id = b.dataset.id, t = S.t;
+  if (a === 'tog') lsSet(OTWK, modOtw() ? '0' : '1');
+  else if (a === 'sel') lsSet(MODK, lsGet(MODK, '') === id ? '' : id);
+  else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); if (lsGet(MODK, '') === id) lsSet(MODK, ''); }
+  else if (a === 'add') return modDodaj();
+  else if (a === 'stat') return modSheet(lsGet(MODK, ''));
+  else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
+  else if (a === 'go' || a === 'last') { const M = S.mod, k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } return; }
+  render();
+});
 
 // ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w lewo = następna, w prawo = poprzednia; karta idzie za palcem =====
 // następna: kartka wychodzi zza spirali i kładzie się na wierzch (wolny brzeg jedzie w lewo, za palcem);
@@ -610,7 +680,7 @@ $('addB').onclick = () => addCodeSheet();
   st.addEventListener('click', e => { if (FL || Date.now() - noClick < 400) return; const r = e.target.closest('.r'); if (!r || !+r.dataset.nr || r.classList.contains('off')) return;
     if (+r.dataset.nr === S.codes[S.t].length + 1) addCodeSheet(); else editRow(+r.dataset.nr); });
 }
-document.addEventListener('keydown', e => { const tr = document.querySelector('.trace'); if (tr && e.key === 'Escape') tr.remove(); if (tr || document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') flipTo(S.card[S.t] - 1); if (e.key === 'ArrowRight') flipTo(S.card[S.t] + 1); });
+document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') flipTo(S.card[S.t] - 1); if (e.key === 'ArrowRight') flipTo(S.card[S.t] + 1); });
 window.addEventListener('resize', () => { if (!FL && S.book[S.t]) render(); });
 // kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
 const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
