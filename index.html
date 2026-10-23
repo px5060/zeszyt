@@ -180,7 +180,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.4.1';
+const APP_VER = '1.4.2';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -303,7 +303,7 @@ function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}
     if (!s.length) return;
     mk[o.key] = o.hit ? (last <= L ? { c: 'w', l: `WIN ${last}` } : { c: 'z', l }) : s.includes(L) ? { c: 'b', l: `BUST ${L}` } : { c: last > L ? 'z' : 'k', l };
   };
-  const gra = g => { g.pus.forEach((key, i) => mk[key] = { c: 'p', l: i ? '' : 'start' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };
+  const gra = g => { g.pus.forEach((key, i, A) => mk[key] = { c: 'p', l: i === A.length - 1 ? 'start' : '' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };   // „start” przy 3. (ostatnim) pustym wierszu — to on uruchamia grę
   if (all) M.gry.forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
   if (T && T.gra) { gra(M.otw); T.rs.forEach(wiersz); mk[T.key] = { c: 'n', l: `▶ ${T.s}` }; }   // gra w toku: migający następny krok
   return mk;
