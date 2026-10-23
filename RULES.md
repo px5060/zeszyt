@@ -49,6 +49,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 
 - **Kartka zawsze w kolorach zeszytu** (jak karta 273): biała kartka, niebieska kratka, czarny tusz, czerwone linie tercji — także w trybie nocnym.
 - Mecze (skróty drużyn, np. PAO-RAD) obok kodów — wielkie litery, czarnym „pismem”. Zapis w `zeszyt_v1_notes_t50` pod Nr kodu.
+  Od 1.9.3: ostatnia litera nie jest ucinana (pismo Caveat wystaje poza swoje pole — odstęp na końcu), a za długa nazwa
+  dostaje mniejsze litery, żeby zmieścić się w wierszu (`fitNt` po narysowaniu karty i po wczytaniu pisma; najmniej 40%).
 - Wpisywanie: dotknij wiersza → wpisz → **Enter / „Dalej ▶”** zapisuje i otwiera następny wiersz (bez dopisków).
 - Zdjęcia (Claude odczytuje skróty ze zdjęcia karty, z kluczem API) — zrobione i usunięte na prośbę użytkownika: zostaje **zapis ręczny**.
   Kod jest w historii repo (commit „Kartka w kolorach zeszytu, szybkie wpisywanie meczów i mecze ze zdjęcia”).
