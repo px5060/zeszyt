@@ -210,3 +210,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Prośba użytkownika: na liście „Modele” **GRAJ (miga, zielony kwadracik) tylko gdy następny krok wypada w następnym wierszu**.
   Model w grze z krokiem dalej: pomarańczowe „CZEKAJ na grę · krok n za N wierszy”, po pustej trójce fioletowe „OD 1. KROKU · za N wierszy”;
   krok za limitem: czerwone „po BUST”. Nie gra = żółte CZEKAJ (na pustą trójkę). To samo w Statystykach modelu.
+
+## Usuwanie modelu wbudowanego (od 1.9.7)
+- Prośba użytkownika: 16·18·27 nie ma być na stałe — ma 🗑 jak inne modele. Usunięte wbudowane modele: `zeszyt_v1_modele_usuniete`
+  (id po przecinku); ZESZYT i SZUKAJ W ZESZYCIE ich nie pokazują. Ten sam model można potem dodać z SZUKAJ W ZESZYCIE (jako własny).
