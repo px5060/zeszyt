@@ -69,25 +69,21 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   po WIN nowy cykl od następnej połowy. Gra do 9. kroku. Połowy krótsze niż 27 wierszy (karta 0) pomijane; karta 1 — 4 części po kolei.
 - Wynik na 15 361 kodach: 133 gry, 133 WIN, 0 BUST, najdłużej 9 kroków, bilans +11 472 zł (kurs 3.0, stawki 8, 8, 16, 32…).
 - Przycisk modelu **16·18·27** na pasku (do 1.1.1: 2. dotknięcie włącza / wyłącza podświetlenie; od 1.2.0 — patrz kafelek niżej), wybór w `zeszyt_v1_model`.
-- Na karcie: ramka wokół 3 znaków w wierszach modelu; **fioletowa** przerywana = pusta trójka (start gry, od 1.2.3); **czerwony** = krok bez trafienia
-  (z numerem kroku); **zielony** = WIN (np. „WIN 4”); ciemnoczerwony = BUST; pulsująca przerywana = następny krok otwartej gry.
-- Nad kartą opis: gry / WIN / BUST / bilans, w której połowie gry przyszedł WIN, „Teraz” (czekamy na pustą trójkę albo następny krok) + „Pokaż ▶”.
-- **🔍 Prześledź — cały zeszyt** (od 1.1.1, przycisk w opisie modelu): cały zeszyt na jednym ekranie — każda karta to pasek,
-  lewa i prawa połowa obok siebie, w każdej 3 komórki (wiersze 16, 18, 27) ze znakami kodu i tymi samymi kolorami co na karcie,
-  w znaczku numer kroku. Karta 1 — dwa paski (cz. 1–2, 3–4). Karta 0 (od 1.2.1) — kody z wierszy 16 i 18
-  na szaro, „brak w.27” (tylko do wglądu, model jej nie liczy; policzone z kartą 0 na 2 krokach — wynik bez zmian, bo w obu połowach
-  wiersz 16 ma + na środku).
-  Od 1.2.2 adnotacja o tym na samej karcie 0 (przy włączonym modelu, na dole kartki) i w „Prześledź” pod paskiem karty 0;
-  wiersze 16 i 18 na karcie 0 w szarej kropkowanej ramce. Otwiera się na bieżącej karcie; dotknięcie paska
-  otwiera tę kartę w zeszycie; „✕ Zamknij” / Esc.
+- **Kolory na karcie (od 1.4.0, życzenie użytkownika: „jedna linia = jeden kolor”)**: każda połowa w grze ma **jeden kolor na całej
+  trójce** (wiersze 16, 18, 27): **fioletowy** = start (pusta trójka), **czerwony** = połowa bez trafienia, **zielony** = połowa z WIN,
+  ciemnoczerwony = BUST, szary = po BUST. Jeden znaczek na połowę (przy wierszu 16): „start”, „1–3”, „4–6”, „WIN 5”, „BUST”.
+  Wiersze modelu, które nie biorą udziału w grze — tylko neutralna ramka. Gra w toku: rozegrane kroki bieżącej połowy na czerwono
+  i migająca ramka następnego kroku („▶ 2”). Gry nie zachodzą na siebie.
+- **🔍 Prześledź** (od 1.4.0 — przełącznik, `zeszyt_v1_przesledz`): **WŁ** = kolory wszystkich gier na całym zeszycie (na kartach,
+  przewracając karty); **WYŁ** = tylko bieżąca gra (otwarta; przy CZEKAJ — ostatnia gra, „Idź ▶” przenosi do niej).
+  Osobny ekran z listą gier / siatką kodów (1.1.1–1.3.0) usunięty — użytkownik chce oglądać model na kartach zeszytu.
+- Karta 0 (brak wiersza 27, model jej nie liczy): wiersze 16 i 18 w szarej kropkowanej ramce + adnotacja na dole kartki
+  (policzone z kartą 0 na 2 krokach — wynik bez zmian, bo w obu połowach wiersz 16 ma + na środku).
 - **Kafelek modelu na pasku** (od 1.2.0): kwadracik **żółty = CZEKAJ** (na pustą trójkę), **miga (żółty/zielony) = GRAJ** — otwarta gra,
   obok numer następnego kroku (np. ▶2). Stan liczony zawsze, także gdy podświetlenie kart jest wyłączone.
   1. dotknięcie powiększa, 2. włącza podświetlenie i otwiera **statystyki modelu**: stan (CZEKAJ / GRAJ — krok, miejsce, stawka,
   ile już postawione, ile da WIN), gry / WIN / BUST / najdłużej / bilans / największy spadek, tabela WIN na kroku (stawka, ile, zysk),
-  WIN w połowie gry, ostatnie gry (dotknięcie → karta), przyciski: wyłącz / włącz podświetlenie, 🔍 Prześledź, Zamknij.
-- Opis nad kartą (gdy podświetlenie włączone) krótki: wynik, CZEKAJ / GRAJ + „Pokaż ▶”, legenda, „📊 Statystyki”, „🔍 Prześledź”.
-- **Prześledź od 1.3.0 — zakładka „Gry” (domyślna)**, bo siatka kodów była nieczytelna (uwaga użytkownika): jedna gra = jeden wiersz
-  (najnowsze na górze): karty od–do, „pusta …” (połowa z pustą trójką), rząd 9 kwadratów = kroki (czerwony = bez trafienia,
-  zielony = WIN, odstęp co 3 = następna połowa), z prawej „WIN n”. Otwarta gra na górze: „TERAZ”, migający kwadrat, „GRAJ n”.
-  Filtry: Wszystkie / WIN 1–3 / 4–6 / 7–9 (/ BUST). Dotknięcie gry → karta z pustą trójką. Siatka kodów została w zakładce „Karty”.
+  WIN w połowie gry, ostatnie gry (dotknięcie → karta), przyciski: wyłącz / włącz podświetlenie, 🔍 Prześledź (WŁ / WYŁ), Zamknij.
+- Opis nad kartą (gdy podświetlenie włączone): wynik, CZEKAJ / GRAJ + „Pokaż ▶”, „Na kartach: …” (wszystkie gry / bieżąca /
+  ostatnia + „Idź ▶”), legenda, „📊 Statystyki”, „🔍 Prześledź” (WŁ / WYŁ).
 - Kolejne modele dopisuje się w `MODELE` w `index.html` (`w` wiersze, `poz` cyfra, `czekaj` pustych trójek, `limit` kroków).
