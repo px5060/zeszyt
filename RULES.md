@@ -161,3 +161,11 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Okno statystyk modelu ma sekcję **LOST (przegrane gry)**: lista ostatnich 10 LOST-ów — karty, kroki, odstęp w grach od poprzedniego
   LOST-u, następna gra (WIN n / LOST / trwa); w „Ostatnie gry” przegrana jako „LOST k…” na czerwono.
 - Na danych (15 361 kodów, X+X po 1 pustej, k9, ≥ 100 gier): 47 modeli po LOST (LOST 1–5, bez LOST po LOST), 24 z nich GRAJ teraz.
+
+## ZESZYT ⇄ SZUKAJ W ZESZYCIE, ramka po LOST (od 1.8.1)
+
+- Model w ZESZYCIE **po LOST-cie** (ostatnia skończona gra przegrana albo gra w toku już za limitem — od LOST-u bez WIN; `modLost`
+  w `silnik.js`) ma na liście **biało-czerwoną ramkę w paski jak w MOJE** (`border-image` jak `.lsrc` w MOJE) i dopisek „po LOST”.
+- Przy każdym modelu w ZESZYCIE ikonka **🔎** → SZUKAJ W ZESZYCIE z od razu otwartymi statystykami tego modelu
+  (link `modele/?m=<kod>`, kod `poz-wiersze-czekaj-warunek-limit`, np. `1-16.18.27-1-b-9`; `modKod` / `modZKodu` w `silnik.js`).
+- W wyszukiwarce „✓ w ZESZYCIE — otwórz ▶” → ZESZYT z tym modelem wybranym i pokazanym na kartach (link `../?m=<id>`).

@@ -59,6 +59,15 @@ const modDop = M => [M.poz === 1 ? '' : CELTX[M.poz], M.war ? bokTx(M.poz) : '',
 const modOpis = M => `${CELTX[M.poz]}; w każdej połowie wiersze ${M.w.join(', ')}; ${M.czekaj ? `gra po ${pustych(M.czekaj)}${M.war ? ` (tylko gdy w pustej trójce jest ${bokTx(M.poz)})` : ''}` : 'gra od razu (bez pustej trójki)'}, do ${M.limit}. kroku`;
 const parseModele = str => { try { const a = JSON.parse(str || '[]'); return Array.isArray(a) ? a.filter(m => m && m.id && Array.isArray(m.w) && m.w.length === 3) : []; } catch (e) { return []; } };
 const sameModel = (a, b) => a.w.join() === b.w.join() && a.poz === b.poz && a.czekaj === b.czekaj && a.war === b.war && a.limit === b.limit;
+// model po LOST-cie: ostatnia skończona gra przegrana (dłuższa niż limit) albo gra w toku już za limitem — od LOST-u jeszcze bez WIN
+const modLost = M => !!((M.teraz && M.teraz.gra && M.teraz.s > M.limit) || (M.gry.length && M.gry[M.gry.length - 1].s > M.limit));
+// kod modelu w linku (ZESZYT ⇄ SZUKAJ W ZESZYCIE): poz-wiersze-czekaj-warunek-limit, np. „1-16.18.27-1-b-9”
+const modKod = M => [M.poz, M.w.join('.'), M.czekaj, M.war ? 'b' : '', M.limit].join('-');
+function modZKodu(k) {
+  const a = String(k || '').split('-'), w = (a[1] || '').split('.').map(Number);
+  if (a.length !== 5 || w.length !== 3 || w.some(x => !(x >= 1 && x <= 28))) return null;
+  return modDef({ w, poz: +a[0], czekaj: +a[2], war: a[3] === 'b' ? 'boki' : '', limit: +a[4] || 9 });
+}
 const innyPlus = (cd, poz) => [0, 1, 2].some(i => i !== poz && cd[i] === '1');
 function liczModel(c, B, M) {   // pełne liczenie (z kluczami wierszy do kolorów na kartach)
   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp, pus: [klucze], pol: [{rs: [{key, s: [kroki], hit}]}]}], teraz, otw (gra w toku)}

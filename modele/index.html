@@ -159,10 +159,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     w ZESZYCIE widać na kartach, gdzie model jest i jak się układał.</div>
 </main>
 
-<script src="../silnik.js?v=1.7.2"></script>
+<script src="../silnik.js?v=1.8.1"></script>
 <script>
 "use strict";
-const APP_VER = '1.8.0';
+const APP_VER = '1.8.1';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -340,7 +340,7 @@ function statystyki(M0) {
   const mxK = Math.max(1, ...Object.values(N.krok));
   const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
   const ov = document.createElement('div'); ov.className = 'ov';
-  const przycisk = () => wZeszycie().some(z => sameModel(z, M)) ? '<a class="pri jest" href="../">✓ w ZESZYCIE — otwórz ▶</a>' : '<button id="stP" class="pri">➕ Przenieś do zeszytu</button>';
+  const przycisk = () => { const z = wZeszycie().find(z => sameModel(z, M)); return z ? `<a class="pri jest" href="../?m=${z.id}">✓ w ZESZYCIE — otwórz ▶</a>` : '<button id="stP" class="pri">➕ Przenieś do zeszytu</button>'; };
   ov.innerHTML = `<div class="sheet stt"><h3>Model ${M.nazwa} — statystyki</h3>
     <div class="s">${modOpis(M)}. Kurs 3.0, stawki 8, 8, 16, 32…</div>
     <div class="nw${T && T.gra ? ' gra' : ''}">${now}</div>
@@ -423,6 +423,8 @@ function info() {
   $('ver').textContent = APP_VER;
   pokazFiltry();
   W.seed = await loadSeed(); czytajKody(); info(); szukaj();
+  { const M = modZKodu(new URLSearchParams(location.search).get('m'));   // link z ZESZYTU (🔎 przy modelu): od razu statystyki tego modelu
+    if (M) { history.replaceState(null, '', location.pathname); statystyki(M); } }
 })();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('../zeszyt-sw.js').catch(() => {});
 </script>
