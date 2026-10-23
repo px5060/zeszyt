@@ -90,4 +90,31 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **Kafelek MODELE na pasku**: kwadracik na każdy model — żółty = CZEKAJ, miga = GRAJ (przy jednym grającym — numer kroku ▶n);
   zielone tło, gdy model jest pokazany na kartach. 1. dotknięcie powiększa, 2. rozwija listę modeli.
 - Karta 0 (brak wiersza 27): przy pokazanym modelu wiersze, które są, w szarej kropkowanej ramce + adnotacja na dole kartki.
-- Wbudowane modele: `MODELE` w `index.html` (`w` wiersze; opcjonalnie `czekaj`, `war: 'boki'`, `limit`).
+- Od 1.6.0 model ma też **`poz`** — gramy na + na początku (0, „+XX”), na środku (1, domyślnie) albo na końcu (2, „XX+”) — i **start
+  „od razu”** (`czekaj: 0`): gra bez pustej trójki, od pierwszej połowy i zaraz po każdym WIN. Warunek `war: 'boki'` = w pustej trójce
+  jest + w innym miejscu niż `poz` (przy X+X: „+ z boku”). „＋ Dodaj model” w ZESZYCIE ma te opcje.
+- Wbudowane modele: `MODELE` w `silnik.js` (`w` wiersze; opcjonalnie `poz`, `czekaj`, `war: 'boki'`, `limit`).
+
+## Silnik wspólny — `silnik.js` (od 1.6.0)
+
+- Układ kart (`DOP`, `DOPG`, `PUSTE`, `partsOf`, `buildBook`) i liczenie modeli (`liczModel`, `modNum`, `modDef`, `szybkiModel`)
+  są w `silnik.js`, ładowanym przez ZESZYT i wyszukiwarkę (`silnik.js?v=…` — przy zmianie silnika podbić `v`, żeby telefon nie wziął starego pliku).
+- `szybkiModel` (wyszukiwarka, tysiące modeli naraz) liczy dokładnie to samo co `liczModel` (ZESZYT) — sprawdzone na 1 800 losowych
+  modelach (wszystkie `poz`, `czekaj` 0–2, z warunkiem i bez, także z grą w toku): zero różnic. Po przeniesieniu do `silnik.js`
+  wyniki ZESZYTU identyczne jak wcześniej (porównanie gier, stanu i kolorów).
+
+## Wyszukiwarka modeli — SZUKAJ M (`/zeszyt/modele/`, od 1.6.0)
+
+- Pomysł użytkownika: aplikacja bez zeszytu, sama wyszukiwarka modeli, jak SZUKAJ 50 / 60 — **kryteria ustawia użytkownik**.
+- Filtry: gramy na (X+X / +XX / XX+, kilka naraz), start (po 1 / po 2 pustych / od razu), warunek (bez / + z boku), stan teraz
+  (wszystkie / GRAJ teraz / CZEKAJ), gra do kroku 5–12, **gier co najmniej**, **BUST najwyżej**, sortowanie
+  (najmniej BUST → najwięcej gier; bilans; gry; najpierw w grze). Zapis filtrów: `zeszyt_v1_szukaj`.
+- Przeszukuje wszystkie zestawy 3 wierszy (3 276) × wybrane opcje (wszystko naraz: 49 140 modeli, ~2 s), w paczkach z postępem.
+- Wynik: model, opcje, stan teraz (GRAJ krok n + stawka / CZEKAJ / po BUST), gry / WIN / BUST / najdłużej / bilans.
+  **„➕ Do zeszytu”** dopisuje model do `zeszyt_v1_modele` i wybiera go w ZESZYCIE (`zeszyt_v1_model`, lista rozwinięta);
+  model już w ZESZYCIE → „✓ w ZESZYCIE — otwórz ▶”.
+- Kody: te same co w innych aplikacjach (baza `/moje/seed_t50.txt` + `t50razem_v1_added`); przelicza po powrocie / zmianie kodów.
+- Na pasku obu stron przycisk **🔎 SZUKAJ M** (w MOJE jeszcze nie ma — osobne repo).
+- Sprawdzone: domyślne filtry (X+X, po 1 pustej, k9, ≥ 100 gier, BUST ≤ 2) → 217 modeli, tyle samo co w analizie w rozmowie.
+- Analiza „od razu” (bez pustej trójki): żaden model 3 kroków nie zamyka się do k9 (X+X najmniej 7 BUST do k9); bez BUST dopiero do k12
+  (np. 1·6·17, 6·19·22, 8·24·28 — te same wiersze co najlepsze „po 1 pustej” do k9: 9 kroków gry + 3 kroki pustej trójki).

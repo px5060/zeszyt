@@ -103,7 +103,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 @keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}@keyframes mdlB{50%{border-color:#2ee66b}}
 .mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
 .mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
-.mod .stan{display:inline-block;padding:0 6px;border-radius:5px;font-weight:900;color:#1b1f2a;background:#f2c230}.mod .stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}
+.stan{display:inline-block;padding:0 6px;border-radius:5px;font-weight:900;color:#1b1f2a;background:#f2c230}.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}
 /* statystyki modelu (okno po dotknięciu kafelka) */
 .sheet.stt{max-height:88vh;overflow:auto}
 .stt .nw{border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:13.5px;background:var(--card);border:1px solid var(--bd)}
@@ -157,7 +157,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   const A = [['/moje/', 'MOJE', '#c97a45'], ['/t50razem/', 'R50', '#2e7d4f'], ['/all60/', 'R60', '#2e7d4f'], ['/szukaj50/', 'S50', '#2e75b6'], ['/szukaj60/', 'S60', '#2e75b6'],
     ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
     ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
-    ['/zeszyt/', '📓 ZESZYT', '#b8902e']];
+    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ M', '#1f8a4c']];
   const el = document.getElementById('appbar'), here = location.pathname.replace(/index\.html$/, '');
   if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
   // dzień / noc — ZESZYT pamięta własny wybór (zeszyt_v1_theme), na start bierze ustawienie z MOJE / SZUKAJ
@@ -198,9 +198,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. MODELE na pasku (dotknij 2×) — lista modeli; dotknij modelu — pokaże się na kartach; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj.</div>
 </main>
 
+<script src="silnik.js?v=1.6.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.5.1';
+const APP_VER = '1.6.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -209,38 +210,7 @@ const TABS = {
 const K = { notes: t => 'zeszyt_v1_notes_' + t };   // własne dane ZESZYTU — tylko klucze zeszyt_
 const SEED_CACHE = 'zeszyt-seed-v1';   // kopia bazy na brak internetu (pamięć podręczna, nie localStorage — nie zabiera miejsca kodom)
 
-// ===== KARTY ZESZYTU TRÓJKA (sprawdzone na kodach ze zdjęć zeszytu) =====
-// karta = 2 połowy × 28 wierszy, tercje 1–10 · 11–20 · 21–28. Wyjątki: karta 0 — lewa 26, prawa 25 wierszy (Nr 1–51),
-// karta 1 — 4 części × 28 (Nr 52–163). Każda karta ma tyle samo kratek, ale w zeszycie bywają:
-// DOPISKI — mecz wciśnięty między wiersze albo pod 28. wiersz (kod bez własnego wiersza, pokazany przy poprzednim kodzie),
-// PUSTE — wiersz bez kodu (np. mecz przełożony, „SUSP”).
-// Sprawdzone na zdjęciach: karty 2–6, 8–15, 30, 34, 36, 38, 40, 42, 44, 45, 60, 273 (Nr 15 360 = karta 273, wiersz 12).
-const DOP = new Set([290, 377, 649, 693, 700, 729, 813, 842, 861, 2000]);   // Nr kodów dopisanych (przy wierszu poprzedniego kodu)
-const DOPG = new Set([641]);   // Nr kodów dopisanych nad 1. wierszem połowy (pokazane przy wierszu 1)
-const PUSTE = new Set([528, 803]);   // po kodzie o tym Nr — wiersz bez kodu
-const partsOf = k => k === 0 ? [26, 25] : k === 1 ? [28, 28, 28, 28] : [28, 28];
-function buildBook(N) {   // → {cards: [{parts: [[{nr (0 = pusty), pre: [Nr…], dop: [Nr…]}…]…]}], pos: Nr → {k, p, r, d (dopisek)}}
-  const cards = [], pos = [];
-  let nr = 1, empty = false;
-  for (let k = 0; nr <= N || k <= (pos[N] ? pos[N].k + 1 : 1); k++) {
-    const card = { parts: [] };
-    partsOf(k).forEach((R, p) => {
-      const rows = [];
-      for (let r = 1; r <= R; r++) {
-        if (empty) { rows.push({ nr: 0, pre: [], dop: [] }); empty = false; continue; }
-        const row = { nr: 0, pre: [], dop: [] };
-        while (DOPG.has(nr)) { row.pre.push(nr); pos[nr] = { k, p, r, d: 1 }; nr++; }
-        row.nr = nr; pos[nr] = { k, p, r }; nr++;
-        while (DOP.has(nr)) { row.dop.push(nr); pos[nr] = { k, p, r, d: 1 }; nr++; }
-        empty = PUSTE.has(nr - 1);
-        rows.push(row);
-      }
-      card.parts.push(rows);
-    });
-    cards.push(card);
-  }
-  return { cards, pos };
-}
+// układ kart (DOP, DOPG, PUSTE, partsOf, buildBook) i silnik modeli — w silnik.js (wspólny z wyszukiwarką modeli)
 const partName = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
 // licznik setek przy prawej krawędzi: Nr kodu w tabeli TRÓJKA, 1 … 99, 00 — w zeszycie od prawej połowy karty 60
 const hund = nr => { const v = nr % 100; return v ? String(v) : '00'; };
@@ -284,48 +254,10 @@ const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyf
 // Połowy krótsze niż najwyższy wiersz modelu (karta 0) pomijamy. Stawki 8, 8, 16, 32…, kurs 3.0, gra do kroku `limit`.
 // Lista zwinięta = żadnych oznaczeń na kartach. Dotknięcie modelu = jego wiersze na kartach + opis, co się dzieje (bieżąca gra);
 // 🔍 Prześledź = wszystkie dotychczasowe gry tego modelu na całym zeszycie.
-const MODELE = [{ id: 'm1', w: [16, 18, 27] }];   // wbudowane; własne modele użytkownika w zeszyt_v1_modele
 const MOJEK = 'zeszyt_v1_modele', MODK = 'zeszyt_v1_model', OTWK = 'zeszyt_v1_modele_otw', PRZK = 'zeszyt_v1_przesledz';
-const KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
-const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
-const mojeModele = () => { try { const a = JSON.parse(lsGet(MOJEK, '[]')); return Array.isArray(a) ? a.filter(m => m && m.id && Array.isArray(m.w) && m.w.length === 3) : []; } catch (e) { return []; } };
-const modeleWsz = () => [...MODELE, ...mojeModele()].map(m => ({ poz: 1, czekaj: 1, war: '', limit: 9, ...m, nazwa: m.w.join('·') }));
+const mojeModele = () => parseModele(lsGet(MOJEK, '[]'));
+const modeleWsz = () => [...MODELE, ...mojeModele()].map(modDef);
 const modOtw = () => lsGet(OTWK, lsGet(MODK, '') ? '1' : '0') === '1';
-const pustych = n => n > 1 ? `${n} pustych trójkach` : '1 pustej trójce';
-const modDop = M => [M.war ? '+ z boku' : '', `po ${pustych(M.czekaj)}`, `do k${M.limit}`].filter(Boolean).join(' · ');
-const modOpis = M => `+ na środku; w każdej połowie wiersze ${M.w.join(', ')}; gra po ${pustych(M.czekaj)}${M.war ? ' (tylko gdy w pustej trójce jest + z boku)' : ''}, do ${M.limit}. kroku`;
-function liczModel(t, M) {   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp, pus: [klucze], pol: [{rs: [{key, s: [kroki], hit}]}]}], teraz, otw (gra w toku)}
-  const c = S.codes[t], n = c.length, B = S.book[t], mx = Math.max(...M.w), gry = [];
-  let gra = null, nobs = 0, pus = [], pusK = [], teraz = null;   // gra: {sk, sp, pus, pol, st, h, graj} — cykl w toku (graj = false: warunek niespełniony, bez gry)
-  scan: for (let k = 0; k < B.cards.length; k++) for (let p = 0; p < B.cards[k].parts.length; p++) {
-    if (partsOf(k)[p] < mx) continue;
-    const rows = B.cards[k].parts[p], keys = M.w.map(r => `${k}.${p}.${r}`), rs = [], kody = [];   // rs: rozegrane wiersze połowy z numerami kroków
-    let hit = 0;
-    for (const r of M.w) {
-      const row = rows[r - 1], key = `${k}.${p}.${r}`;
-      if (row.nr > n) { teraz = { k, p, r, nr: row.nr, key, rs }; break scan; }
-      const o = { key, s: [], hit: false }; rs.push(o);
-      for (const x of [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop]) {
-        if (x > n) continue;
-        kody.push(c[x - 1]);
-        if (gra) o.s.push(++gra.st);
-        if (c[x - 1][M.poz] === '1') { hit = r; o.hit = true; break; }
-      }
-      if (hit) break;
-    }
-    if (gra) {
-      gra.h++; gra.pol.push({ rs });
-      if (hit) { if (gra.graj) gry.push({ s: gra.st, h: gra.h, k, p, r: hit, sk: gra.sk, sp: gra.sp, pus: gra.pus, pol: gra.pol }); gra = null; nobs = 0; }
-      continue;
-    }
-    if (hit) { nobs = 0; pus = []; pusK = []; continue; }
-    pus.push(...keys); pusK.push(...kody);
-    if (++nobs === M.czekaj) { gra = { sk: k, sp: p, pus, pol: [], st: 0, h: 0, graj: !M.war || pusK.some(x => x[0] === '1' || x[2] === '1') }; pus = []; pusK = []; }
-  }
-  const otw = gra && gra.graj ? gra : null;
-  if (teraz) { teraz.gra = !!otw; teraz.bez = !!(gra && !gra.graj); teraz.s = otw ? otw.st + 1 : 1; }
-  return { ...M, mx, gry, teraz, otw };
-}
 function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
   // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
   const mk = {}, T = M.teraz, L = M.limit;
@@ -340,20 +272,13 @@ function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}
   return mk;
 }
 const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
-function modNum(M) {   // liczby modelu: gry, WIN, BUST, najdłużej, bilans, największy spadek (ze stawkami w trakcie gry), WIN wg kroku i połowy
-  const G = M.gry, L = M.limit, zysk = s => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
-  let bal = 0, top = 0, dd = 0;
-  for (const g of G) { dd = Math.max(dd, top - (bal - sumSt(Math.min(g.s, L)))); bal += zysk(g.s); top = Math.max(top, bal); }
-  const krok = {}, pol = {}; G.filter(g => g.s <= L).forEach(g => { krok[g.s] = (krok[g.s] || 0) + 1; pol[g.h] = (pol[g.h] || 0) + 1; });
-  return { G, win: G.filter(g => g.s <= L).length, bust: G.filter(g => g.s > L).length, max: Math.max(0, ...G.map(g => g.s)), bal, dd, krok, pol, zysk };
-}
 function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
   const N = modNum(M);
   return `Gier <b>${N.G.length}</b> · WIN <b>${N.win}</b> · BUST <b>${N.bust}</b> · najdłużej <b>${N.max}</b> kroków · bilans <b>${zl(N.bal)}</b>`;
 }
 const modGdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
 const modTeraz = (M, krot) => { const T = M.teraz; return !T ? '' : T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : `: ${modGdzie(T)}`}`
-  : `<span class="stan">CZEKAJ</span>${krot ? '' : T.bez ? ` — pusta trójka bez + z boku, nie gramy (czekamy na + na środku) — ${modGdzie(T)}` : ` na pustą trójkę — ${modGdzie(T)}`}`; };
+  : `<span class="stan">CZEKAJ</span>${krot ? '' : T.bez ? ` — pusta trójka bez ${bokTx(M.poz)}, nie gramy (czekamy na ${CELTX[M.poz]}) — ${modGdzie(T)}` : ` na pustą trójkę — ${modGdzie(T)}`}`; };
 const modLeg = () => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
 function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
   const T = M.teraz, all = lsGet(PRZK, '0') === '1', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`;
@@ -384,10 +309,11 @@ function modDodaj() {   // nowy własny model: 3 wiersze połowy, start po 1–2
   const ov = document.createElement('div'); ov.className = 'ov';
   const num = id => `<input id="${id}" type="number" inputmode="numeric" min="1" max="28" placeholder="—">`;
   ov.innerHTML = `<div class="sheet"><h3>＋ Nowy model</h3>
-    <div class="s">Gra na + na środku. Wpisz 3 wiersze połowy (1–28), np. 1, 6, 17.</div>
+    <div class="s">Wpisz 3 wiersze połowy (1–28), np. 1, 6, 17.</div>
     <div class="nmw">${num('nm1')}${num('nm2')}${num('nm3')}</div>
-    <label class="nml">Start<select id="nmC"><option value="1">po 1 pustej trójce</option><option value="2">po 2 pustych trójkach</option></select></label>
-    <label class="nml">Warunek<select id="nmW"><option value="">brak</option><option value="boki">w pustej trójce + z boku</option></select></label>
+    <label class="nml">Gramy na<select id="nmP"><option value="1">+ na środku (X+X)</option><option value="0">+ na początku (+XX)</option><option value="2">+ na końcu (XX+)</option></select></label>
+    <label class="nml">Start<select id="nmC"><option value="1">po 1 pustej trójce</option><option value="2">po 2 pustych trójkach</option><option value="0">od razu (bez pustej trójki)</option></select></label>
+    <label class="nml">Warunek<select id="nmW"><option value="">brak</option><option value="boki">w pustej trójce + w innym miejscu (przy X+X: z boku)</option></select></label>
     <label class="nml">Gra do kroku<select id="nmL">${[5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === 9 ? ' selected' : ''}>${x}</option>`).join('')}</select></label>
     <div class="bb"><button id="nmX">Anuluj</button><button id="nmOk" class="pri">Dodaj</button></div></div>`;
   document.body.appendChild(ov);
@@ -395,11 +321,11 @@ function modDodaj() {   // nowy własny model: 3 wiersze połowy, start po 1–2
   ov.onclick = e => { if (e.target === ov) close(); };
   $('nmX').onclick = close;
   $('nmOk').onclick = () => {
-    const w = ['nm1', 'nm2', 'nm3'].map(id => +$(id).value).sort((a, b) => a - b), czekaj = +$('nmC').value, war = $('nmW').value, limit = +$('nmL').value;
+    const w = ['nm1', 'nm2', 'nm3'].map(id => +$(id).value).sort((a, b) => a - b), poz = +$('nmP').value, czekaj = +$('nmC').value, war = czekaj ? $('nmW').value : '', limit = +$('nmL').value;
     if (w.some(x => !Number.isInteger(x) || x < 1 || x > 28) || new Set(w).size < 3) { alert('Wpisz 3 różne wiersze od 1 do 28.'); return; }
-    if (modeleWsz().some(M => M.w.join() === w.join() && M.czekaj === czekaj && M.war === war && M.limit === limit)) { alert('Taki model już jest na liście.'); return; }
+    if (modeleWsz().some(M => sameModel(M, modDef({ w, poz, czekaj, war, limit })))) { alert('Taki model już jest na liście.'); return; }
     const id = 'u' + Date.now().toString(36);
-    if (!lsSet(MOJEK, JSON.stringify([...mojeModele(), { id, w, czekaj, war, limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    if (!lsSet(MOJEK, JSON.stringify([...mojeModele(), { id, w, poz, czekaj, war, limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
     lsSet(MODK, id); lsSet(OTWK, '1'); close(); render();
   };
 }
@@ -408,8 +334,8 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   const N = modNum(M), T = M.teraz, on = lsGet(MODK, '') === id && modOtw(), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   const now = !T ? 'Brak danych.' : T.gra
     ? `<b class="big">▶ GRAJ — krok ${T.s}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
-    : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez + z boku, tej gry nie gramy; czekamy na + na środku.<br>${modGdzie(T)}`
-    : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez + na środku).<br>Patrzymy od: ${modGdzie(T)}`;
+    : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez ${bokTx(M.poz)}, tej gry nie gramy; czekamy na ${CELTX[M.poz]}.<br>${modGdzie(T)}`
+    : `<b class="big">⏸ CZEKAJ</b> — na pustą trójkę (wiersze ${M.w.join(', ')} bez ${CELTX[M.poz]}).<br>Patrzymy od: ${modGdzie(T)}`;
   const mxK = Math.max(1, ...Object.values(N.krok));
   const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
   const ov = document.createElement('div'); ov.className = 'ov';
@@ -438,7 +364,7 @@ function modNota(k) {   // adnotacja dla karty krótszej niż model (karta 0: 26
   });
   if (!jest.length) return `Karta ${k}: model ${M.nazwa} jej nie liczy — nie ma wiersza ${M.mx} (${P.map((R, p) => `${co[p].s} ${R}`).join(', ')} wierszy).`;
   return `Karta ${k}: model ${M.nazwa} jej nie liczy — nie ma wiersza ${M.mx} (${P.map((R, p) => `${co[p].s} ${R}`).join(', ')} wierszy). `
-    + `Gdyby liczyć same wiersze ${jest.join(' i ')}: ${co.map(x => `${x.s} — ${x.r ? `+ na środku w w.${x.r}` : 'pusta'}`).join(', ')}`
+    + `Gdyby liczyć same wiersze ${jest.join(' i ')}: ${co.map(x => `${x.s} — ${x.r ? `${CELTX[M.poz]} w w.${x.r}` : 'pusta'}`).join(', ')}`
     + (co.every(x => x.r) ? ' → nie ma pustej trójki, więc i tak bez gry.' : ' → byłaby pusta trójka.');
 }
 function rowHtml(t, row, r, cls, k, p, notes, q) {
@@ -490,7 +416,7 @@ function render() {
   if (un) $('undoB').onclick = undoCode;
   // modele liczone zawsze (kafelek MODELE pokazuje CZEKAJ / GRAJ); oznaczenia na kartach tylko wybranego modelu przy rozwiniętej liście
   const ML = modeleWsz(), mkey = `${n}:${c[n - 1]}:${lsGet(MOJEK, '[]')}`;
-  if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(t, M)); S.modKey = mkey; }
+  if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(c, S.book[t], M)); S.modKey = mkey; }
   const sel = lsGet(MODK, '');
   S.mod = modOtw() && S.modAll[sel] ? S.modAll[sel] : null;
   S.modMk = S.mod ? modMk(S.mod, lsGet(PRZK, '0') === '1') : {};
