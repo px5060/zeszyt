@@ -221,7 +221,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.7.2"></script>
 <script>
 "use strict";
-const APP_VER = '1.7.2';
+const APP_VER = '1.7.3';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -348,9 +348,8 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
 }
 function modLista() {   // lista „Modele” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
   const otw = modOtw(), sel = lsGet(MODK, ''), ML = modeleWsz(), R = id => S.modAll[id];
-  const grajace = ML.filter(M => R(M.id).teraz && R(M.id).teraz.gra);
   let h = `<div class="mods"><div class="mh" data-act="tog"><span class="ar">${otw ? '▾' : '▸'}</span>Modele <small>(${ML.length})</small>`
-    + `${grajace.length ? `<span class="stan gra">GRAJ: ${grajace.map(M => M.nazwa).join(', ')}</span>` : ''}<span class="zw">${otw ? 'Zwiń' : 'Rozwiń'}</span></div>`;
+    + `<span class="zw">${otw ? 'Zwiń' : 'Rozwiń'}</span></div>`;   // bez znaczka GRAJ w nagłówku — GRAJ świeci tylko przy modelu na liście
   if (otw) {
     for (const M of ML) {
       const on = M.id === sel, T = R(M.id).teraz;
