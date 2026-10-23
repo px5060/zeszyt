@@ -176,7 +176,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   const A = [['/moje/', 'MOJE', '#c97a45'], ['/t50razem/', 'R50', '#2e7d4f'], ['/all60/', 'R60', '#2e7d4f'], ['/szukaj50/', 'S50', '#2e75b6'], ['/szukaj60/', 'S60', '#2e75b6'],
     ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
     ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
-    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ M', '#1f8a4c']];
+    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ W Z', '#1f8a4c']];
   const el = document.getElementById('appbar'), here = location.pathname.replace(/index\.html$/, '');
   if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
   // dzień / noc — ZESZYT pamięta własny wybór (zeszyt_v1_theme), na start bierze ustawienie z MOJE / SZUKAJ
@@ -224,7 +224,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.6.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.7.0';
+const APP_VER = '1.7.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {

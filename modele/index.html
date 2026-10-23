@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1b1f2a">
-<title>SZUKAJ MODELI</title>
+<title>SZUKAJ W ZESZYCIE</title>
 <link rel="manifest" href="modele.webmanifest">
 <link rel="icon" href="../zeszyt-192.png">
 <link rel="apple-touch-icon" href="../zeszyt-192.png">
-<meta name="apple-mobile-web-app-title" content="SZUKAJ M">
+<meta name="apple-mobile-web-app-title" content="SZUKAJ W Z">
 <style>
 :root{--bg:#12151c;--pan:#1b1f2a;--card:#242a38;--bd:#323a4d;--tx:#e8ebf2;--mu:#8b93a7;--gr:#1f8a4c;--gr2:#2ea85a;--ye:#f2c230;--red:#e0483e}
 :root[data-theme=day]{--bg:#eef1f6;--pan:#ffffff;--card:#e3e7ef;--bd:#c3cad8;--tx:#161a22;--mu:#566074;color-scheme:light}
@@ -93,7 +93,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   const A = [['/moje/', 'MOJE', '#c97a45'], ['/t50razem/', 'R50', '#2e7d4f'], ['/all60/', 'R60', '#2e7d4f'], ['/szukaj50/', 'S50', '#2e75b6'], ['/szukaj60/', 'S60', '#2e75b6'],
     ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
     ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
-    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ M', '#1f8a4c']];
+    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ W Z', '#1f8a4c']];
   const el = document.getElementById('appbar'), here = location.pathname.replace(/index\.html$/, '');
   if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
   if (el) {   // dzień / noc — wspólny wybór z ZESZYTEM (zeszyt_v1_theme)
@@ -112,7 +112,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 </script>
 
 <main>
-  <div class="ttl">SZUKAJ MODELI <small>TRÓJKA T50 · gra 3 kroków na połowę</small></div>
+  <div class="ttl">SZUKAJ W ZESZYCIE <small>TRÓJKA T50 · gra 3 kroków na połowę</small></div>
   <div id="msg"></div>
   <div class="info" id="info">Wczytuję kody…</div>
   <div class="tabs" id="tabs"><button data-t="s" class="on">🔎 Szukaj modeli</button><button data-t="k">＋ Dopisz kod</button></div>
@@ -146,7 +146,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.6.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.6.2';
+const APP_VER = '1.7.1';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';

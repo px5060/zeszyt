@@ -103,7 +103,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   modelach (wszystkie `poz`, `czekaj` 0–2, z warunkiem i bez, także z grą w toku): zero różnic. Po przeniesieniu do `silnik.js`
   wyniki ZESZYTU identyczne jak wcześniej (porównanie gier, stanu i kolorów).
 
-## Wyszukiwarka modeli — SZUKAJ M (`/zeszyt/modele/`, od 1.6.0)
+## Wyszukiwarka modeli — SZUKAJ W ZESZYCIE (`/zeszyt/modele/`, od 1.6.0; nazwa od 1.7.1, wcześniej „SZUKAJ M”)
 
 - Pomysł użytkownika: aplikacja bez zeszytu, sama wyszukiwarka modeli, jak SZUKAJ 50 / 60 — **kryteria ustawia użytkownik**.
 - Filtry: gramy na (X+X / +XX / XX+, kilka naraz), start (po 1 / po 2 pustych / od razu), warunek (bez / + z boku), stan teraz
@@ -125,7 +125,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   na koniec wspólnej listy `t50razem_v1_added` (czytaj-zmień-zapisz, jak w ZESZYCIE), więc od razu widzą go ZESZYT, MOJE, RAZEM,
   SZUKAJ, L50…; mecz w `zeszyt_v1_notes_t50` (widać w ZESZYCIE). Pokazuje Nr i miejsce w zeszycie (karta, połowa, wiersz),
   ostatnie kody, „↩ Cofnij” (wspólne z ZESZYTEM: `zeszyt_v1_ostatni`). Po zapisie wyniki modeli przeliczają się same.
-- Na pasku obu stron przycisk **🔎 SZUKAJ M** (w MOJE jeszcze nie ma — osobne repo).
+- Na pasku obu stron przycisk **🔎 SZUKAJ W Z** (skrót od „SZUKAJ W ZESZYCIE”, nazwa wybrana przez użytkownika) (w MOJE jeszcze nie ma — osobne repo).
 - Sprawdzone: domyślne filtry (X+X, po 1 pustej, k9, ≥ 100 gier, BUST ≤ 2) → 217 modeli, tyle samo co w analizie w rozmowie.
 - Analiza „od razu” (bez pustej trójki): żaden model 3 kroków nie zamyka się do k9 (X+X najmniej 7 BUST do k9); bez BUST dopiero do k12
   (np. 1·6·17, 6·19·22, 8·24·28 — te same wiersze co najlepsze „po 1 pustej” do k9: 9 kroków gry + 3 kroki pustej trójki).
@@ -142,5 +142,5 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Zakładka Zakłady: wynik łącznie, postawione (rozliczone), dziś; „⏳ Czekają na wynik” i „Rozliczone” (WIN / przegrane, kod −/+);
   dotknięcie → karta z tym wierszem i model pokazany; „✕ usuń”.
 - Zakłady ZESZYTU są (na razie) tylko w ZESZYCIE — MOJE ich nie pokazuje (MOJE ma swoje zakłady modeli SZUKAJ / RAZEM).
-- Kody T50 dopisane w MOJE, RAZEM, SZUKAJ, L50 (i w SZUKAJ M) trafiają do ZESZYTU w kolejny wiersz — wspólny klucz `t50razem_v1_added`
+- Kody T50 dopisane w MOJE, RAZEM, SZUKAJ, L50 (i w SZUKAJ W ZESZYCIE) trafiają do ZESZYTU w kolejny wiersz — wspólny klucz `t50razem_v1_added`
   (sprawdzone w `moje/build.py`: TABS t50 key = `t50razem_v1_added`).
