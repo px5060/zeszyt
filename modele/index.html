@@ -67,6 +67,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .ost2 div{display:flex;gap:10px;padding:3px 0;border-top:1px solid var(--bd);font-size:13.5px}.ost2 div:first-of-type{border-top:0}
 .ost2 .zn{font-weight:900;letter-spacing:3px}.ost2 small{color:var(--mu);margin-left:auto}
 .md{cursor:pointer}.md .jz{color:var(--gr2);font-weight:800}
+.md.lo{border-color:#8e2a2a}.md.lo.gra{border-color:var(--ye)}.stt .lo,.md .lo,.stt .ost b.lo{color:var(--red)}
+.ls{color:var(--mu);font-size:12.5px;margin-bottom:10px;line-height:1.6}.ls b{color:var(--tx)}.ls .ch{padding:3px 9px;font-size:12px;margin-left:4px}
 /* okno statystyk modelu */
 .ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
 .sheet{background:var(--pan);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:min(100%,560px);padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
@@ -115,7 +117,21 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div class="ttl">SZUKAJ W ZESZYCIE <small>TRÓJKA T50 · gra 3 kroków na połowę</small></div>
   <div id="msg"></div>
   <div class="info" id="info">Wczytuję kody…</div>
-  <div class="tabs" id="tabs"><button data-t="s" class="on">🔎 Szukaj modeli</button><button data-t="k">＋ Dopisz kod</button></div>
+  <div class="tabs" id="tabs"><button data-t="s" class="on">🔎 Szukaj</button><button data-t="l">🔻 LOST</button><button data-t="k">＋ Dopisz kod</button></div>
+  <div id="tabL" hidden>
+    <div class="flt" id="fltL">
+      <div class="ls" id="lsOpis"></div>
+      <div class="nums">
+        <label>LOST co najmniej<input id="lM" type="number" inputmode="numeric" min="1"></label>
+        <label>LOST najwyżej<input id="lB" type="number" inputmode="numeric" min="0"></label>
+        <label>LOST po LOST najwyżej<input id="lR" type="number" inputmode="numeric" min="0"></label>
+      </div>
+      <div class="fr"><span>Stan po LOST</span><button class="ch" data-g="lstan" data-v="all">wszystkie</button><button class="ch" data-g="lstan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="lstan" data-v="czeka">CZEKAJ</button></div>
+      <button class="go" id="goL">🔻 Szukaj modeli po LOST</button>
+    </div>
+    <div class="wyn" id="wynL"></div>
+    <div id="listaL"></div>
+  </div>
   <div id="tabK" hidden>
     <div class="kd" id="kd"></div>
     <div id="undo"></div>
@@ -146,7 +162,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.7.2"></script>
 <script>
 "use strict";
-const APP_VER = '1.7.2';
+const APP_VER = '1.8.0';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -156,7 +172,7 @@ const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === 
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
-const DOMYSL = { poz: ['1'], czekaj: ['1'], war: [''], stan: ['all'], L: 9, G: 100, B: 2, S: 'b' };
+const DOMYSL = { poz: ['1'], czekaj: ['1'], war: [''], stan: ['all'], L: 9, G: 100, B: 2, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
 // +XX (początek) i gra „od razu” usunięte — nie ma takich modeli do k9 (decyzja użytkownika); stare zapisy filtrów czyścimy
 let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
 F.poz = F.poz.filter(v => v === '1' || v === '2'); F.czekaj = F.czekaj.filter(v => v === '1' || v === '2');
@@ -183,20 +199,21 @@ function czytajKody() {   // → czy coś się zmieniło
 const wZeszycie = () => [...MODELE, ...parseModele(lsGet(MOJEK, '[]'))].map(modDef);
 
 // ===== filtry =====
-const pokazChipy = () => document.querySelectorAll('.ch').forEach(b => b.classList.toggle('on', F[b.dataset.g].includes(b.dataset.v)));
+const pokazChipy = () => document.querySelectorAll('.ch[data-g]').forEach(b => b.classList.toggle('on', F[b.dataset.g].includes(b.dataset.v)));
 function pokazFiltry() {
   pokazChipy();
   $('fL').innerHTML = [5, 6, 7, 8, 9, 10, 11, 12].map(x => `<option${x === F.L ? ' selected' : ''}>${x}</option>`).join('');
-  $('fG').value = F.G; $('fB').value = F.B; $('fS').value = F.S;
+  $('fG').value = F.G; $('fB').value = F.B; $('fS').value = F.S; $('lM').value = F.lM; $('lB').value = F.lB; $('lR').value = F.lR;
 }
-$('flt').addEventListener('click', e => {
+const chipKlik = e => {
   const b = e.target.closest('.ch'); if (!b) return;
   const g = b.dataset.g, v = b.dataset.v;
-  if (g === 'stan') F.stan = [v];   // stan — jeden wybór
+  if (g === 'stan' || g === 'lstan') F[g] = [v];   // stan — jeden wybór
   else if (F[g].includes(v)) { if (F[g].length > 1) F[g] = F[g].filter(x => x !== v); }   // co najmniej jeden zaznaczony
   else F[g] = [...F[g], v];
   pokazChipy();
-});
+};
+$('flt').addEventListener('click', chipKlik); $('fltL').addEventListener('click', e => { const b = e.target.closest('.ch[data-g="lstan"]'); if (b) { F.lstan = [b.dataset.v]; pokazChipy(); } });
 const czytajFiltry = () => { F.L = +$('fL').value; F.G = Math.max(0, +$('fG').value || 0); F.B = Math.max(0, +$('fB').value || 0); F.S = $('fS').value; lsSet(FK, JSON.stringify(F)); };
 
 // ===== szukanie: wszystkie zestawy 3 wierszy × wybrane „gramy na” × start × warunek, w paczkach (żeby ekran nie stał) =====
@@ -228,6 +245,62 @@ function szukaj() {
   };
   krok();
 }
+// ===== LOST — modele, których ostatnia gra była przegrana (BUST = gra dłuższa niż „gra do kroku”), jak w aplikacji L50 (SZUKAJ LOST):
+// ustawienia „gramy na / start / warunek / gra do kroku / gier co najmniej” z zakładki Szukaj; tu: ile LOST-ów, ile LOST-ów zaraz po LOST-cie.
+// Historia modelu: co ile gier LOST, ile razy LOST zaraz po LOST-cie, ile razy WIN po LOST-cie; sprawdzenie na ostatnich 35% gier.
+function lostDane(s, L, teraz) {   // s: długości gier; gra w toku po przekroczeniu limitu też jest już przegrana
+  const gl = [...s, ...(teraz > L ? [teraz] : [])], n = gl.length, idx = [];
+  let rep = 0, winPo = 0, bal = 0, mx = 0;
+  gl.forEach((x, j) => {
+    if (x > mx) mx = x;
+    if (x > L) { idx.push(j); if (j && gl[j - 1] > L) rep++; if (j < s.length) bal -= sumSt(L); }
+    else { if (j && gl[j - 1] > L) winPo++; bal += KURS * STAWKI[x - 1] - sumSt(x); }
+  });
+  const gaps = idx.slice(1).map((x, i) => x - idx[i]), od = Math.floor(n * .65), sp = gl.slice(od);
+  return { n, bust: idx.length, rep, winPo, gaps, gapAvg: gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0, gapMin: gaps.length ? Math.min(...gaps) : 0, bal, mx,
+    spr: { g: sp.length, bust: sp.filter(x => x > L).length, rep: sp.filter((x, i) => x > L && (od + i) && gl[od + i - 1] > L).length } };
+}
+function szukajLost() {
+  czytajFiltry(); F.lM = Math.max(1, +$('lM').value || 1); F.lB = Math.max(0, +$('lB').value || 0); F.lR = Math.max(0, +$('lR').value || 0); lsSet(FK, JSON.stringify(F));
+  if (!W.c.length) return;
+  const L = F.L, defs = [];
+  for (const poz of F.poz.map(Number)) for (const cz of F.czekaj.map(Number)) for (const war of (cz ? F.war : [''])) defs.push({ poz, czekaj: cz, war });
+  const zest = []; for (let a = 1; a <= 28; a++) for (let b = a + 1; b <= 28; b++) for (let d = b + 1; d <= 28; d++) zest.push([a, b, d]);
+  const wsz = defs.length * zest.length, wyn = [];
+  let i = 0; $('goL').disabled = true;
+  const krok = () => {
+    const t0 = performance.now();
+    while (i < wsz && performance.now() - t0 < 40) {
+      const d = defs[Math.floor(i / zest.length)], M = modDef({ w: zest[i % zest.length], ...d, limit: L }); i++;
+      const Z = szybkiModel(W.H, M), s = Z.s; if (s.length < F.G) continue;
+      const wToku = Z.teraz > L; if (!wToku && !(s.length && s[s.length - 1] > L)) continue;   // ostatnia gra nie była przegrana
+      const D = lostDane(s, L, Z.teraz); if (D.bust < F.lM || D.bust > F.lB || D.rep > F.lR) continue;
+      const stan = wToku ? 'lost' : Z.teraz ? 'gra' : 'czeka';
+      if (F.lstan[0] === 'gra' && stan !== 'gra') continue;
+      if (F.lstan[0] === 'czeka' && stan === 'gra') continue;
+      wyn.push({ M, ...D, teraz: Z.teraz, stan });
+    }
+    $('wynL').innerHTML = `Szukam… <b>${Math.round(100 * i / wsz)}%</b> (znaleziono ${fmt(wyn.length)})`;
+    if (i < wsz) return setTimeout(krok, 0);
+    const kol = { gra: 0, czeka: 1, lost: 2 };
+    W.lost = wyn.sort((x, y) => kol[x.stan] - kol[y.stan] || x.bust - y.bust || y.n - x.n); W.ileL = 50; W.przeszukanoL = wsz; $('goL').disabled = false; pokazLost();
+  };
+  krok();
+}
+function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${F.poz.map(v => CEL[+v]).join(', ')}</b> · start <b>${F.czekaj.map(v => `po ${v}`).join(', ')}</b> · warunek <b>${F.war.map(v => v ? '+ z boku' : 'bez').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
+function pokazLost() {
+  const R = W.lost || [], Z = wZeszycie(), L = F.L;
+  $('wynL').innerHTML = `Modele po LOST: <b>${fmt(R.length)}</b> (przeszukano ${fmt(W.przeszukanoL)}) · LOST ${F.lM}–${F.lB}, LOST po LOST ≤ ${F.lR}. GRAJ teraz: <b>${R.filter(x => x.stan === 'gra').length}</b>.`;
+  $('listaL').innerHTML = R.slice(0, W.ileL).map((x, j) => {
+    const M = x.M, jest = Z.some(z => sameModel(z, M));
+    const stan = x.stan === 'gra' ? `<span class="stan gra">GRAJ krok ${x.teraz} · ${fmt(STAWKI[x.teraz - 1])} zł</span>` : x.stan === 'lost' ? `<span class="stan po">LOST w toku · krok ${x.teraz}</span>` : `<span class="stan">CZEKAJ</span>`;
+    return `<div class="md lo${x.stan === 'gra' ? ' gra' : ''}" data-l="${j}"><div class="l1"><b>${M.nazwa}</b><small>${modDop(M)}</small>${stan}</div>
+      <div class="l2">Gier <b>${x.n}</b> · LOST <b class="r">${x.bust}</b>${x.gaps.length ? ` · co ~<b>${x.gapAvg.toFixed(0)}</b> gier (najkrócej ${x.gapMin})` : ''} · po LOST: WIN <b class="z">${x.winPo}</b> · LOST <b class="${x.rep ? 'r' : 'z'}">${x.rep}</b></div>
+      <div class="l2">Ostatnia gra przegrana${x.stan === 'lost' ? ' (trwa, czeka na koniec cyklu)' : ''} · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b>
+        · sprawdzenie (ostatnie 35% gier): ${x.spr.g} gier, LOST ${x.spr.bust}, LOST po LOST ${x.spr.rep}${jest ? ' · <span class="jz">✓ w ZESZYCIE</span>' : ''}</div></div>`;
+  }).join('') + (R.length > W.ileL ? `<button class="wiecej" id="wiecejL">Pokaż więcej (${fmt(R.length - W.ileL)})</button>` : '');
+  if ($('wiecejL')) $('wiecejL').onclick = () => { W.ileL += 50; pokazLost(); };
+}
 function pokazWyniki() {
   const R = W.wynik, Z = wZeszycie(), L = F.L;
   $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (przeszukano ${fmt(W.przeszukano)}): gra do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}.`
@@ -249,6 +322,15 @@ function przenies(M) {   // model trafia na listę modeli w ZESZYCIE i jest tam 
   if (!lsSet(MOJEK, JSON.stringify([...parseModele(lsGet(MOJEK, '[]')), { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
   lsSet(MODK, id); lsSet(OTWK, '1'); return true;
 }
+function lostSek(M) {   // LOST-y modelu: kiedy, odstęp od poprzedniego, co było w następnej grze
+  const G = M.gry, L = M.limit, D = lostDane(G.map(g => g.s), L, M.teraz && M.teraz.gra ? M.teraz.s : 0); if (!D.bust) return '<h4>LOST</h4><div class="s">Ten model nie miał LOST-u.</div>';
+  const pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+  let prev = -1; const rows = [];
+  G.forEach((g, j) => { if (g.s <= L) return; const nx = G[j + 1];
+    rows.push(`<tr><td>${j + 1}.</td><td>${g.sk === g.k ? g.k : `${g.sk}–${g.k}`}${pn(g)}</td><td>k${g.s}</td><td>${prev < 0 ? '—' : j - prev}</td><td>${!nx ? (M.teraz && M.teraz.gra ? `trwa (krok ${M.teraz.s})` : 'czeka') : nx.s > L ? '<b class="lo">LOST</b>' : `WIN ${nx.s}`}</td></tr>`); prev = j; });
+  return `<h4>LOST (przegrane gry)</h4><div class="s">LOST <b>${D.bust}</b> z ${D.n} gier${D.gaps.length ? ` · co ~${D.gapAvg.toFixed(0)} gier (najkrócej ${D.gapMin})` : ''} · po LOST: WIN <b>${D.winPo}</b>, LOST <b>${D.rep}</b> · sprawdzenie (ostatnie 35% gier): ${D.spr.g} gier, LOST ${D.spr.bust}, LOST po LOST ${D.spr.rep}</div>
+    <table><tr><th>gra</th><th>karty</th><th>kroki</th><th>odstęp</th><th>następna gra</th></tr>${rows.slice(-10).reverse().join('')}</table>`;
+}
 function statystyki(M0) {
   const M = liczModel(W.c, W.B, M0), N = modNum(M), T = M.teraz, pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   const now = !T ? 'Brak danych.' : T.gra
@@ -266,7 +348,8 @@ function statystyki(M0) {
       <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
-    <h4>Ostatnie gry</h4><div class="ost">${N.G.slice(-8).reverse().map(g => `<span>${g.k}${pn(g)} w.${g.r} · <b>WIN ${g.s}</b></span>`).join('')}</div>
+    ${lostSek(M)}
+    <h4>Ostatnie gry</h4><div class="ost">${N.G.slice(-8).reverse().map(g => `<span>${g.k}${pn(g)} w.${g.r} · ${g.s > M.limit ? `<b class="lo">LOST k${g.s}</b>` : `<b>WIN ${g.s}</b>`}</span>`).join('')}</div>
     <div class="bb"><span id="stPp">${przycisk()}</span><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
@@ -275,6 +358,8 @@ function statystyki(M0) {
   if ($('stP')) $('stP').onclick = () => { if (przenies(M0)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); } };
 }
 $('lista').addEventListener('click', e => { const d = e.target.closest('.md[data-j]'); if (d) statystyki(W.wynik[+d.dataset.j].M); });
+$('listaL').addEventListener('click', e => { const d = e.target.closest('.md[data-l]'); if (d) statystyki(W.lost[+d.dataset.l].M); });
+$('goL').onclick = szukajLost;
 $('goB').onclick = szukaj;
 
 // ===== DOPISZ KOD — − = 0, + = 1 → wspólna lista kodów (t50razem_v1_added), ten sam zapis co w ZESZYCIE / RAZEM / MOJE:
@@ -298,9 +383,11 @@ function kodTab(ok) {
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button[data-t]'); if (!b) return;
   $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
-  $('tabS').hidden = b.dataset.t !== 's'; $('tabK').hidden = b.dataset.t !== 'k';
+  $('tabS').hidden = b.dataset.t !== 's'; $('tabK').hidden = b.dataset.t !== 'k'; $('tabL').hidden = b.dataset.t !== 'l';
   if (b.dataset.t === 'k') kodTab();
+  if (b.dataset.t === 'l') { lsOpis(); if (!W.lost) szukajLost(); }
 });
+$('tabL').addEventListener('click', e => { if (e.target.id === 'lsZm') $('tabs').querySelector('[data-t="s"]').click(); });
 $('tabK').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.i) { KV[+b.dataset.i] ^= 1; const nm = $('kdN').value; kodTab(); $('kdN').value = nm; return; }
@@ -312,19 +399,19 @@ $('tabK').addEventListener('click', e => {
     lsSet(LASTK, JSON.stringify({ n: nr, c: code, t: Date.now() }));
     const nm = $('kdN').value.trim().toUpperCase().slice(0, 40);
     if (nm) { try { const a = JSON.parse(lsGet(NOTK, '{}')) || {}; a[nr] = nm; lsSet(NOTK, JSON.stringify(a)); } catch (e) {} }
-    KV.fill(0); czytajKody(); info(); kodTab(`✓ Zapisano ${code} (Nr ${fmt(nr)}) — wyniki modeli przeliczone.`); szukaj();
+    KV.fill(0); czytajKody(); info(); W.lost = null; kodTab(`✓ Zapisano ${code} (Nr ${fmt(nr)}) — wyniki modeli przeliczone.`); szukaj();
   }
   if (b.id === 'undoB') {
     const z = JSON.parse(lsGet(LASTK, 'null')), add = lsGet(ADDK, '');
     if (!z || z.n !== W.c.length || add.slice(-3) !== z.c) { kodTab(); return; }
     if (!confirm(`Cofnąć kod ${z.c} (Nr ${fmt(z.n)})? Zniknie też w ZESZYCIE, MOJE, RAZEM i SZUKAJ.`)) return;
     if (!lsSet(ADDK, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
-    lsSet(LASTK, 'null'); czytajKody(); info(); kodTab(`↩ Cofnięto ${z.c}.`); szukaj();
+    lsSet(LASTK, 'null'); czytajKody(); info(); W.lost = null; kodTab(`↩ Cofnięto ${z.c}.`); szukaj();
   }
 });
 
 // kody dopisane w innej aplikacji — po powrocie przelicz
-const odswiez = () => { if (W.seed !== '' || W.seedErr) { if (czytajKody()) { info(); szukaj(); if (!$('tabK').hidden) kodTab(); } else pokazWyniki(); } };
+const odswiez = () => { if (W.seed !== '' || W.seedErr) { if (czytajKody()) { info(); szukaj(); W.lost = null; if (!$('tabK').hidden) kodTab(); if (!$('tabL').hidden) szukajLost(); } else pokazWyniki(); } };
 window.addEventListener('storage', e => { if (!e.key || e.key === ADDK) odswiez(); if (e.key === MOJEK) pokazWyniki(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) odswiez(); });
 function info() {
