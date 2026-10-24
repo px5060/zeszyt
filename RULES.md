@@ -310,3 +310,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - 1.11.4: kwadraciki „Ostatnie gry” także w statystykach **SZUKAJ W ZESZYCIE** (T50 i T60; w T60 zamiast listy „Gra po grze”).
 - 1.11.5: w każdym kwadraciku „Ostatnie gry” **numer kroku** — przy WIN krok wygranej, przy LOST ile kroków trwała gra (ZESZYT i SZUKAJ, T50 i T60).
 - 1.11.6: ↩ cofnięcie kodu (ZESZYT T50 i T60) usuwa **tylko kod** — wpisana nazwa meczu zostaje przy wierszu (prośba użytkownika).
+- 1.11.7: 🗑 usuwa każdy własny model (z SZUKAJ: T50 id „u…”, T60 id „v…”) — wcześniej modele T60 nie znikały, bo kosz sprawdzał tylko „u…”.
