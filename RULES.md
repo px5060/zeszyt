@@ -279,3 +279,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Na stałe: strona 30 (3 × 10), modele z 2 i 3 wierszy (dowolne), bez warunku startu; sprawdzenie 65/35 tylko w statystykach modelu.
   Nowy klucz filtrów `zeszyt_v1_szukaj60b` (stare ustawienia nie przeszkadzają). Domyślnie: 3 141 modeli, GRAJ teraz 28.
 - 1.10.7: start gry po **1, 2, 3, 4 albo 5** pustych stronach (kilka naraz; domyślnie po 1 i po 2).
+- 1.10.8 (prośba użytkownika): „gramy na” — **2xx · 3xx (gol 46–50')** razem (domyślnie), **1xx (gol 40–45')** osobno (tylko 1. cyfra 1),
+  x1x, xx1. Wspólne „1xx·2xx·3xx” usunięte (zapisane → 2xx·3xx). Nazwa modelu: „2/3xx …”, „1xx …”.
+- 1.10.8: domyślnie start po 1, 2 i 3 pustych, gier ≥ 30, BUST ≤ 3 (żeby przy 2xx·3xx było co pokazać; przy gier ≥ 50 i BUST ≤ 2 — 0 modeli).
+  Klucz filtrów `zeszyt_v1_szukaj60c`. Najlepsze 2xx·3xx (strona 30): k9 po 3 pustych 11·23·29 — 45 gier, 3 BUST; k12 po 3 pustych 6·7·15 — 50 gier, 0 BUST.
+  1xx: k9 po 2 pustych 3·21·27 — 59 gier, 1 BUST; k12 po 1 pustej 3·21·27 — 118 gier, 1 BUST.

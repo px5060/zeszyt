@@ -148,7 +148,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   </div>
   <div id="tabS">
   <div class="flt" id="flt">
-    <div class="fr"><span>Gramy na (kilka naraz — każdy cel osobno)</span><button class="ch" data-g="cel" data-v="g">1xx · 2xx · 3xx (gol 40–50')</button><button class="ch" data-g="cel" data-v="x1x">x1x (50–60')</button><button class="ch" data-g="cel" data-v="xx1">xx1 (60–70')</button></div>
+    <div class="fr"><span>Gramy na (kilka naraz — każdy cel osobno)</span><button class="ch" data-g="cel" data-v="23">2xx · 3xx (gol 46–50')</button><button class="ch" data-g="cel" data-v="1">1xx (gol 40–45')</button><button class="ch" data-g="cel" data-v="x1x">x1x (50–60')</button><button class="ch" data-g="cel" data-v="xx1">xx1 (60–70')</button></div>
     <div class="fr"><span>Start gry — po ilu pustych stronach (kilka naraz)</span><button class="ch" data-g="cz" data-v="1">po 1</button><button class="ch" data-g="cz" data-v="2">po 2</button><button class="ch" data-g="cz" data-v="3">po 3</button><button class="ch" data-g="cz" data-v="4">po 4</button><button class="ch" data-g="cz" data-v="5">po 5</button></div>
     <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="stan" data-v="od1">od 1. kroku</button></div>
     <div class="fr" id="krokFr"></div>
@@ -170,11 +170,11 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.10.7';
+const APP_VER = '1.10.8';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
-const FK = 'zeszyt_v1_szukaj60b', MOJEK = 'zeszyt_v1_modele60', LASTK = 'zeszyt_v1_ostatni60', NOTK = 'zeszyt_v1_notes_t60';
+const FK = 'zeszyt_v1_szukaj60c', MOJEK = 'zeszyt_v1_modele60', LASTK = 'zeszyt_v1_ostatni60', NOTK = 'zeszyt_v1_notes_t60';
 const $ = id => document.getElementById(id);
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
@@ -185,10 +185,13 @@ const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const zysk = (s, L) => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
 // od 1.10.6 uproszczone jak SZUKAJ T50 (prośba użytkownika): gramy na — każdy cel osobno, start po 1–5 pustych (1.10.7), stan, krok, k, gier, BUST.
 // Na stałe: strona 30, modele z 2 i 3 wierszy (dowolne), bez warunku startu; sprawdzenie 65/35 tylko w statystykach modelu.
-const DOMYSL = { cel: ['g', 'x1x', 'xx1'], cz: ['1', '2'], stan: ['all'], krok: ['all'], L: 9, G: 50, B: 2, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
+const DOMYSL = { cel: ['23', 'x1x', 'xx1'], cz: ['1', '2', '3'], stan: ['all'], krok: ['all'], L: 9, G: 30, B: 3, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
 let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
 Object.assign(F, { jedn: ['s'], m: ['2', '3'], ciag: ['all'], war: [''], spr: ['all'], SP: 65 });
-const CELE = { g: ['1', '2', '3'], x1x: ['x1x'], xx1: ['xx1'] };
+// 1.10.8: gramy na bramkę 46–50' = 2xx i 3xx razem; 1xx (40–45') osobno — tylko kod z 1. cyfrą 1 (prośba użytkownika: 3xx to gol 40–45'
+// i potem 46–50', więc razem z 1xx nie ma sensu); dawne „1xx·2xx·3xx” → 2xx·3xx
+const CELE = { 23: ['2', '3'], 1: ['1'], x1x: ['x1x'], xx1: ['xx1'] };
+F.cel = [...new Set(F.cel.map(c => c === 'g' ? '23' : c).filter(c => CELE[c]))]; if (!F.cel.length) F.cel = ['23'];
 const W = { seed: '', seedErr: false, c: [], wynik: [], ile: 50, lost: null, ileL: 50 };
 
 // ===== KODY =====
@@ -266,7 +269,7 @@ function liczby(Z, M, P) {   // gry, BUST, najdłużej, bilans, WIN na kroku, sp
 const celTx = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x));
   return [d.length ? (d.length === 3 ? '1-3xx' : d.join('/') + 'xx') : '', cel.includes('x1x') ? 'x1x' : '', cel.includes('xx1') ? 'xx1' : ''].filter(Boolean).join('+'); };
 const celOpis = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x)), o = [];
-  if (d.length) o.push(d.length === 3 ? 'gol 40–50\' (1xx, 2xx, 3xx)' : d.map(x => ({ 1: '1xx (40–45\')', 2: '2xx (46–50\')', 3: '3xx' })[x]).join(', '));
+  if (d.length) o.push(d.length === 3 ? 'gol 40–50\' (1xx, 2xx, 3xx)' : d.join() === '2,3' ? 'gol 46–50\' (2xx, 3xx)' : d.map(x => ({ 1: '1xx (gol 40–45\')', 2: '2xx (46–50\')', 3: '3xx' })[x]).join(', '));
   if (cel.includes('x1x')) o.push('x1x (50–60\')'); if (cel.includes('xx1')) o.push('xx1 (60–70\')'); return o.join(' lub '); };
 const nazwa = M => `${celTx(M.cel)} ${M.w.join('·')}${M.jedn === 't' ? ' T' : ''}${M.cz === 1 ? '' : M.cz ? ` ×${M.cz}` : ' od razu'}${M.war ? ' +gol' : ''} k${M.limit}`;
 const dop = M => [M.jedn === 't' ? 'tercja' : 'strona', M.cz ? (M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`) : 'od razu', M.war ? 'gdy na pustej inny gol' : '', `do k${M.limit}`].filter(Boolean).join(' · ');
