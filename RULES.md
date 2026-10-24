@@ -219,3 +219,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Prośba użytkownika: wybór, na którym kroku jest model w grze: chipy „każdy” i k1…k(limit) (kilka naraz, np. k1 + k2 + k3);
   wybrane kroki = tylko modele w grze na tych krokach (k1 = od 1. kroku). Działa razem ze „Stan teraz” i w zakładce LOST
   (ustawienie z zakładki Szukaj, widać w opisie). Kroki ponad nowy limit znikają przy zmianie „Gra do kroku”. Zapis w `zeszyt_v1_szukaj` (`krok`).
+
+## Osobna lista „Modele LOST” w ZESZYCIE (od 1.9.9)
+- Prośba użytkownika: obok rozwijanej listy „Modele” druga, osobna, rozwijana lista **„Modele LOST”** (czerwona ramka).
+  Trafiają na nią modele przeniesione z SZUKAJ W ZESZYCIE z zakładki **🔻 LOST** (przycisk „➕ Przenieś do zeszytu — Modele LOST”;
+  w `zeszyt_v1_modele` pole `lista: 'lost'`). Z zakładki Szukaj — jak dotąd na zwykłą listę.
+- Każda lista zwija się osobno (`zeszyt_v1_modele_otw`, `zeszyt_v1_modele_lost_otw`); zwinięta = jej modele bez oznaczeń na kartach.
+  Dotknięcie / przytrzymanie, 🗑, 🔎 — tak samo. 🔎 z listy LOST i „Dodaj model” otwierają w SZUKAJ W ZESZYCIE zakładkę LOST.

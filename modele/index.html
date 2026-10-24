@@ -164,7 +164,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.8';
+const APP_VER = '1.9.9';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -348,11 +348,11 @@ function pokazWyniki() {
 // dotknięcie modelu → statystyki modelu (pełne liczenie, jak w ZESZYCIE) + „Przenieś do zeszytu”
 const partName = (k, p) => partsOf(k).length === 2 ? ['lewa', 'prawa'][p] + ' połowa' : `część ${p + 1}`;
 const gdzie = T => `karta ${T.k}, ${partName(T.k, T.p)}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
-function przenies(M) {   // model trafia na listę modeli w ZESZYCIE i jest tam wybrany (pokazany na kartach)
+function przenies(M, lost) {   // model trafia na listę modeli w ZESZYCIE (z zakładki LOST — na osobną listę „Modele LOST”) i jest tam wybrany
   if (wZeszycie().some(z => sameModel(z, M))) return true;
   const id = 'u' + Date.now().toString(36);
-  if (!lsSet(MOJEK, JSON.stringify([...parseModele(lsGet(MOJEK, '[]')), { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
-  lsSet(MODK, [...lsGet(MODK, '').split(',').filter(Boolean), id].join(',')); lsSet(OTWK, '1'); return true;
+  if (!lsSet(MOJEK, JSON.stringify([...parseModele(lsGet(MOJEK, '[]')), { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit, ...(lost ? { lista: 'lost' } : {}) }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  lsSet(MODK, [...lsGet(MODK, '').split(',').filter(Boolean), id].join(',')); lsSet(lost ? 'zeszyt_v1_modele_lost_otw' : OTWK, '1'); return true;
 }
 function lostSek(M) {   // LOST-y modelu: kiedy, odstęp od poprzedniego, co było w następnej grze
   const G = M.gry, L = M.limit, D = lostDane(G.map(g => g.s), L, M.teraz && M.teraz.gra ? M.teraz.s : 0); if (!D.bust) return '<h4>LOST</h4><div class="s">Ten model nie miał LOST-u.</div>';
@@ -363,7 +363,7 @@ function lostSek(M) {   // LOST-y modelu: kiedy, odstęp od poprzedniego, co by�
   return `<h4>LOST (przegrane gry)</h4><div class="s">LOST <b>${D.bust}</b> z ${D.n} gier${D.gaps.length ? ` · co ~${D.gapAvg.toFixed(0)} gier (najkrócej ${D.gapMin})` : ''} · po LOST: WIN <b>${D.winPo}</b>, LOST <b>${D.rep}</b> · sprawdzenie (ostatnie 35% gier): ${D.spr.g} gier, LOST ${D.spr.bust}, LOST po LOST ${D.spr.rep}</div>
     <table><tr><th>gra</th><th>karty</th><th>kroki</th><th>odstęp</th><th>następna gra</th></tr>${rows.slice(-10).reverse().join('')}</table>`;
 }
-function statystyki(M0) {
+function statystyki(M0, lost) {   // lost: otwarte z zakładki LOST — przeniesienie na listę „Modele LOST”
   const M = liczModel(W.c, W.B, M0), N = modNum(M), T = M.teraz, pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   const za = T && T.gra ? T.nr - W.c.length : 0;
   const now = !T ? 'Brak danych.' : T.gra && T.s > M.limit ? `<b class="big">⏸ po BUST</b> — krok ${T.s} jest za limitem (k${M.limit}): gra przegrana, czekamy na koniec cyklu.<br>${gdzie(T)}`
@@ -373,7 +373,7 @@ function statystyki(M0) {
   const mxK = Math.max(1, ...Object.values(N.krok));
   const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
   const ov = document.createElement('div'); ov.className = 'ov';
-  const przycisk = () => { const z = wZeszycie().find(z => sameModel(z, M)); return z ? `<a class="pri jest" href="../?m=${z.id}">✓ w ZESZYCIE — otwórz ▶</a>` : '<button id="stP" class="pri">➕ Przenieś do zeszytu</button>'; };
+  const przycisk = () => { const z = wZeszycie().find(z => sameModel(z, M)); return z ? `<a class="pri jest" href="../?m=${z.id}">✓ w ZESZYCIE${z.lista === 'lost' ? ' (LOST)' : ''} — otwórz ▶</a>` : `<button id="stP" class="pri">➕ Przenieś do zeszytu${lost ? ' — Modele LOST' : ''}</button>`; };
   ov.innerHTML = `<div class="sheet stt"><h3>Model ${M.nazwa} — statystyki</h3>
     <div class="s">${modOpis(M)}. Kurs 3.0, stawki 8, 8, 16, 32…</div>
     <div class="nw${T && T.gra ? ' gra' : ''}">${now}</div>
@@ -388,10 +388,10 @@ function statystyki(M0) {
   const close = () => ov.remove();
   ov.onclick = e => { if (e.target === ov) close(); };
   $('stX').onclick = close;
-  if ($('stP')) $('stP').onclick = () => { if (przenies(M0)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); } };
+  if ($('stP')) $('stP').onclick = () => { if (przenies(M0, lost)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); if (W.lost) pokazLost(); } };
 }
 $('lista').addEventListener('click', e => { const d = e.target.closest('.md[data-j]'); if (d) statystyki(W.wynik[+d.dataset.j].M); });
-$('listaL').addEventListener('click', e => { const d = e.target.closest('.md[data-l]'); if (d) statystyki(W.lost[+d.dataset.l].M); });
+$('listaL').addEventListener('click', e => { const d = e.target.closest('.md[data-l]'); if (d) statystyki(W.lost[+d.dataset.l].M, true); });
 $('goL').onclick = szukajLost;
 $('goB').onclick = szukaj;
 
@@ -456,8 +456,10 @@ function info() {
   $('ver').textContent = APP_VER;
   pokazFiltry();
   W.seed = await loadSeed(); czytajKody(); info(); szukaj();
-  { const M = modZKodu(new URLSearchParams(location.search).get('m'));   // link z ZESZYTU (🔎 przy modelu): od razu statystyki tego modelu
-    if (M) { history.replaceState(null, '', location.pathname); statystyki(M); } }
+  { const q = new URLSearchParams(location.search), M = modZKodu(q.get('m'));   // link z ZESZYTU (🔎 przy modelu): od razu statystyki tego modelu
+    if (q.get('t') === 'l' || q.get('l')) $('tabs').querySelector('[data-t="l"]').click();   // z listy „Modele LOST” — zakładka LOST
+    if (M) statystyki(M, !!q.get('l'));
+    if (q.toString()) history.replaceState(null, '', location.pathname); }
 })();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('../zeszyt-sw.js').catch(() => {});
 </script>
