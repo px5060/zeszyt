@@ -148,13 +148,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   </div>
   <div id="tabS">
   <div class="flt" id="flt">
-    <div class="fr"><span>Gramy na (kilka naraz) — 1. cyfra: 1 = gol 40–45', 2 = 46–50', 3 = oba; x1x = 50–60'; xx1 = 60–70'</span>
-      <button class="ch" data-g="cel" data-v="1">1xx</button><button class="ch" data-g="cel" data-v="2">2xx</button><button class="ch" data-g="cel" data-v="3">3xx</button><button class="ch" data-g="cel" data-v="x1x">x1x</button><button class="ch" data-g="cel" data-v="xx1">xx1</button></div>
-    <div class="fr"><span>Jednostka gry</span><button class="ch" data-g="jedn" data-v="s">strona 30 (3 × 10)</button><button class="ch" data-g="jedn" data-v="t">tercja 10</button></div>
-    <div class="fr"><span>Wierszy modelu na stronie / tercji (kilka naraz)</span><span class="row" id="mFr"></span></div>
-    <div class="fr"><span>Wiersze modelu</span><button class="ch" data-g="ciag" data-v="all">wszystkie</button><button class="ch" data-g="ciag" data-v="0">dowolne</button><button class="ch" data-g="ciag" data-v="1">ciągły zakres</button></div>
-    <div class="fr"><span>Start gry (kilka naraz)</span><button class="ch" data-g="cz" data-v="0">od razu</button><button class="ch" data-g="cz" data-v="1">po 1 pustej</button><button class="ch" data-g="cz" data-v="2">po 2</button><button class="ch" data-g="cz" data-v="3">po 3</button><button class="ch" data-g="cz" data-v="4">po 4</button><button class="ch" data-g="cz" data-v="5">po 5</button></div>
-    <div class="fr"><span>Warunek startu</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="gol">na pustej był inny gol</button></div>
+    <div class="fr"><span>Gramy na (kilka naraz — każdy cel osobno)</span><button class="ch" data-g="cel" data-v="23">2xx · 3xx (gol 46–50')</button><button class="ch" data-g="cel" data-v="1">1xx (gol 40–45')</button><button class="ch" data-g="cel" data-v="x1x">x1x (50–60')</button><button class="ch" data-g="cel" data-v="xx1">xx1 (60–70')</button></div>
+    <div class="fr"><span>Start gry — po ilu pustych stronach (kilka naraz)</span><button class="ch" data-g="cz" data-v="1">po 1</button><button class="ch" data-g="cz" data-v="2">po 2</button><button class="ch" data-g="cz" data-v="3">po 3</button><button class="ch" data-g="cz" data-v="4">po 4</button><button class="ch" data-g="cz" data-v="5">po 5</button></div>
     <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="stan" data-v="od1">od 1. kroku</button></div>
     <div class="fr" id="krokFr"></div>
     <div class="nums">
@@ -162,26 +157,24 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
       <label>Gier co najmniej<input id="fG" type="number" inputmode="numeric" min="0"></label>
       <label>BUST najwyżej<input id="fB" type="number" inputmode="numeric" min="0"></label>
     </div>
-    <div class="fr"><span>Sprawdzenie na nowszej części tabeli — starsza część / nowsza część</span>
-      <label class="pp">podział<select id="fSP"></select></label><button class="ch" data-g="spr" data-v="all">pokaż wszystkie</button><button class="ch" data-g="spr" data-v="0">tylko 0 BUST w obu częściach</button></div>
-    <div class="srt">Sortuj<select id="fS"><option value="b">najmniej BUST, potem najwięcej gier</option><option value="g">najwięcej gier</option><option value="k">najkrótsze gry (najdłużej)</option><option value="z">najwyższy bilans</option><option value="t">najpierw najbliższa gra</option></select></div>
+    <div class="srt">Sortuj<select id="fS"><option value="b">najmniej BUST, potem najwięcej gier</option><option value="g">najwięcej gier</option><option value="z">najwyższy bilans</option><option value="t">najpierw najbliższa gra</option></select></div>
     <button class="go" id="goB">🔎 Szukaj</button>
   </div>
   <div class="wyn" id="wyn"></div>
   <div id="lista"></div>
   </div>
   <div class="hint">T60: kod = 3 cyfry. 1. cyfra: 0 brak gola 40–50', 1 gol 40–45', 2 gol 46–50', 3 oba; 2. cyfra: gol 50–60'; 3. cyfra: gol 60–70'.
-    Strona = 30 wierszy (3 tercje po 10) od Nr 1. Model = wybrane wiersze strony (albo tercji). Strona bez trafienia na wierszach modelu = pusta;
+    Strona = 30 wierszy (3 tercje po 10) od Nr 1. Model = 2 albo 3 wiersze strony. Strona bez trafienia na wierszach modelu = pusta;
     po pustej (1–5) gra na tych samych wierszach następnych stron, krok za krokiem do WIN. BUST = gra dłuższa niż „gra do kroku”. Kurs 3.0, stawki 8, 8, 16, 32…</div>
 </main>
 
 <script>
 "use strict";
-const APP_VER = '1.10.5';
+const APP_VER = '1.11.0';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
-const FK = 'zeszyt_v1_szukaj60', MOJEK = 'zeszyt_v1_modele60', LASTK = 'zeszyt_v1_ostatni60', NOTK = 'zeszyt_v1_notes_t60';
+const FK = 'zeszyt_v1_szukaj60c', MOJEK = 'zeszyt_v1_modele60', LASTK = 'zeszyt_v1_ostatni60', NOTK = 'zeszyt_v1_notes_t60';
 const $ = id => document.getElementById(id);
 const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
@@ -190,9 +183,15 @@ const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
 const KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
 const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const zysk = (s, L) => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
-const DOMYSL = { cel: ['1', '2', '3'], jedn: ['s'], m: ['2', '3'], ciag: ['all'], cz: ['1'], war: [''], stan: ['all'], krok: ['all'], spr: ['all'],
-  L: 9, G: 50, B: 0, SP: 65, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
+// od 1.10.6 uproszczone jak SZUKAJ T50 (prośba użytkownika): gramy na — każdy cel osobno, start po 1–5 pustych (1.10.7), stan, krok, k, gier, BUST.
+// Na stałe: strona 30, modele z 2 i 3 wierszy (dowolne), bez warunku startu; sprawdzenie 65/35 tylko w statystykach modelu.
+const DOMYSL = { cel: ['23', 'x1x', 'xx1'], cz: ['1', '2', '3'], stan: ['all'], krok: ['all'], L: 9, G: 30, B: 3, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
 let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
+Object.assign(F, { jedn: ['s'], m: ['2', '3'], ciag: ['all'], war: [''], spr: ['all'], SP: 65 });
+// 1.10.8: gramy na bramkę 46–50' = 2xx i 3xx razem; 1xx (40–45') osobno — tylko kod z 1. cyfrą 1 (prośba użytkownika: 3xx to gol 40–45'
+// i potem 46–50', więc razem z 1xx nie ma sensu); dawne „1xx·2xx·3xx” → 2xx·3xx
+const CELE = { 23: ['2', '3'], 1: ['1'], x1x: ['x1x'], xx1: ['xx1'] };
+F.cel = [...new Set(F.cel.map(c => c === 'g' ? '23' : c).filter(c => CELE[c]))]; if (!F.cel.length) F.cel = ['23'];
 const W = { seed: '', seedErr: false, c: [], wynik: [], ile: 50, lost: null, ileL: 50 };
 
 // ===== KODY =====
@@ -270,7 +269,7 @@ function liczby(Z, M, P) {   // gry, BUST, najdłużej, bilans, WIN na kroku, sp
 const celTx = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x));
   return [d.length ? (d.length === 3 ? '1-3xx' : d.join('/') + 'xx') : '', cel.includes('x1x') ? 'x1x' : '', cel.includes('xx1') ? 'xx1' : ''].filter(Boolean).join('+'); };
 const celOpis = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x)), o = [];
-  if (d.length) o.push(d.length === 3 ? 'gol 40–50\' (1xx, 2xx, 3xx)' : d.map(x => ({ 1: '1xx (40–45\')', 2: '2xx (46–50\')', 3: '3xx' })[x]).join(', '));
+  if (d.length) o.push(d.length === 3 ? 'gol 40–50\' (1xx, 2xx, 3xx)' : d.join() === '2,3' ? 'gol 46–50\' (2xx, 3xx)' : d.map(x => ({ 1: '1xx (gol 40–45\')', 2: '2xx (46–50\')', 3: '3xx' })[x]).join(', '));
   if (cel.includes('x1x')) o.push('x1x (50–60\')'); if (cel.includes('xx1')) o.push('xx1 (60–70\')'); return o.join(' lub '); };
 const nazwa = M => `${celTx(M.cel)} ${M.w.join('·')}${M.jedn === 't' ? ' T' : ''}${M.cz === 1 ? '' : M.cz ? ` ×${M.cz}` : ' od razu'}${M.war ? ' +gol' : ''} k${M.limit}`;
 const dop = M => [M.jedn === 't' ? 'tercja' : 'strona', M.cz ? (M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`) : 'od razu', M.war ? 'gdy na pustej inny gol' : '', `do k${M.limit}`].filter(Boolean).join(' · ');
@@ -308,10 +307,8 @@ function krokChipy() {
     + Array.from({ length: F.L }, (_, i) => `<button class="ch" data-g="krok" data-v="${i + 1}">k${i + 1}</button>`).join('');
 }
 function pokazFiltry() {
-  $('mFr').innerHTML = Array.from({ length: 9 }, (_, i) => `<button class="ch" data-g="m" data-v="${i + 1}">${i + 1}</button>`).join('');
   krokChipy(); pokazChipy();
   $('fL').innerHTML = Array.from({ length: 13 }, (_, i) => i + 3).map(x => `<option${x === F.L ? ' selected' : ''}>${x}</option>`).join('');
-  $('fSP').innerHTML = [0, 50, 60, 65, 70, 80].map(x => `<option value="${x}"${x === F.SP ? ' selected' : ''}>${x ? `${x} / ${100 - x}` : 'bez'}</option>`).join('');
   $('fG').value = F.G; $('fB').value = F.B; $('fS').value = F.S;
   $('lM').value = F.lM; $('lB').value = F.lB; $('lR').value = F.lR;
 }
@@ -329,7 +326,7 @@ $('flt').addEventListener('click', chipKlik); $('fltL').addEventListener('click'
 $('fL').addEventListener('change', () => { F.L = +$('fL').value; krokChipy(); pokazChipy(); });
 const czytajFiltry = () => {
   F.L = +$('fL').value; F.G = Math.max(0, +$('fG').value || 0); F.B = Math.max(0, +$('fB').value || 0);
-  F.SP = +$('fSP').value; F.S = $('fS').value; lsSet(FK, JSON.stringify(F));
+  F.S = $('fS').value; lsSet(FK, JSON.stringify(F));
 };
 
 // ===== szukanie: zestawy wierszy × start × warunek, w paczkach (żeby ekran nie stał) =====
@@ -345,13 +342,13 @@ function* kandydaci(m, R, cz, war, P) {   // do 3 wierszy — wszystkie zestawy;
 }
 function szukaj() {
   czytajFiltry(); if (!W.c.length) return;
-  const L = F.L, cel = F.cel, jedn = F.jedn[0], P = przygotuj(cel, jedn), R = maxR(), defs = [];
-  for (const m of F.m.map(Number)) for (const cz of F.cz.map(Number)) for (const war of (cz ? F.war : [''])) defs.push({ m, cz, war });
-  const wyn = [], byly = new Set(); let di = 0, gen = null, ile = 0; $('goB').disabled = true;
+  const L = F.L, jedn = F.jedn[0], R = maxR(), defs = [];
+  for (const cg of F.cel) for (const m of F.m.map(Number)) for (const cz of F.cz.map(Number)) defs.push({ cel: CELE[cg], m, cz, war: '' });
+  const wyn = [], byly = new Set(); let di = 0, gen = null, ile = 0, P = null, cel = null; $('goB').disabled = true;
   const krok = () => {
     const t0 = performance.now();
     while (di < defs.length && performance.now() - t0 < 40) {
-      const d = defs[di]; if (!gen) gen = kandydaci(d.m, R, d.cz, d.war, P);
+      const d = defs[di]; if (!gen) { cel = d.cel; P = przygotuj(cel, jedn); gen = kandydaci(d.m, R, d.cz, d.war, P); }
       const nx = gen.next(); if (nx.done) { gen = null; di++; continue; }
       const w = nx.value;
       const M = { w, cel, jedn, cz: d.cz, war: d.war, limit: L }, key = nazwa(M); if (byly.has(key)) continue; byly.add(key); ile++;
@@ -378,11 +375,11 @@ function kafelek(x, attr, lo) {
     <div class="l2">Gier <b>${x.g}</b> · WIN <b>${x.g - x.bust}</b> · BUST <b class="${x.bust ? 'r' : 'z'}">${x.bust}</b> · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b>${jest ? ' · <span class="jz">✓ w ZESZYCIE T60</span>' : ''}</div>
     <div class="l2">WIN na kroku: ${krokiTx(x.krok, L) || '—'}</div>
     ${lo ? `<div class="l2">LOST <b class="r">${x.bust}</b>${x.gapAvg ? ` · co ~<b>${x.gapAvg}</b> gier` : ''} · po LOST: WIN <b class="z">${x.winPo}</b> · LOST <b class="${x.rep ? 'r' : 'z'}">${x.rep}</b></div>` : ''}
-    ${F.SP ? `<div class="l2">Sprawdzenie — ${sprTx(x)}</div>` : ''}</div>`;
+    </div>`;
 }
 function pokazWyniki() {
   const R = W.wynik, L = F.L;
-  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (sprawdzono ${fmt(W.przeszukano || 0)}): ${celOpis(F.cel)}, ${F.jedn[0] === 't' ? 'tercje' : 'strony 30'}, do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}.`
+  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (sprawdzono ${fmt(W.przeszukano || 0)}): ${F.cel.map(c => celOpis(CELE[c])).join(' / ')}, start ${F.cz.map(v => `po ${v}`).join(', ')}, do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}.`
     + (R.length ? ` ${stanSuma(R, L)}` : '');
   $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => kafelek(x, `data-j="${j}"`)).join('') + (R.length > W.ile ? `<button class="wiecej" id="wiecej">Pokaż więcej (${fmt(R.length - W.ile)})</button>` : '');
   if ($('wiecej')) $('wiecej').onclick = () => { W.ile += 50; pokazWyniki(); };
@@ -399,13 +396,13 @@ function lostDane(s, L, teraz) {
 function szukajLost() {
   czytajFiltry(); F.lM = Math.max(1, +$('lM').value || 1); F.lB = Math.max(0, +$('lB').value || 0); F.lR = Math.max(0, +$('lR').value || 0); lsSet(FK, JSON.stringify(F));
   if (!W.c.length) return;
-  const L = F.L, cel = F.cel, jedn = F.jedn[0], P = przygotuj(cel, jedn), R = maxR(), defs = [];
-  for (const m of F.m.map(Number)) for (const cz of F.cz.map(Number)) for (const war of (cz ? F.war : [''])) defs.push({ m, cz, war });
-  const wyn = [], byly = new Set(); let di = 0, gen = null, ile = 0; $('goL').disabled = true;
+  const L = F.L, jedn = F.jedn[0], R = maxR(), defs = [];
+  for (const cg of F.cel) for (const m of F.m.map(Number)) for (const cz of F.cz.map(Number)) defs.push({ cel: CELE[cg], m, cz, war: '' });
+  const wyn = [], byly = new Set(); let di = 0, gen = null, ile = 0, P = null, cel = null; $('goL').disabled = true;
   const krok = () => {
     const t0 = performance.now();
     while (di < defs.length && performance.now() - t0 < 40) {
-      const d = defs[di]; if (!gen) gen = kandydaci(d.m, R, d.cz, d.war, P);
+      const d = defs[di]; if (!gen) { cel = d.cel; P = przygotuj(cel, jedn); gen = kandydaci(d.m, R, d.cz, d.war, P); }
       const nx = gen.next(); if (nx.done) { gen = null; di++; continue; }
       const w = nx.value;
       const M = { w, cel, jedn, cz: d.cz, war: d.war, limit: L }, key = nazwa(M); if (byly.has(key)) continue; byly.add(key); ile++;
@@ -424,7 +421,7 @@ function szukajLost() {
   };
   krok();
 }
-function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${celOpis(F.cel)}</b> · <b>${F.jedn[0] === 't' ? 'tercje 10' : 'strony 30'}</b> · wierszy <b>${F.m.join(', ')}</b> · start <b>${F.cz.map(v => +v ? `po ${v}` : 'od razu').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
+function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${F.cel.map(c => celOpis(CELE[c])).join(' / ')}</b> · start <b>${F.cz.map(v => +v ? `po ${v}` : 'od razu').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
 function pokazLost() {
   const R = W.lost || [], L = F.L;
   $('wynL').innerHTML = `Modele po LOST: <b>${fmt(R.length)}</b> (sprawdzono ${fmt(W.przeszukanoL || 0)}) · LOST ${F.lM}–${F.lB}, LOST po LOST ≤ ${F.lR}. ${stanSuma(R, L)}`;
@@ -437,6 +434,7 @@ function przenies(M, lost) {
   if (wZeszycie().some(z => same(z, M))) return true;
   const id = 'v' + Date.now().toString(36);
   if (!lsSet(MOJEK, JSON.stringify([...wZeszycie(), { id, w: M.w, cel: M.cel, jedn: M.jedn, cz: M.cz, war: M.war, limit: M.limit, ...(lost ? { lista: 'lost' } : {}) }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  lsSet('zeszyt_v1_model60', [...lsGet('zeszyt_v1_model60', '').split(',').filter(Boolean), id].join(',')); lsSet(lost ? 'zeszyt_v1_modele60_lost_otw' : 'zeszyt_v1_modele60_otw', '1');
   return true;
 }
 function statystyki(M, lost) {
@@ -451,7 +449,7 @@ function statystyki(M, lost) {
   let bal = 0, top = 0, dd = 0; Z.s.forEach(x => { bal += zysk(x, L); top = Math.max(top, bal); dd = Math.max(dd, top - bal); });
   const gTx = g => `${U[g.u0].str}${U[g.u0].t >= 0 ? '/' + (U[g.u0].t + 1) : ''}${g.u1 !== g.u0 ? `→${U[g.u1].str}${U[g.u1].t >= 0 ? '/' + (U[g.u1].t + 1) : ''}` : ''}`;
   const ov = document.createElement('div'); ov.className = 'ov';
-  const przycisk = () => wZeszycie().some(z => same(z, M)) ? '<span class="pri jest">✓ w ZESZYCIE T60</span>' : `<button id="stP" class="pri">➕ Przenieś do zeszytu T60${lost ? ' — LOST' : ''}</button>`;
+  const przycisk = () => { const z = wZeszycie().find(z => same(z, M)); return z ? `<a class="pri jest" href="../t60.html?m=${z.id}">✓ w ZESZYCIE T60 — otwórz ▶</a>` : `<button id="stP" class="pri">➕ Przenieś do zeszytu T60${lost ? ' — LOST' : ''}</button>`; };
   ov.innerHTML = `<div class="sheet stt"><h3>Model ${nazwa(M)} — statystyki</h3>
     <div class="s">Gramy na ${celOpis(M.cel)}; ${M.jedn === 't' ? 'w każdej tercji (10 wierszy)' : 'na każdej stronie (30 wierszy)'} wiersze ${M.w.join(', ')}; ${M.cz ? `gra ${M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`}${M.war ? ' (gdy na pustej był inny gol)' : ''}` : 'gra od razu'}, do ${L}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
     <div class="nw${gd && gd.za === 1 && Z.teraz <= L ? ' gra' : ''}">${now}</div>
@@ -533,6 +531,11 @@ function info() {
   $('ver').textContent = APP_VER;
   pokazFiltry();
   W.seed = await loadSeed(); czytajKody(); info(); szukaj();
+  { const q = new URLSearchParams(location.search), k = String(q.get('m') || '').split('-');   // link z ZESZYTU T60 (🔎 przy modelu): cel-wiersze-start-limit
+    const cel = { 23: ['2', '3'], 1: ['1'], 123: ['1', '2', '3'], x1x: ['x1x'], xx1: ['xx1'] }[k[0]], w = (k[1] || '').split('.').map(Number);
+    if (q.get('t') === 'l' || q.get('l')) $('tabs').querySelector('[data-t="l"]').click();
+    if (cel && w.length && w.every(x => x >= 1 && x <= 30)) statystyki({ w, cel, jedn: 's', cz: +k[2] || 1, war: '', limit: +k[3] || 9 }, !!q.get('l'));
+    if (q.toString()) history.replaceState(null, '', location.pathname); }
 })();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('../zeszyt-sw.js').catch(() => {});
 </script>

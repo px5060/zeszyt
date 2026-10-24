@@ -25,4 +25,7 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
 - **SZUKAJ W ZESZYCIE T60** (`/zeszyt/modele/t60.html`, przełącznik T50 / T60): strony 30 wierszy (3 × 10) albo tercje po 10, gra na 1xx/2xx/3xx, x1x, xx1,
   1–9 wierszy modelu, sprawdzenie na nowszej części tabeli, LOST, dopisywanie kodu T60.
 
+- **ZESZYT T60** (`/zeszyt/t60.html`, przełącznik T50 / T60): strony 30 wierszy (3 × 10), kody cyframi, modele z SZUKAJ T60,
+  zakłady, cofanie i dopisywanie kodu T60 — wszystko jak w ZESZYCIE T50.
+
 Bez budowania — `index.html` jest gotowy. Ikony: `python3 make_icons.py`. Zasady pracy: `RULES.md`.
