@@ -226,7 +226,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.5';
+const APP_VER = '1.11.6';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -664,13 +664,12 @@ function addCodeSheet() {
     close(); readCodes(t); S.follow[t] = true; render();
   };
 }
-function undoCode() {   // cofa ostatni kod dopisany w telefonie (w dowolnej aplikacji) — każde dotknięcie jeden kod, można wiele razy
+function undoCode() {   // cofa ostatni kod dopisany w telefonie (w dowolnej aplikacji) — każde dotknięcie jeden kod, można wiele razy; nazwa meczu zostaje (1.11.6)
   const t = S.t; readCodes(t);
   const add = readAdded(t), n = S.codes[t].length, cd = add.slice(-3);
   if (add.length < 3) { render(); alert('Nie ma kodów dopisanych w telefonie — kodów z bazy (MOJE) nie da się cofnąć.'); return; }
   if (!confirm(`Cofnąć ostatni kod ${cd} (Nr ${fmt(n)})? Zniknie we wszystkich aplikacjach (MOJE, RAZEM, SZUKAJ…).`)) return;
   if (!lsSet(TABS[t].key, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
-  const a = jget(K.notes(t)); if (a[n]) { delete a[n]; lsSet(K.notes(t), JSON.stringify(a)); }   // mecz przy cofniętym Nr też znika
   lsSet(LASTK, 'null'); readCodes(t); render();
 }
 $('undoB').onclick = undoCode;
