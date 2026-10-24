@@ -128,9 +128,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .stt .ost{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.stt .ost button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 8px;font-size:12px}
 .stt .ost button b{color:#2ea85a}
 /* ostatnie gry jak w MOJE: same kwadraciki — zielony WIN, czerwony LOST; ostatni (najnowszy) z ▲ pod spodem */
-.stt .ost.kw{gap:4px;align-items:flex-start}.stt .ost.kw button{width:22px;height:22px;padding:0;border-radius:4px;border:0;position:relative}
+.stt .ost.kw{gap:4px;align-items:flex-start}.stt .ost.kw button{width:26px;height:26px;padding:0;border-radius:4px;border:0;position:relative;color:#fff;font:800 13px/26px system-ui,sans-serif;text-align:center}
 .stt .ost.kw button.w{background:#2ea85a}.stt .ost.kw button.l{background:#e0483e}
-.stt .ost.kw button.now{box-shadow:0 0 0 2px var(--pan),0 0 0 4px var(--tx)}.stt .ost.kw button.now::after{content:'▲';position:absolute;left:50%;top:26px;transform:translateX(-50%);font-size:10px;color:var(--tx)}
+.stt .ost.kw button.now{box-shadow:0 0 0 2px var(--pan),0 0 0 4px var(--tx)}.stt .ost.kw button.now::after{content:'▲';position:absolute;left:50%;top:30px;line-height:1;transform:translateX(-50%);font-size:10px;color:var(--tx)}
 .stt .ost.kw{margin-bottom:18px}
 .stt .bb{position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}.stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}
 .r.last{background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--hl2)}
@@ -229,7 +229,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.11.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.3';
+const APP_VER = '1.11.5';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -427,7 +427,7 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
       <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>WIN na której stronie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. strona — <b>${N.pol[x]}</b>`).join(' · ')}</div>
-    <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<button data-k="${g.k}" class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, ${g.k}${pn(g)} w.${g.r}"></button>`).join('')}</div>
+    <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<button data-k="${g.k}" class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, ${g.k}${pn(g)} w.${g.r}">${g.s}</button>`).join('')}</div>
     <div class="bb"><button id="stOn">${on ? 'Ukryj z kart' : 'Pokaż na kartach'}</button><button id="stTr" class="pri">${on && lsGet(PRZK, '0') === '1' ? '🔍 Prześledź: wyłącz' : '🔍 Prześledź'}</button><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
