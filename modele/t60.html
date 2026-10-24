@@ -161,9 +161,6 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
       <label>Gra do kroku<select id="fL"></select></label>
       <label>Gier co najmniej<input id="fG" type="number" inputmode="numeric" min="0"></label>
       <label>BUST najwyżej<input id="fB" type="number" inputmode="numeric" min="0"></label>
-      <label>Najdłużej najwyżej<input id="fMX" type="number" inputmode="numeric" min="0" placeholder="bez"></label>
-      <label>Bilans co najmniej<input id="fBAL" type="number" inputmode="numeric" placeholder="bez"></label>
-      <label>Musi mieć wiersz<input id="fMU" type="number" inputmode="numeric" min="0" placeholder="dowolny"></label>
     </div>
     <div class="fr"><span>Sprawdzenie na nowszej części tabeli — starsza część / nowsza część</span>
       <label class="pp">podział<select id="fSP"></select></label><button class="ch" data-g="spr" data-v="all">pokaż wszystkie</button><button class="ch" data-g="spr" data-v="0">tylko 0 BUST w obu częściach</button></div>
@@ -180,7 +177,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.10.3';
+const APP_VER = '1.10.4';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -194,7 +191,7 @@ const KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[S
 const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const zysk = (s, L) => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
 const DOMYSL = { cel: ['1', '2', '3'], jedn: ['s'], m: ['2', '3'], ciag: ['all'], cz: ['1'], war: ['', 'gol'], stan: ['all'], krok: ['all'], spr: ['all'],
-  L: 9, G: 50, B: 0, MX: 0, BAL: '', MU: 0, SP: 65, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
+  L: 9, G: 50, B: 0, SP: 65, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
 let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
 const W = { seed: '', seedErr: false, c: [], wynik: [], ile: 50, lost: null, ileL: 50 };
 
@@ -314,7 +311,7 @@ function pokazFiltry() {
   krokChipy(); pokazChipy();
   $('fL').innerHTML = Array.from({ length: 13 }, (_, i) => i + 3).map(x => `<option${x === F.L ? ' selected' : ''}>${x}</option>`).join('');
   $('fSP').innerHTML = [0, 50, 60, 65, 70, 80].map(x => `<option value="${x}"${x === F.SP ? ' selected' : ''}>${x ? `${x} / ${100 - x}` : 'bez'}</option>`).join('');
-  $('fG').value = F.G; $('fB').value = F.B; $('fMX').value = F.MX || ''; $('fBAL').value = F.BAL; $('fMU').value = F.MU || ''; $('fS').value = F.S;
+  $('fG').value = F.G; $('fB').value = F.B; $('fS').value = F.S;
   $('lM').value = F.lM; $('lB').value = F.lB; $('lR').value = F.lR;
 }
 const JEDEN = ['jedn', 'ciag', 'stan', 'lstan', 'spr'];   // jeden wybór
@@ -331,8 +328,8 @@ const chipKlik = e => {
 $('flt').addEventListener('click', chipKlik); $('fltL').addEventListener('click', chipKlik);
 $('fL').addEventListener('change', () => { F.L = +$('fL').value; krokChipy(); pokazChipy(); });
 const czytajFiltry = () => {
-  F.L = +$('fL').value; F.G = Math.max(0, +$('fG').value || 0); F.B = Math.max(0, +$('fB').value || 0); F.MX = Math.max(0, +$('fMX').value || 0);
-  F.BAL = $('fBAL').value.trim(); F.MU = Math.max(0, +$('fMU').value || 0); F.SP = +$('fSP').value; F.S = $('fS').value; lsSet(FK, JSON.stringify(F));
+  F.L = +$('fL').value; F.G = Math.max(0, +$('fG').value || 0); F.B = Math.max(0, +$('fB').value || 0);
+  F.SP = +$('fSP').value; F.S = $('fS').value; lsSet(FK, JSON.stringify(F));
 };
 
 // ===== szukanie: zestawy wierszy × start × warunek, w paczkach (żeby ekran nie stał) =====
@@ -356,10 +353,10 @@ function szukaj() {
     while (di < defs.length && performance.now() - t0 < 40) {
       const d = defs[di]; if (!gen) gen = kandydaci(d.m, R, d.cz, d.war, P);
       const nx = gen.next(); if (nx.done) { gen = null; di++; continue; }
-      const w = nx.value; if (F.MU && !w.includes(F.MU)) continue;
+      const w = nx.value;
       const M = { w, cel, jedn, cz: d.cz, war: d.war, limit: L }, key = nazwa(M); if (byly.has(key)) continue; byly.add(key); ile++;
       const Z = graj(P, M), N = liczby(Z, M, P);
-      if (N.g < F.G || N.bust > F.B || (F.MX && N.mx > F.MX) || (F.BAL !== '' && N.bal < +F.BAL)) continue;
+      if (N.g < F.G || N.bust > F.B) continue;
       if (F.spr[0] === '0' && F.SP && (N.spr[0].b || N.spr[1].b || !N.spr[1].g)) continue;
       const gd = Z.teraz ? gdzie(Z, P) : null, za = gd ? gd.za : 0;
       if (!stanPasuje(F.stan[0], Z.teraz, za, L) || !krokOk(Z.teraz, za, L)) continue;
@@ -385,7 +382,7 @@ function kafelek(x, attr, lo) {
 }
 function pokazWyniki() {
   const R = W.wynik, L = F.L;
-  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (sprawdzono ${fmt(W.przeszukano || 0)}): ${celOpis(F.cel)}, ${F.jedn[0] === 't' ? 'tercje' : 'strony 30'}, do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}${F.MX ? `, najdłużej ≤ ${F.MX}` : ''}.`
+  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (sprawdzono ${fmt(W.przeszukano || 0)}): ${celOpis(F.cel)}, ${F.jedn[0] === 't' ? 'tercje' : 'strony 30'}, do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}.`
     + (R.length ? ` ${stanSuma(R, L)}` : '');
   $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => kafelek(x, `data-j="${j}"`)).join('') + (R.length > W.ile ? `<button class="wiecej" id="wiecej">Pokaż więcej (${fmt(R.length - W.ile)})</button>` : '');
   if ($('wiecej')) $('wiecej').onclick = () => { W.ile += 50; pokazWyniki(); };
@@ -410,7 +407,7 @@ function szukajLost() {
     while (di < defs.length && performance.now() - t0 < 40) {
       const d = defs[di]; if (!gen) gen = kandydaci(d.m, R, d.cz, d.war, P);
       const nx = gen.next(); if (nx.done) { gen = null; di++; continue; }
-      const w = nx.value; if (F.MU && !w.includes(F.MU)) continue;
+      const w = nx.value;
       const M = { w, cel, jedn, cz: d.cz, war: d.war, limit: L }, key = nazwa(M); if (byly.has(key)) continue; byly.add(key); ile++;
       const Z = graj(P, M), s = Z.s; if (s.length < F.G) continue;
       const wToku = Z.teraz > L; if (!wToku && !(s.length && s[s.length - 1] > L)) continue;
