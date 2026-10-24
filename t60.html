@@ -162,6 +162,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .kod b{margin-left:auto;font-size:24px;letter-spacing:4px}
 .sheet .s2{color:var(--mu);font-size:12px;margin-top:8px}
 .r .m.z0{color:#a7aec0;font-weight:600}
+.r .m.d2{color:#d42a20}   /* 2xx — gol 46–50' czerwony */
+.r .m b.d3{display:inline-block;font:inherit;background:linear-gradient(90deg,#d42a20 50%,#111 50%);-webkit-background-clip:text;background-clip:text;color:transparent}   /* 3xx — czerwono-czarny */
 .tabl{display:flex;gap:6px;margin:0 0 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid #b8902e}
 .tabl a{color:var(--tx);background:var(--card)}.tabl b{background:#b8902e;color:#fff}
 </style>
@@ -222,7 +224,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.11.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.1';
+const APP_VER = '1.11.2';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -444,7 +446,7 @@ function modNota(M, k) {   // adnotacja dla karty krótszej niż model (karta 0:
 function rowHtml(t, row, r, cls, k, p, notes, q) {
   const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, beg = row.pre.length ? row.pre[0] : nr, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
   cls = [cls, nr ? '' : 'pu', nr && beg <= n && end >= n ? 'last' : '', beg === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
-  const ms = cd ? [...cd].map(d => `<span class="m${d === '0' ? ' z0' : ''}">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
+  const ms = cd ? [...cd].map(d => `<span class="m${d === '0' ? ' z0' : d === '2' ? ' d2' : ''}">${d === '3' ? '<b class="d3">3</b>' : mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
   const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
   const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
   // wiersz modelu: ramka wokół znaków, kolor i numer kroku
