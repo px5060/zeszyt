@@ -214,3 +214,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## Usuwanie modelu wbudowanego (od 1.9.7)
 - Prośba użytkownika: 16·18·27 nie ma być na stałe — ma 🗑 jak inne modele. Usunięte wbudowane modele: `zeszyt_v1_modele_usuniete`
   (id po przecinku); ZESZYT i SZUKAJ W ZESZYCIE ich nie pokazują. Ten sam model można potem dodać z SZUKAJ W ZESZYCIE (jako własny).
+
+## SZUKAJ W ZESZYCIE — filtr „Krok gry” (od 1.9.8)
+- Prośba użytkownika: wybór, na którym kroku jest model w grze: chipy „każdy” i k1…k(limit) (kilka naraz, np. k1 + k2 + k3);
+  wybrane kroki = tylko modele w grze na tych krokach (k1 = od 1. kroku). Działa razem ze „Stan teraz” i w zakładce LOST
+  (ustawienie z zakładki Szukaj, widać w opisie). Kroki ponad nowy limit znikają przy zmianie „Gra do kroku”. Zapis w `zeszyt_v1_szukaj` (`krok`).
