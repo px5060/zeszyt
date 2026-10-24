@@ -230,3 +230,19 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## Klawiatura przy zakładzie (od 1.9.10)
 - Błąd: w polu kwoty / Nr / kroku zakładu klawiatura wyjeżdżała i od razu się chowała — wysunięta klawiatura zmienia wysokość okna,
   a `resize` przerysowywał całą stronę (pole traciło kursor). Teraz przerysowanie tylko przy zmianie szerokości o ≥ 40 px (obrót telefonu) i nigdy, gdy kursor jest w polu (INPUT / SELECT).
+
+## SZUKAJ W ZESZYCIE — T60 (od 1.10.0, `modele/t60.html`)
+- Prośba użytkownika: wyszukiwarka dla tabeli T60 (kody z T60 RAZEM / MOJE: baza `/moje/seed_t60.txt` + `t60razem_v1_added`).
+  Kod T60: 1. cyfra 0 brak gola 40–50', 1 gol 40–45', 2 gol 46–50', 3 oba; 2. cyfra gol 50–60'; 3. cyfra gol 60–70'.
+- Układ: **strona 27 wierszy** (tercje 10 · 10 · 7) od Nr 1, bez połów; albo jednostka **tercja** (10 / 10 / 7 osobno; model z wierszem > 7 pomija 3. tercję).
+- Przełącznik **T50 / T60** na górze obu stron wyszukiwarki (osobne pliki, T50 bez zmian w liczeniu).
+- Filtry: gramy na (kilka naraz) 1xx · 2xx · 3xx · x1x · xx1; wierszy modelu 1–9 (do 3 — wszystkie zestawy, więcej — ciągłe zakresy
+  + najlepsze z mniejszej liczby rozbudowane o 1 wiersz); dowolne / ciągły zakres; musi mieć wiersz; start od razu / po 1–5 pustych;
+  warunek „na pustej był inny gol”; gra do k3–k15; gier ≥, BUST ≤, najdłużej ≤, bilans ≥; **sprawdzenie** — podział tabeli (np. 65/35,
+  wg strony startu gry) i „tylko 0 BUST w obu częściach”; stan (GRAJ teraz / CZEKAJ na grę / od 1. kroku), krok gry; sortowanie
+  (najmniej BUST, najwięcej gier, najkrótsze, bilans, najbliższa gra).
+- Kafelek: stan + krok i za ile wierszy (strona, wiersz), gry / WIN / BUST / najdłużej / bilans, WIN na każdym kroku, sprawdzenie.
+  Statystyki: WIN na kroku, ile stron trwała gra, najdłuższe gry, gra po grze (ostatnie 30), „➕ Przenieś do zeszytu T60”
+  (`zeszyt_v1_modele60`, z LOST — `lista: 'lost'`; ZESZYT T60 — następny krok). Zakładka LOST i „+ Dopisz kod” T60 (1. cyfra 0–3).
+- Nazwa modelu T60: `[cel] wiersze [T = tercja] [×n = po n pustych | od razu] [+gol] kL`, np. „1-3xx 1·15·25 k6”.
+- Sprawdzone: 1·15·25 (k6) 106 gier 0 BUST, 3·24 (k9) 128 / 0, 10·14·16 (k9) 123 / 0 — zgodne z analizą w Pythonie.
