@@ -284,3 +284,19 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - 1.10.8: domyślnie start po 1, 2 i 3 pustych, gier ≥ 30, BUST ≤ 3 (żeby przy 2xx·3xx było co pokazać; przy gier ≥ 50 i BUST ≤ 2 — 0 modeli).
   Klucz filtrów `zeszyt_v1_szukaj60c`. Najlepsze 2xx·3xx (strona 30): k9 po 3 pustych 11·23·29 — 45 gier, 3 BUST; k12 po 3 pustych 6·7·15 — 50 gier, 0 BUST.
   1xx: k9 po 2 pustych 3·21·27 — 59 gier, 1 BUST; k12 po 1 pustej 3·21·27 — 118 gier, 1 BUST.
+
+## ZESZYT T60 (od 1.11.0, `t60.html` + `silnik60.js`)
+- Prośba użytkownika: zeszyt dla tabeli T60. Osobna strona `/zeszyt/t60.html`, przełącznik **T50 / T60** na górze obu zeszytów
+  (i wyszukiwarek). Kody wspólne z MOJE / RAZEM 60: baza `/moje/seed_t60.txt` + `t60razem_v1_added`.
+- Układ: **strona 30 wierszy (3 × 10)** od Nr 1, strony liczone od 1 (jak w SZUKAJ T60), czerwone linie po 10. i 20. wierszu,
+  przy prawej krawędzi licznik Nr (1…99, 00). Kod pokazany cyframi (0 = szare „−”, 1. cyfra 1/2/3).
+- Wszystko jak w ZESZYCIE T50: przewracanie stron, nazwy meczów, modele (dotknięcie = na kartach, przytrzymanie = opis, kilka naraz, ×2,
+  kroki do limitu, Prześledź, lista „Modele LOST”), stan GRAJ / CZEKAJ na grę / OD 1. KROKU, zakłady, ↩ cofanie, „+ Dopisz kod”
+  (1. cyfra 0 → 1 → 2 → 3, potem 0 / 1).
+- Silnik `silnik60.js`: te same nazwy co `silnik.js` (buildBook, liczModel, modDef, modNum …); cel modelu `cel` (['2','3'], ['1'],
+  ['x1x'], ['xx1']), start `cz`. Sprawdzone: wyniki ZESZYTU T60 = SZUKAJ T60 (xx1 23·24 115/0, 2/3xx 11·23·29 ×3 45/3, x1x 1·5·11 113/0,
+  1xx 13·21 108/12; ten sam krok i Nr następnego kroku).
+- Klucze ZESZYTU T60: modele `zeszyt_v1_modele60` (wspólne z SZUKAJ T60), wybór `zeszyt_v1_model60`, listy `zeszyt_v1_modele60_otw` /
+  `zeszyt_v1_modele60_lost_otw`, Prześledź `zeszyt_v1_przesledz60`, zakłady `zeszyt_v1_zaklady60`, mecze `zeszyt_v1_notes_t60`,
+  ostatni kod `zeszyt_v1_ostatni60`. SZUKAJ T60 „Przenieś do zeszytu T60” od razu wybiera model; link „✓ w ZESZYCIE T60 — otwórz ▶”,
+  🔎 w ZESZYCIE T60 → `modele/t60.html?m=cel-wiersze-start-limit`.

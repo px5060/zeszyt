@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pl" data-themable>
+<script>try { const v = localStorage.getItem('zeszyt_v1_theme') || localStorage.getItem('px_theme'); if (v === 'day') document.documentElement.dataset.theme = 'day'; } catch (e) {}</script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1f2a">
+<title>ZESZYT T60</title>
+<link rel="manifest" href="zeszyt.webmanifest">
+<link rel="icon" href="zeszyt-192.png">
+<link rel="apple-touch-icon" href="zeszyt-192.png">
+<meta name="apple-mobile-web-app-title" content="ZESZYT 60">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#12151c;--pan:#1b1f2a;--card:#242a38;--bd:#323a4d;--tx:#e8ebf2;--mu:#8b93a7;--or:#c97a45;--or2:#d6a07c;--ye:#FFD700;
+  --paper:#fdfdfa;--grid:#bccfea;--ink:#16181f;--ink2:#46526e;--red:#d9302c;--hl:#ffe7cc;--hl2:#e0883a}   /* kartka zawsze jak w zeszycie */
+:root[data-theme=day]{--bg:#eef1f6;--pan:#ffffff;--card:#e3e7ef;--bd:#c3cad8;--tx:#161a22;--mu:#566074;--or2:#a0521a;color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:10;background:var(--pan);border-bottom:1px solid var(--bd);padding:8px 12px}
+header .t{display:flex;justify-content:space-between;align-items:center;gap:8px;position:relative;padding-bottom:6px}
+header .n{color:var(--mu);font-size:10px;position:absolute;right:6px;bottom:1px}
+#appbar{display:flex;gap:2px;flex-wrap:wrap;padding:3px 0;min-width:0;flex:1}#appbar a,#appbar b{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:5px 3px;text-decoration:none;color:#e8ebf2;border:1.5px solid;background:transparent}#appbar b{color:#fff;border-color:transparent}#appbar a{transition:transform .15s}#appbar a.big{transform:scale(1.45);background:#2b3245;position:relative;z-index:5;box-shadow:0 0 0 2px #fff6}
+#appbar .thm{flex:none;border:1.5px solid #888;border-radius:6px;background:transparent;padding:2px 4px;font-size:13px;line-height:1;cursor:pointer}
+[data-theme=day] #appbar a{color:#161a22}[data-theme=day] #appbar a.big{background:#fff}
+main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
+.ttl{font-size:18px;font-weight:800;margin:0 2px 8px}.ttl small{font-size:13px;color:var(--mu);font-weight:700}
+.cnav{display:flex;gap:6px;align-items:stretch;margin-bottom:6px}
+.cnav button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;font-size:18px;font-weight:800;padding:6px 14px}
+.cnav button:disabled{opacity:.35}
+.cnav .ct{flex:1;font-size:16px}.cnav .ct small{font-size:11.5px;font-weight:600;color:var(--mu)}
+.cnav button.lastb{font-size:13px;padding:6px 9px}.cnav button.lastb.on{background:var(--or);border-color:var(--or);color:#fff}
+.info{color:var(--mu);font-size:12px;margin:0 2px 8px}.info b{color:var(--tx)}
+.hint{color:var(--mu);font-size:11.5px;margin-top:8px;text-align:center}
+.err{background:#5a1f1f;border:1px solid #a8423a;color:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+
+/* karta z zeszytu: wiersz = 1 kratka (--sq), 2 połowy × 10 kratek, spirala po prawej; karty przewracają się wokół spirali */
+.stage{position:relative;perspective:1600px;touch-action:pan-y;user-select:none;-webkit-user-select:none;margin-top:4px}
+.paper{position:absolute;top:0;left:calc((100% - var(--sq)*22)/2);width:calc(var(--sq)*22);height:calc(var(--sq)*33);
+  background-color:var(--paper);border-radius:8px 3px 3px 8px;box-shadow:0 2px 10px #0006;color:var(--ink);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:var(--sq) var(--sq);background-position:calc(var(--sq)*.5) calc(var(--sq)*2);
+  transform-origin:100% 50%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.paper .cno{position:absolute;top:calc(var(--sq)*.3);right:calc(var(--sq)*2);min-width:calc(var(--sq)*2);height:calc(var(--sq)*1.4);padding:0 4px;border:2px solid var(--ink);border-radius:50%;font:700 calc(var(--sq)*1.05)/calc(var(--sq)*1.25) Caveat,'Comic Sans MS',cursive;text-align:center}
+.paper .lbl{position:absolute;top:calc(var(--sq)*.55);left:calc(var(--sq)*.6);font:700 calc(var(--sq)*.85)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
+.grid{position:absolute;left:calc(var(--sq)*.5);top:calc(var(--sq)*2);width:calc(var(--sq)*20);height:calc(var(--sq)*30)}
+.half{position:absolute;top:0}
+.half.sep::before{content:'';position:absolute;left:-1px;top:calc(var(--sq)*-1);bottom:calc(var(--sq)*-.6);width:2px;background:var(--ink)}
+.tl{position:absolute;left:calc(var(--sq)*-.3);right:calc(var(--sq)*-.6);height:2px;margin-top:-1px;background:var(--red)}
+.r{display:grid;grid-template-columns:repeat(4,var(--sq)) 1fr var(--sq);align-items:center;height:var(--sq);cursor:pointer;position:relative}
+.q .r{grid-template-columns:repeat(4,var(--sq)) 1fr}.q.nn .r{grid-template-columns:repeat(3,var(--sq)) 1fr}.q.nn .r .no{display:none}
+.r .no{text-align:center;font:700 calc(var(--sq)*.82)/1 Caveat,'Comic Sans MS',cursive}
+.r .m{text-align:center;font:800 calc(var(--sq)*.85)/1 system-ui,sans-serif}
+.r .nt{min-width:0;display:flex;align-items:center;gap:2px;padding-left:2px;white-space:nowrap;overflow:hidden;font:700 calc(var(--sq)*1.02)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink);text-transform:uppercase}
+.r .nt i{font-style:normal;overflow:hidden;text-overflow:ellipsis;padding-right:.22em}
+.r .hc{text-align:center;font:700 calc(var(--sq)*.72)/1 Caveat,'Comic Sans MS',cursive;color:var(--ink2)}
+.r .kd{grid-column:span 3;display:grid;grid-template-columns:repeat(3,1fr);align-items:center;align-self:stretch;margin:1px 0;border-radius:3px}
+/* model: ramka wokół 3 znaków w wierszach modelu; fioletowa przerywana = pusta trójka (start gry), czerwony = krok bez trafienia, zielony = WIN */
+.kd.mf{outline:1.5px solid var(--ink2);outline-offset:-1px}
+.kd.mp{outline:2px dashed #7a3fb0;outline-offset:-2px;background:#e4d2f7}
+.kd.mk{background:#ffc4bf;outline:2px solid var(--red);outline-offset:-2px}
+.kd.mw{background:#8fd9a3;outline:2px solid #1f8a4c;outline-offset:-2px}
+.kd.mb{background:var(--red);color:#fff;outline:2px solid #7a1512;outline-offset:-2px}
+.kd.mpl{background:#fbe9db;outline:2px dashed var(--or);outline-offset:-2px}.kd.mz{background:#e6e3e3;outline:1.5px dashed #8a7f7e;outline-offset:-1px}
+.kd.mn{outline:2px dashed var(--red);outline-offset:-2px;animation:mn 1.2s ease-in-out infinite}
+@keyframes mn{50%{background:#ffd9d6}}
+.r .ks{flex:none;padding:0 3px;border-radius:3px;font:800 calc(var(--sq)*.56)/1.35 system-ui,sans-serif;color:#fff;background:var(--red)}
+.r .ks.w{background:#1f8a4c}.r .ks.p{background:#7a3fb0}.r .ks.b{background:#7a1512}.r .ks.z{background:#8a7f7e}.r .ks.pl{background:#fff;color:var(--or);border:1px dashed var(--or)}.r .ks .x2{margin-left:3px;padding:0 2px;border-radius:2px;background:#1d2433;color:#fff}.r .kd{position:relative}.r .kd>.x2{position:absolute;right:-4px;top:-6px;z-index:2;padding:0 2px;border-radius:2px;background:#1d2433;color:#fff;font:800 calc(var(--sq)*.45)/1.15 system-ui,sans-serif}.r .ks.n{background:#fff;color:var(--red);border:1px dashed var(--red)}
+.mod{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;padding:8px 10px;margin-bottom:8px;font-size:12.5px;line-height:1.5}
+.mod b{color:var(--tx)}.mod small{color:var(--mu)}
+.mod .now{display:flex;align-items:center;gap:8px;margin-top:2px}.mod .now button{margin-left:auto;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 9px;font-weight:700}
+/* legenda modelu — jedna, pod zeszytem (gdy model jest na kartach) */
+#leg .lg{display:flex;flex-wrap:wrap;justify-content:center;gap:5px 12px;margin-top:10px;color:var(--mu);font-size:12px}#leg .lg span{display:inline-flex;align-items:center;gap:4px}
+#leg .lg .x2l{padding:0 3px;border-radius:3px;background:#1d2433;color:#fff;font-size:11px}:where(#leg .lg) i{display:inline-block;width:26px;height:13px;border-radius:3px;background:var(--paper)}
+.kd.msz{outline:1.5px dotted #8b93a7;outline-offset:-1px}
+.paper .anno{position:absolute;left:calc(var(--sq)*.7);right:calc(var(--sq)*1.7);top:calc(var(--sq)*28.2);padding:2px 6px;border:1.5px dashed #9aa3b5;border-radius:6px;background:#fffbe8;color:var(--ink2);font:600 calc(var(--sq)*.5)/1.3 system-ui,sans-serif}
+/* lista modeli nad kartą */
+.mods{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;margin-bottom:8px;overflow:hidden}
+.mods .mh{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;font-weight:800;font-size:15px}
+.mods .mh .ar{width:14px;color:#2ea85a}.mods .mh small{color:var(--mu);font-weight:600}.mods .mh .stan{font-size:11.5px}
+.mods .mh .zw{margin-left:auto;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 10px;font-size:13px}
+.mods.ml{border-color:#a8423a}.mods.ml .mh .ar{color:#e0483e}
+.mods .mi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-top:1px solid var(--bd);cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.mods .mi.pan{background:#c97a4526}
+.mods .mi.sel{background:#1f8a4c22;box-shadow:inset 4px 0 0 #1f8a4c}
+.mods .mi .sq{flex:none;width:13px;height:13px;border-radius:3px;background:#f2c230;box-shadow:0 0 0 1px #0007}.mods .mi .sq.g{animation:sqB .5s steps(1) infinite}
+.mods .mi .mn{min-width:0;line-height:1.2}.mods .mi .mn b{font-size:15.5px}.mods .mi .mn small{display:block;color:var(--mu);font-size:11.5px}
+.mods .mi .ms{margin-left:auto;flex:0 1 auto;max-width:48%;text-align:right;font-size:12.5px;line-height:1.5}.mods .mi .mn{flex:1 1 auto}
+.mods .mi.lost{border:3px solid transparent;border-image:repeating-linear-gradient(-45deg,#a8423a 0 8px,#e8e2e2 8px 16px) 3}.mods .mi .lo{color:#e0483e;font-weight:800}
+.mods .mi .del{flex:none;text-decoration:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 7px;font-size:14px}
+.mods .mod{margin:0;border:0;border-top:1px dashed var(--bd);border-radius:0}
+.mods .mfoot span{flex:1 1 100%}.mods .mfoot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
+.mods .mfoot a{text-decoration:none;margin-left:auto;flex:none;background:#1f8a4c;border:1px solid #1f8a4c;color:#fff;border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
+.ztabs{display:flex;gap:6px;margin:0 0 8px}.ztabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px;font-size:14.5px;font-weight:800}
+.ztabs button.on{background:var(--or);border-color:var(--or);color:#fff}
+#zbad:not(:empty){display:inline-block;min-width:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:#f2c230;color:#1b1f2a;font-size:12px}
+/* zakład przy modelu (gdy GRA) i zakładka Zakłady */
+.mod .zf{display:grid;grid-template-columns:1.3fr .7fr 1fr;gap:6px;margin-top:8px;align-items:end}
+.mod .zf label{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--mu)}
+.mod .zf input{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:7px;font-size:15px;font-weight:800}
+[data-theme=day] .mod .zf input{background:#fff}
+.mod .zf button{grid-column:1/-1;background:var(--or);border:0;color:#fff;border-radius:9px;padding:10px;font-size:15px;font-weight:900}
+.mod .zok{margin-top:8px;padding:7px 9px;border-radius:9px;background:#c97a4522;border:1px solid var(--or);font-weight:800}
+.zsum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}.zsum div{background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:7px;text-align:center;font-size:11.5px;color:var(--mu)}.zsum b{display:block;font-size:18px;color:var(--tx)}
+.zsec{color:var(--mu);font-weight:800;font-size:13px;margin:12px 2px 6px}
+.zb{display:flex;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;line-height:1.4}
+.zb.pend{border-color:#f2c230;box-shadow:inset 4px 0 0 #f2c230}.zb.win{box-shadow:inset 4px 0 0 #1f8a4c}.zb.lost{box-shadow:inset 4px 0 0 var(--red)}
+.zb small,.zb .mu{color:var(--mu);font-size:11.5px}.zb .zn{font-weight:900;letter-spacing:2px}
+.zb .r{margin-left:auto;text-align:right;flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.zb .r b{font-size:15px}.zb .r b.w{color:#2ea85a}.zb .r b.l{color:var(--red)}.zb .r b.p{color:#f2c230}
+.zb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-size:12px}
+.zpust{color:var(--mu);text-align:center;padding:24px 10px}
+@keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}
+.mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
+.mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
+.stan{display:inline-block;padding:0 6px;border-radius:5px;font-weight:900;color:#1b1f2a;background:#f2c230}.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}.stan.cz{background:#c97a45;color:#fff}.stan.od1{background:#8e4fc9;color:#fff}.stan.po{background:#e0483e;color:#fff}
+/* statystyki modelu (okno po dotknięciu kafelka) */
+.sheet.stt{max-height:88vh;overflow:auto}
+.stt .nw{border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:13.5px;background:var(--card);border:1px solid var(--bd)}
+.stt .nw.gra{border-color:#2ee66b;box-shadow:0 0 0 1px #2ee66b inset}.stt .nw b.big{font-size:16px}
+.stt .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.stt .nums div{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:6px;text-align:center;font-size:11.5px;color:var(--mu)}.stt .nums b{display:block;font-size:18px;color:var(--tx)}
+.stt table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}.stt th{color:var(--mu);font-weight:600;font-size:11.5px;text-align:right;padding:3px 4px}
+.stt td{padding:3px 4px;text-align:right;border-top:1px solid var(--bd)}.stt td:first-child,.stt th:first-child{text-align:left}
+.stt td.bar{width:38%;text-align:left}.stt td.bar i{display:block;height:10px;border-radius:3px;background:#1f8a4c}
+.stt .ost{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.stt .ost button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:5px 8px;font-size:12px}
+.stt .ost button b{color:#2ea85a}
+.stt .bb{position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}.stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}
+.r.last{background:var(--hl);box-shadow:inset 0 0 0 1.5px var(--hl2)}
+.r.nxt .no::before{content:'▸';position:absolute;left:calc(var(--sq)*-.55);color:var(--hl2);font:700 calc(var(--sq)*.7)/var(--sq) system-ui}
+.r.off{visibility:hidden}
+/* dopisek (mecz wciśnięty między wiersze) i wiersz bez kodu */
+.r .dp{flex:none;padding:0 2px;border:1px dashed var(--ink2);border-radius:3px;font:700 calc(var(--sq)*.55)/1.3 system-ui,sans-serif;color:var(--ink2)}
+.r.pu .nt{font-style:italic;font-weight:400;font-size:calc(var(--sq)*.75);color:#8a93a6;text-transform:none}
+/* spirala: dziurki w kartce + druciane kółka na prawej krawędzi (kółka stoją, karta obraca się wokół nich) */
+.paper .hole{position:absolute;right:calc(var(--sq)*.62);width:calc(var(--sq)*.46);height:calc(var(--sq)*.46);margin-top:calc(var(--sq)*-.23);border-radius:50%;background:#2a2f3a;box-shadow:inset 0 1px 2px #000}
+.spiral{position:absolute;top:0;left:calc((100% - var(--sq)*22)/2);width:calc(var(--sq)*22);height:calc(var(--sq)*33);pointer-events:none;z-index:6}
+.spiral i{position:absolute;right:calc(var(--sq)*-.75);width:calc(var(--sq)*1.6);height:calc(var(--sq)*.8);margin-top:calc(var(--sq)*-.4);border:calc(var(--sq)*.13) solid #aeb4c0;border-top-color:#eef0f4;border-right-color:#d5d9e1;border-radius:50%;transform:rotate(-10deg);box-shadow:0 1px 3px #0008}
+
+/* okno notatki */
+.ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--pan);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:min(100%,560px);padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:15px}.sheet .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}.sheet .s b{color:var(--tx);font-size:15px;letter-spacing:2px}
+.sheet input{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:17px}
+[data-theme=day] .sheet input{background:#fff}
+.sheet .bb{display:flex;gap:8px;margin-top:10px}.sheet .bb button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:15px;font-weight:700}
+.sheet .bb button.pri{background:var(--or);border-color:var(--or);color:#fff}
+.sheet #ntIn{text-transform:uppercase}
+.tools{display:flex;gap:6px;margin-bottom:6px}
+.tools input{width:92px;flex:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px;font-size:16px}
+[data-theme=day] .tools input{background:#fff}
+.tools button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px 12px;font-size:14px;font-weight:700}
+.tools button.pri{flex:1;background:var(--or);border-color:var(--or);color:#fff}
+.tools button.und{font-size:19px;padding:6px 14px;line-height:1}.tools button.und:disabled{opacity:.35}
+.undo{display:flex;align-items:center;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:6px 10px;margin-bottom:6px;font-size:13px}
+.undo b{letter-spacing:2px}.undo button{margin-left:auto;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
+.kod{display:flex;gap:10px;align-items:center;margin:2px 0 12px}
+.kod button{width:64px;height:64px;font:900 36px/1 system-ui,sans-serif;background:var(--card);border:2px solid var(--bd);color:var(--tx);border-radius:12px}
+.kod button.on{background:#1f8a4c;border-color:#1f8a4c;color:#fff}
+.kod b{margin-left:auto;font-size:24px;letter-spacing:4px}
+.sheet .s2{color:var(--mu);font-size:12px;margin-top:8px}
+.r .m.z0{color:#a7aec0;font-weight:600}
+.tabl{display:flex;gap:6px;margin:0 0 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid #b8902e}
+.tabl a{color:var(--tx);background:var(--card)}.tabl b{background:#b8902e;color:#fff}
+</style>
+</head>
+<body>
+<header><div class="t"><div id="appbar"></div><span class="n" id="ver"></span></div></header>
+<script>
+(function () {   // pasek aplikacji: przyciski otwierające pozostałe aplikacje (ten sam adres px5060.github.io, wspólne kody) — jak w MOJE
+  const A = [['/moje/', 'MOJE', '#c97a45'], ['/t50razem/', 'R50', '#2e7d4f'], ['/all60/', 'R60', '#2e7d4f'], ['/szukaj50/', 'S50', '#2e75b6'], ['/szukaj60/', 'S60', '#2e75b6'],
+    ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
+    ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
+    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ W Z', '#1f8a4c']];
+  const el = document.getElementById('appbar'), here = location.pathname.replace(/(index|t60)\.html$/, '');
+  if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
+  // dzień / noc — ZESZYT pamięta własny wybór (zeszyt_v1_theme), na start bierze ustawienie z MOJE / SZUKAJ
+  if (el) {
+    const tb = document.createElement('button'), root = document.documentElement, upd = () => { tb.textContent = root.dataset.theme === 'day' ? '🌙' : '☀️'; tb.title = root.dataset.theme === 'day' ? 'tryb nocny' : 'tryb dzienny'; };
+    tb.className = 'thm'; upd(); el.appendChild(tb);
+    tb.onclick = () => { const d = root.dataset.theme === 'day' ? 'night' : 'day'; if (d === 'day') root.dataset.theme = 'day'; else delete root.dataset.theme; try { localStorage.setItem('zeszyt_v1_theme', d); } catch (e) {} upd(); };
+  }
+  // 1. dotknięcie powiększa przycisk, 2. dotknięcie powiększonego otwiera aplikację (żeby nie przełączyć przez przypadek)
+  if (el) el.addEventListener('click', e => {
+    const a = e.target.closest('a'); if (!a) return;
+    if (a.classList.contains('big')) return;
+    e.preventDefault(); el.querySelectorAll('a.big').forEach(x => x.classList.remove('big')); a.classList.add('big');
+    clearTimeout(el._t); el._t = setTimeout(() => a.classList.remove('big'), 4000);
+  });
+})();
+</script>
+
+<main id="main">
+  <div class="ttl">TRÓJKA <small>T60 · strona 30 wierszy (3 × 10)</small></div>
+  <div class="tabl"><a href="./">T50</a><b>T60</b></div>
+  <div class="ztabs" id="ztabs"><button data-z="z" class="on">📓 Zeszyt</button><button data-z="b">💰 Zakłady<span id="zbad"></span></button></div>
+  <div id="msg"></div>
+  <div id="tZ">
+  <div class="cnav">
+    <button id="prev" aria-label="poprzednia karta">◀</button>
+    <button id="cardT" class="ct"></button>
+    <button id="next" aria-label="następna karta">▶</button>
+    <button id="lastB" class="lastb" title="karta z ostatnim kodem">⏭ ost.</button>
+  </div>
+  <div class="tools">
+    <input id="goIn" type="number" inputmode="numeric" min="0" placeholder="nr strony" aria-label="numer strony">
+    <button id="goB">Idź ▶</button>
+    <button id="addB" class="pri">＋ Dopisz kod</button>
+    <button id="undoB" class="und" title="cofnij ostatni kod">↩</button>
+  </div>
+  <div class="info" id="info"></div>
+  <div id="mod"></div>
+  <div id="card" class="stage"></div>
+  <div id="leg"></div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. Lista „Modele” nad kartą — dotknij modelu, pokaże się na kartach (można kilka); przytrzymaj — zakład, Statystyki, Prześledź; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj. Gdy model GRA — „💰 Zapisz zakład” w jego opisie (przytrzymaj model); wszystkie w „💰 Zakłady”.</div>
+  </div>
+  <div id="tB" hidden></div>
+</main>
+
+<script src="silnik60.js?v=1.11.0"></script>
+<script>
+"use strict";
+const APP_VER = '1.11.0';
+// kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
+// ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
+// Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
+const TABS = {
+  t60: { name: 'T60', seed: '/moje/seed_t60.txt', key: 't60razem_v1_added' },
+};
+const K = { notes: t => 'zeszyt_v1_notes_' + t };   // własne dane ZESZYTU — tylko klucze zeszyt_
+const SEED_CACHE = 'zeszyt-seed-t60-v1';   // kopia bazy na brak internetu (pamięć podręczna, nie localStorage — nie zabiera miejsca kodom)
+
+// układ kart (DOP, DOPG, PUSTE, partsOf, buildBook) i silnik modeli — w silnik.js (wspólny z wyszukiwarką modeli)
+const partName = () => 'strona';   // T60: strona bez połów
+// licznik setek przy prawej krawędzi: Nr kodu (1 … 99, 00) — w T60 na każdej stronie
+const hund = nr => { const v = nr % 100; return v ? String(v) : '00'; };
+const hasHund = () => true;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } };
+const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
+const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+const S = { t: 't60', seed: {}, seedErr: {}, codes: {}, nAdd: {}, book: {}, card: {}, follow: {}, mods: [], modMk: {}, zakNr: new Set(), panel: '', lpSkip: false };
+
+async function loadSeed(t) {
+  const url = TABS[t].seed, ok = s => s.length > 0 && s.length % 3 === 0;
+  try {
+    const r = await fetch(url, { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status);
+    const s = (await r.text()).replace(/\D/g, ''); if (!ok(s)) throw new Error('zły plik');
+    try { const c = await caches.open(SEED_CACHE); await c.put(url, new Response(s)); } catch (e) {}
+    return s;
+  } catch (e) {
+    try { const c = await caches.open(SEED_CACHE), r = await c.match(url); if (r) { const s = await r.text(); if (ok(s)) return s; } } catch (e2) {}
+    S.seedErr[t] = true; return '';
+  }
+}
+function readAdded(t) { const s = lsGet(TABS[t].key, ''); return /^(\d{3})*$/.test(s) ? s : ''; }
+function readCodes(t) {   // → czy coś się zmieniło
+  const add = readAdded(t), s = (S.seed[t] || '') + add, c = s.match(/\d{3}/g) || [];
+  const ch = c.length !== (S.codes[t] || []).length || c[c.length - 1] !== (S.codes[t] || [])[c.length - 1];
+  S.codes[t] = c; S.nAdd[t] = add.length / 3; if (ch || !S.book[t]) S.book[t] = buildBook(c.length); return ch;
+}
+const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
+const mark = d => d === '0' ? '−' : d;   // T60: cyfry kodu (1. cyfra 0–3: gol 40–45' / 46–50' / oba; potem 50–60', 60–70'); 0 = −
+
+// ===== MODELE — układy podświetlane na kartach zeszytu (rozwijana lista „Modele” nad kartą) =====
+// W każdej połowie liczą się tylko wiersze modelu (3 kroki na połowę), WIN = + na środku (poz 1). Połowa bez + w tych wierszach
+// = pusta trójka → gra od następnej połowy, krok za krokiem, aż do WIN; po WIN nowy cykl od następnej połowy.
+// Warunek „boki”: gramy tylko, gdy w pustej trójce jest kod z + na początku albo na końcu; inaczej czekamy bez gry na + na środku.
+// Połowy krótsze niż najwyższy wiersz modelu (karta 0) pomijamy. Stawki 8, 8, 16, 32…, kurs 3.0, gra do kroku `limit`.
+// Lista zwinięta = żadnych oznaczeń na kartach. Dotknięcie modelu = jego wiersze na kartach + opis, co się dzieje (bieżąca gra);
+// można wybrać kilka modeli naraz — wiersz oznaczony przez 2 modele ma przy znaczku „×2”.
+// 🔍 Prześledź = wszystkie dotychczasowe gry wybranych modeli na całym zeszycie. Kroki za limitem — bez oznaczeń.
+const MOJEK = 'zeszyt_v1_modele60', MODK = 'zeszyt_v1_model60', OTWK = 'zeszyt_v1_modele60_otw', PRZK = 'zeszyt_v1_przesledz60';
+const mojeModele = () => parseModele(lsGet(MOJEK, '[]'));
+const UKRK = 'zeszyt_v1_modele60_usuniete';   // usunięte modele wbudowane (np. 16·18·27) — od 1.9.7 każdy model można usunąć
+const modeleWsz = () => { const u = lsGet(UKRK, '').split(','); return [...MODELE.filter(m => !u.includes(m.id)), ...mojeModele()].map(modDef); };
+const modOtw = () => lsGet(OTWK, lsGet(MODK, '') ? '1' : '0') === '1';
+// osobna rozwijana lista „Modele LOST” (od 1.9.9): modele przeniesione z zakładki 🔻 LOST w SZUKAJ W ZESZYCIE (lista: 'lost' w zeszyt_v1_modele)
+const OTWLK = 'zeszyt_v1_modele60_lost_otw';
+const listaOtw = l => l === 'lost' ? lsGet(OTWLK, '0') === '1' : modOtw();
+const otwDla = id => { const M = modeleWsz().find(m => m.id === id); lsSet(M && M.lista === 'lost' ? OTWLK : OTWK, '1'); };
+const modWyb = () => lsGet(MODK, '').split(',').filter(Boolean);   // wybrane modele (id po przecinku)
+const modWybSet = (id, on) => { const a = modWyb(); if (on !== a.includes(id)) lsSet(MODK, (on ? [...a, id] : a.filter(x => x !== id)).join(',')); };
+function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
+  // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
+  const mk = {}, T = M.teraz, L = M.limit, B = S.book[S.t];
+  const wiersz = o => {   // bieżąca gra — kroki do limitu; Prześledź — także kroki po limicie (szare), aż do trafienia kończącego przegraną grę („LOST 14”)
+    const s = all ? o.s : o.s.filter(x => x <= L), last = o.s[o.s.length - 1];
+    if (!s.length) return;
+    mk[o.key] = o.hit && last <= L ? { c: 'w', l: `WIN ${last}` } : s.includes(L) ? { c: 'b', l: `BUST ${L}` }
+      : s[0] > L ? { c: 'z', l: o.hit ? `LOST ${last}` : s.join('·') } : { c: 'k', l: s.join('·') };
+  };
+  const gra = g => { g.pus.forEach((key, i, A) => mk[key] = { c: 'p', l: i === A.length - 1 ? 'start' : '' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };   // „start” przy 3. (ostatnim) pustym wierszu — to on uruchamia grę
+  if (all) M.gry.forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
+  if (T && T.gra) {   // gra w toku: migający następny krok, dalej kolejne kroki aż do limitu (ta połowa i następne)
+    gra(M.otw); T.rs.forEach(wiersz);
+    let s = T.s, k = T.k, p = T.p, i = M.w.indexOf(T.r);
+    while (s <= L && B.cards[k]) {
+      if (partsOf(k)[p] >= M.mx) for (; i < M.w.length && s <= L; i++) {
+        const r = M.w[i], row = B.cards[k].parts[p][r - 1], st = [];
+        for (let j = row.pre.length + (row.nr ? 1 : 0) + row.dop.length; j > 0 && s <= L; j--) st.push(s++);
+        if (st.length) mk[`${k}.${p}.${r}`] = st[0] === T.s ? { c: 'n', l: `▶ ${st.join('·')}` } : { c: 'pl', l: st.join('·') };
+      }
+      i = 0; if (++p >= B.cards[k].parts.length) { p = 0; k++; }
+    }
+  }
+  return mk;
+}
+function modMkWsz(ML, all) {   // oznaczenia wszystkich wybranych modeli; wiersz kilku modeli: najważniejszy kolor, kroki po „/”, n = ile modeli
+  const mk = {}, waga = { n: 7, w: 6, b: 5, k: 4, z: 3, pl: 2, p: 1 };
+  for (const M of ML) for (const [key, o] of Object.entries(modMk(M, all))) {
+    const a = mk[key] || (mk[key] = { c: o.c, ls: [], n: 0, kto: [] });
+    if (waga[o.c] > waga[a.c]) a.c = o.c;
+    if (o.l) a.ls.push(o.l);
+    a.n++; a.kto.push(`${M.nazwa}: ${o.l || 'pusta trójka'}`);
+  }
+  for (const a of Object.values(mk)) { a.l = [...new Set(a.ls)].join(' / '); delete a.ls; }
+  return mk;
+}
+const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
+function modStat(M) {   // gry / WIN / BUST / bilans / najdłużej
+  const N = modNum(M);
+  return `Gier <b>${N.G.length}</b> · WIN <b>${N.win}</b> · BUST <b>${N.bust}</b> · najdłużej <b>${N.max}</b> kroków · bilans <b>${zl(N.bal)}</b>`;
+}
+const modGdzie = T => `strona ${T.k}, wiersz ${T.r} (Nr ${fmt(T.nr)})`;
+// stan gry (od 1.9.6, jak w SZUKAJ W ZESZYCIE): GRAJ = następny krok wypada w następnym wierszu (tylko wtedy miga);
+// CZEKAJ na grę = kolejny krok za kilka wierszy; OD 1. KROKU = po pustej trójce, 1. krok za kilka wierszy; po BUST = krok za limitem
+const zaW = T => T.nr - S.codes[S.t].length, odmW = n => n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'wiersze' : 'wierszy';
+const zaIle = n => n === 1 ? 'następny wiersz' : `za ${n} ${odmW(n)}`;
+const modGraj = M => { const T = M.teraz; return !!(T && T.gra && T.s <= M.limit && zaW(T) === 1); };
+const modTeraz = (M, krot) => { const T = M.teraz; if (!T) return '';
+  if (T.gra && T.s > M.limit) return `<span class="stan po">po BUST</span> krok ${T.s}${krot ? '' : ` — za limitem, nie gramy: ${modGdzie(T)}`}`;
+  if (T.gra && !modGraj(M)) return `<span class="stan ${T.s === 1 ? 'od1' : 'cz'}">${T.s === 1 ? 'OD 1. KROKU' : 'CZEKAJ na grę'}</span> krok <b>${T.s}</b> ${krot ? (zaW(T) === 1 ? '' : `za ${zaW(T)} w.`) : `${zaIle(zaW(T))}: ${modGdzie(T)}`}`;
+  return T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : ` — następny wiersz: ${modGdzie(T)}`}`
+  : `<span class="stan">CZEKAJ</span>${krot ? '' : ` na pustą stronę — ${modGdzie(T)}`}`; };
+const modLeg = all => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok'], ['mpl', 'dalsze kroki do limitu'], ...(all ? [['mz', 'po limicie (przegrana gra)']] : [])].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
+// ===== ZAKŁADY — postawione zakłady na krokach modeli (zeszyt_v1_zaklady), jak „MOJE ZAKŁADY” w MOJE / SZUKAJ:
+// Nr wiersza · krok · postawione zł; wynik z kodu w tym wierszu: + w miejscu gry = WIN (+2 × stawka, kurs 3.0), inaczej przegrany (−stawka).
+const ZAKK = 'zeszyt_v1_zaklady60';
+const zakGet = () => { try { const a = JSON.parse(lsGet(ZAKK, '[]')); return Array.isArray(a) ? a.filter(z => z && z.m && Array.isArray(z.m.w) && Array.isArray(z.m.cel) && z.nr > 0) : []; } catch (e) { return []; } };
+const zakRes = z => { const c = S.codes[S.t]; return z.nr > c.length ? 'pend' : trafia(c[z.nr - 1], z.m.cel) ? 'win' : 'lost'; };
+const zakVal = z => { const r = zakRes(z); return r === 'win' ? (KURS - 1) * z.zl : r === 'lost' ? -z.zl : 0; };
+const kiedy = t => new Date(t).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+function zakZapisz(M) {   // zakład z formularza przy modelu (domyślnie: wiersz następnego kroku, ten krok i jego stawka)
+  const nr = +$('zNr-' + M.id).value, krok = +$('zK-' + M.id).value, kw = +$('zZl-' + M.id).value;
+  if (!(nr >= 1) || !(krok >= 1 && krok <= 40) || !(kw > 0)) { alert('Podaj Nr wiersza, krok i kwotę w zł.'); return; }
+  const a = zakGet();
+  if (a.some(z => z.mid === M.id && z.nr === nr) && !confirm(`Na Nr ${fmt(nr)} jest już zakład modelu ${M.nazwa}. Zapisać jeszcze jeden?`)) return;
+  a.push({ mid: M.id, nazwa: M.nazwa, m: { w: M.w, cel: M.cel, cz: M.cz, limit: M.limit }, nr, krok, zl: kw, t: Date.now() });
+  if (!lsSet(ZAKK, JSON.stringify(a))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+  render();
+}
+function zakTab() {   // zakładka 💰 Zakłady: wynik, czekające na wynik, rozliczone
+  const t = S.t, A = zakGet().map((z, i) => ({ ...z, i, res: zakRes(z), val: zakVal(z) })), done = A.filter(z => z.res !== 'pend');
+  const d0 = new Date().setHours(0, 0, 0, 0), sum = L => L.reduce((a, z) => a + z.val, 0);
+  const row = z => {
+    const p = S.book[t].pos[z.nr], cd = z.nr <= S.codes[t].length ? S.codes[t][z.nr - 1] : '';
+    const gdzie = p ? `strona ${p.k} w.${p.r}` : '';
+    const wyn = z.res === 'pend' ? '<b class="p">czeka</b>' : `<b class="${z.res === 'win' ? 'w' : 'l'}">${zl(z.val)}</b><span class="zn">${[...cd].map(mark).join('')}</span>`;
+    return `<div class="zb ${z.res}" data-zi="${z.i}"><div><b>${esc(z.nazwa)}</b> <small>${modDop(modDef(z.m))}</small><br>Nr ${fmt(z.nr)} · ${gdzie} · <b>k${z.krok}</b> · <b>${fmt(z.zl)} zł</b><div class="mu">zapisany ${kiedy(z.t)}</div></div>`
+      + `<div class="r">${wyn}<button data-zdel="${z.i}">✕ usuń</button></div></div>`;
+  };
+  const P = A.filter(z => z.res === 'pend').sort((a, b) => a.nr - b.nr), R = done.sort((a, b) => b.nr - a.nr || b.t - a.t);
+  return `<div class="zsum"><div><b>${zl(sum(done))}</b>wynik łącznie</div><div><b>${fmt(done.reduce((a, z) => a + z.zl, 0))} zł</b>postawione (rozliczone)</div><div><b>${zl(sum(done.filter(z => z.t >= d0)))}</b>dziś</div></div>`
+    + (A.length ? '' : '<div class="zpust">Brak zakładów. Zakład zapisujesz w opisie modelu (lista „Modele”), gdy model GRA: „💰 Zapisz zakład”.</div>')
+    + (P.length ? `<div class="zsec">⏳ Czekają na wynik · ${P.length} · razem ${fmt(P.reduce((a, z) => a + z.zl, 0))} zł</div>` + P.map(row).join('') : '')
+    + (R.length ? `<div class="zsec">Rozliczone · ${R.length} · WIN ${R.filter(z => z.res === 'win').length} · przegrane ${R.filter(z => z.res === 'lost').length}</div>` + R.map(row).join('') : '');
+}
+function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
+  const T = M.teraz, all = lsGet(PRZK, '0') === '1', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`;
+  const co = all ? `Na kartach: <b>wszystkie gry</b> (${M.gry.length}) — przewracaj karty.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
+    : g ? `Na kartach: <b>ostatnia gra</b> — karty ${kk(g)}, WIN ${g.s}.` : 'Na kartach: wiersze modelu (jeszcze bez gier).';
+  const zk = zakGet().filter(z => z.mid === M.id), juz = T && T.gra && zk.find(z => z.nr === T.nr), czeka = zk.filter(z => zakRes(z) === 'pend').length;
+  const zform = !(T && T.gra) ? '' : juz ? `<div class="zok">💰 Postawiony: Nr ${fmt(juz.nr)} · k${juz.krok} · ${fmt(juz.zl)} zł — czeka na wynik</div>`
+    : `<div class="zf"><label>Nr wiersza<input id="zNr-${M.id}" type="number" inputmode="numeric" value="${T.nr}"></label><label>krok<input id="zK-${M.id}" type="number" inputmode="numeric" min="1" value="${T.s}"></label>`
+      + `<label>postawione zł<input id="zZl-${M.id}" type="number" inputmode="numeric" min="1" value="${STAWKI[T.s - 1]}"></label><button data-act="bet" data-id="${M.id}">💰 Zapisz zakład</button></div>`;
+  return `<div class="mod">${modStat(M)}
+    ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go" data-id="${M.id}">Pokaż ▶</button></div>` : ''}${zform}
+    ${zk.length ? `<div class="now"><span>Zakłady modelu: <b>${zk.length}</b> · wynik <b>${zl(zk.reduce((a, z) => a + zakVal(z), 0))}</b>${czeka ? ` · czeka ${czeka}` : ''}</span><button data-act="zak">💰 Zakłady ▶</button></div>` : ''}
+    <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}</div>
+    <div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
+}
+function modLista(l) {   // lista „Modele” / „Modele LOST” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
+  const otw = listaOtw(l), sel = modWyb(), ML = modeleWsz().filter(M => (M.lista === 'lost' ? 'lost' : '') === l), R = id => S.modAll[id];
+  let h = `<div class="mods${l ? ' ml' : ''}"><div class="mh" data-act="tog" data-l="${l}"><span class="ar">${otw ? '▾' : '▸'}</span>${l ? 'Modele LOST' : 'Modele'} <small>(${ML.length})</small>`
+    + `<span class="zw">${otw ? 'Zwiń' : 'Rozwiń'}</span></div>`;   // bez znaczka GRAJ w nagłówku — GRAJ świeci tylko przy modelu na liście
+  if (otw) {
+    for (const M of ML) {
+      const on = sel.includes(M.id), T = R(M.id).teraz;
+      const lo = modLost(R(M.id));   // po LOST-cie (od LOST-u bez WIN) — biało-czerwona ramka jak w MOJE
+      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}${S.panel === M.id ? ' pan' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${modGraj(R(M.id)) ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
+        + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/t60.html?m=${modKod(M)}${l ? '&l=1' : ''}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a><button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button></div>`;
+      if (S.panel === M.id) h += modPanel(R(M.id));   // opis z zakładem, Statystykami i Prześledź — po przytrzymaniu modelu
+    }
+    if (l && !ML.length) h += '<div class="mfoot"><span>Brak modeli LOST. Przenosisz je z SZUKAJ W ZESZYCIE → 🔻 LOST → model → „➕ Przenieś do zeszytu”.</span></div>';
+    else h += `<div class="mfoot"><span>Dotknij modelu — pokaże się na kartach (jeszcze raz — zniknie; można kilka naraz). <b>Przytrzymaj</b> — zakład, 📊 Statystyki, 🔍 Prześledź.</span><a href="modele/t60.html${l ? '?t=l' : ''}">🔎 Dodaj model — SZUKAJ T60${l ? ' (LOST)' : ''} ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
+  }
+  return h + '</div>';
+}
+function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
+  const t = S.t, M = S.modAll[id]; if (!M) return;
+  const N = modNum(M), T = M.teraz, on = modWyb().includes(id) && listaOtw(M.lista === 'lost' ? 'lost' : ''), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+  const now = !T ? 'Brak danych.' : T.gra
+    ? `<b class="big">${T.s > M.limit ? '⏸ po BUST' : modGraj(M) ? '▶ GRAJ' : T.s === 1 ? '⏳ OD 1. KROKU' : '⏳ CZEKAJ na grę'} — krok ${T.s}, ${zaIle(zaW(T))}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
+    : `<b class="big">⏸ CZEKAJ</b> — na pustą stronę (wiersze ${M.w.join(', ')} bez trafienia: ${celOpis(M.cel)}).<br>Patrzymy od: ${modGdzie(T)}`;
+  const mxK = Math.max(1, ...Object.values(N.krok));
+  const rows = Array.from({ length: M.limit }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(N.zysk(s))}</td></tr>`).join('');
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="sheet stt"><h3>Model ${M.nazwa} — statystyki</h3>
+    <div class="s">${modOpis(M)}. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+    <div class="nw${modGraj(M) ? ' gra' : ''}">${now}</div>
+    <div class="nums"><div><b>${N.G.length}</b>gier</div><div><b>${N.win}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
+      <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
+    <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
+    <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
+    <h4>Ostatnie gry (dotknij — karta)</h4><div class="ost">${N.G.slice(-8).reverse().map(g => `<button data-k="${g.k}">${g.k}${pn(g)} w.${g.r} · <b>WIN ${g.s}</b></button>`).join('')}</div>
+    <div class="bb"><button id="stOn">${on ? 'Ukryj z kart' : 'Pokaż na kartach'}</button><button id="stTr" class="pri">${on && lsGet(PRZK, '0') === '1' ? '🔍 Prześledź: wyłącz' : '🔍 Prześledź'}</button><button id="stX">Zamknij</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) close(); const b = e.target.closest('.ost button'); if (b) { close(); modWybSet(id, true); otwDla(id); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } } };
+  $('stX').onclick = close;
+  $('stOn').onclick = () => { modWybSet(id, !on); otwDla(id); close(); render(); };
+  $('stTr').onclick = () => { lsSet(PRZK, on && lsGet(PRZK, '0') === '1' ? '0' : '1'); modWybSet(id, true); otwDla(id); close(); render(); };
+}
+function modNota(M, k) {   // adnotacja dla karty krótszej niż model (karta 0: 26 / 25 wierszy) — model jej nie liczy
+  const P = partsOf(k); if (P.every(R => R >= M.mx)) return '';
+  const c = S.codes[S.t], n = c.length, B = S.book[S.t], jest = M.w.filter(r => P.every(R => r <= R));
+  const co = P.map((R, p) => {   // gdyby liczyć same dostępne wiersze: pierwszy + na środku albo pusta trójka
+    const r = M.w.find(r => r <= R && (() => { const row = B.cards[k].parts[p][r - 1]; return [...row.pre, ...(row.nr ? [row.nr] : []), ...row.dop].some(x => x <= n && c[x - 1][M.poz] === '1'); })());
+    return { s: partName(k, p).split(' ')[0], r };
+  });
+  if (!jest.length) return `Karta ${k}: model ${M.nazwa} jej nie liczy — nie ma wiersza ${M.mx} (${P.map((R, p) => `${co[p].s} ${R}`).join(', ')} wierszy).`;
+  return `Karta ${k}: model ${M.nazwa} jej nie liczy — nie ma wiersza ${M.mx} (${P.map((R, p) => `${co[p].s} ${R}`).join(', ')} wierszy). `
+    + `Gdyby liczyć same wiersze ${jest.join(' i ')}: ${co.map(x => `${x.s} — ${x.r ? `${CELTX[M.poz]} w w.${x.r}` : 'pusta'}`).join(', ')}`
+    + (co.every(x => x.r) ? ' → nie ma pustej trójki, więc i tak bez gry.' : ' → byłaby pusta trójka.');
+}
+function rowHtml(t, row, r, cls, k, p, notes, q) {
+  const c = S.codes[t], n = c.length, nr = row.nr, cd = nr ? c[nr - 1] : null, beg = row.pre.length ? row.pre[0] : nr, end = row.dop.length ? row.dop[row.dop.length - 1] : nr;
+  cls = [cls, nr ? '' : 'pu', nr && beg <= n && end >= n ? 'last' : '', beg === n + 1 ? 'nxt' : ''].filter(Boolean).join(' ');
+  const ms = cd ? [...cd].map(d => `<span class="m${d === '0' ? ' z0' : ''}">${mark(d)}</span>`).join('') : '<span class="m"></span><span class="m"></span><span class="m"></span>';
+  const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
+  const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
+  // wiersz modelu: ramka wokół znaków, kolor i numer kroku
+  const Mw = S.mods.filter(M => M.w.includes(r)), mo = Mw.some(M => partsOf(k)[p] >= M.mx), mm = mo && S.modMk[`${k}.${p}.${r}`];
+  const sz = !mo && Mw.some(M => r <= partsOf(k)[p]);   // krótka połowa (karta 0): wiersz modelu tylko do wglądu
+  const kc = mo ? ' m' + (mm ? mm.c : 'f') : sz ? ' msz' : '';
+  const zak = mo && nr && S.zakNr.has(nr) ? '💰' : '';   // na tym wierszu postawiony zakład wybranego modelu
+  const x2 = mm && mm.n > 1 ? `<b class="x2">×${mm.n}</b>` : '';   // ten sam wiersz w kilku wybranych modelach (karta 1 — wąsko: na rogu ramki)
+  const ks = mm && (mm.l || x2 && !q) ? `<span class="ks ${mm.c}" title="${esc(mm.kto.join('\n'))}">${q ? mm.l.replace(/start/g, 'S').replace(/WIN /g, 'W').replace(/BUST/g, 'B').replace(/LOST /g, 'L').replace(/ /g, '') : mm.l}${zak}${q ? '' : x2}</span>` : zak ? `<span class="ks n">${zak}</span>` : '';
+  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}${q ? x2 : ''}</span><span class="nt">${ks}${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
+}
+function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
+  const notes = jget(K.notes(t)), card = S.book[t].cards[k], P = partsOf(k), q = P.length === 4, W = q ? [5, 4, 4, 4] : [10, 10];
+  let x = 0, h = '', holes = '';
+  card.parts.forEach((part, p) => {
+    h += `<div class="half" style="left:calc(var(--sq)*${x});width:calc(var(--sq)*20)">`;
+    for (let r = 1; r <= 30; r++) h += rowHtml(t, part[r - 1] || { nr: 0, pre: [], dop: [] }, r, r > P[p] ? 'r off' : 'r', k, p, notes, false);
+    h += '</div>'; x += W[p];
+  });
+  for (let i = 0; i < 15; i++) holes += `<i class="hole" style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
+  const an = S.mods.map(M => modNota(M, k)).filter(Boolean).join('<br>');
+  return `<div class="paper" data-k="${k}"><span class="lbl">T60 · strona</span><span class="cno">${k}</span><div class="grid">${h}<i class="tl" style="top:calc(var(--sq)*10)"></i><i class="tl" style="top:calc(var(--sq)*20)"></i></div>${holes}${an ? `<div class="anno">${an}</div>` : ''}</div>`;
+}
+function drawStage(kTop, kUnder, rot) {   // karta na wierzchu (+ karta pod spodem przy przewracaniu) i spirala
+  const st = $('card'), sq = Math.max(13, Math.min(26, Math.floor(st.clientWidth / 22)));
+  st.style.setProperty('--sq', sq + 'px'); st.style.height = sq * 33 + 'px';
+  let sp = '<div class="spiral">'; for (let i = 0; i < 15; i++) sp += `<i style="top:calc(var(--sq)*${3 + i * 2})"></i>`;
+  st.innerHTML = (kUnder != null ? paperHtml(S.t, kUnder) : '') + paperHtml(S.t, kTop) + sp + '</div>';
+  const pp = st.querySelectorAll('.paper'), top = pp[pp.length - 1];
+  if (rot != null) top.style.transform = `rotateY(${rot}deg)`;
+  fitNt(st);
+  return top;
+}
+function fitNt(el) {   // wpisana nazwa meczu mieści się w wierszu: za długa — mniejsze litery (nie ucinamy jej na ostatniej kratce)
+  const A = [...el.querySelectorAll('.r .nt i')].filter(i => i.textContent);
+  A.forEach(i => i.style.fontSize = '');
+  A.map(i => [i, i.scrollWidth, i.clientWidth]).forEach(([i, sw, cw]) => { if (cw > 0 && sw > cw + 1) i.style.fontSize = `${Math.max(40, 97 * cw / sw).toFixed(1)}%`; });
+}
+if (document.fonts) document.fonts.addEventListener('loadingdone', () => fitNt($('card')));   // pismo Caveat doszło później — dopasuj jeszcze raz
+function render() {
+  const t = S.t, c = S.codes[t] || [], n = c.length, L = lastCard(t);
+  if (S.follow[t] !== false || S.card[t] == null) S.card[t] = L;
+  const k = Math.min(Math.max(1, S.card[t]), L + 1); S.card[t] = k;
+  $('msg').innerHTML = S.seedErr[t] ? `<div class="err">Nie udało się wczytać bazy kodów ${TABS[t].name} (plik z aplikacji MOJE). Połącz z internetem i otwórz ZESZYT jeszcze raz. Teraz widać tylko kody dopisane w telefonie.</div>` : '';
+  $('cardT').innerHTML = `STRONA ${k} <small>z ${L}</small>`;
+  $('prev').disabled = k <= 1; $('next').disabled = k > L;
+  $('lastB').classList.toggle('on', k === L);
+  const w = S.book[t].pos[n];
+  $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> (baza ${fmt(n - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu) · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)}) — strona ${w.k}, wiersz ${w.r}` : 'Brak kodów.';
+  // ↩ zawsze na wierzchu: cofa ostatni kod z telefonu (dowolnie wiele razy); bazy z MOJE cofnąć się nie da
+  $('undoB').disabled = !(S.nAdd[t] > 0); $('undoB').title = S.nAdd[t] > 0 ? `cofnij ostatni kod ${c[n - 1]} (Nr ${fmt(n)})` : 'brak kodów dopisanych w telefonie do cofnięcia';
+  // modele liczone zawsze (lista pokazuje CZEKAJ / GRAJ); oznaczenia na kartach tylko wybranego modelu przy rozwiniętej liście
+  const ML = modeleWsz(), mkey = `${n}:${c[n - 1]}:${lsGet(MOJEK, '[]')}`;
+  if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(c, S.book[t], M)); S.modKey = mkey; }
+  S.mods = modWyb().map(id => S.modAll[id]).filter(M => M && listaOtw(M.lista === 'lost' ? 'lost' : ''));
+  S.modMk = modMkWsz(S.mods, lsGet(PRZK, '0') === '1');
+  $('mod').innerHTML = modLista('') + modLista('lost');
+  $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(lsGet(PRZK, '0') === '1')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
+  S.zakNr = new Set(zakGet().filter(z => S.mods.some(M => M.id === z.mid)).map(z => z.nr));
+  const zp = zakGet().filter(z => zakRes(z) === 'pend').length; $('zbad').textContent = zp ? zp : '';
+  $('ztabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.z === (S.tab || 'z')));
+  $('tZ').hidden = S.tab === 'b'; $('tB').hidden = S.tab !== 'b';
+  if (S.tab === 'b') { $('tB').innerHTML = zakTab(); return; }
+  drawStage(k);
+}
+// ===== SZELEST KARTKI przy przewracaniu (dźwięk robiony na miejscu, bez plików; 🔊/🔇 na pasku, zeszyt_v1_dzwiek) =====
+const SNDK = 'zeszyt_v1_dzwiek'; let AC = null;
+function szelest(len = .4) {
+  if (lsGet(SNDK, '1') !== '1') return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const sr = AC.sampleRate, n = Math.floor(sr * len), buf = AC.createBuffer(1, n, sr), d = buf.getChannelData(0), t0 = AC.currentTime;
+    for (let i = 0; i < n; i++) {   // szum z trzaskami papieru: narasta, potem cichnie
+      const x = i / n, env = Math.pow(Math.sin(Math.PI * Math.min(1, x * 1.1)), 1.4) * (1 - x * .4);
+      d[i] = (Math.random() * 2 - 1) * env * (Math.random() < .3 ? 1 : .3);
+    }
+    const src = AC.createBufferSource(), hp = AC.createBiquadFilter(), bp = AC.createBiquadFilter(), g = AC.createGain();
+    src.buffer = buf; hp.type = 'highpass'; hp.frequency.value = 700;
+    bp.type = 'bandpass'; bp.Q.value = .7; bp.frequency.setValueAtTime(1800, t0); bp.frequency.linearRampToValueAtTime(4500, t0 + len);
+    g.gain.value = .5;
+    src.connect(hp); hp.connect(bp); bp.connect(g); g.connect(AC.destination); src.start();
+  } catch (e) {}
+}
+{ const el = $('appbar'), b = document.createElement('button'), upd = () => { b.textContent = lsGet(SNDK, '1') === '1' ? '🔊' : '🔇'; b.title = 'szelest kartki'; };
+  b.className = 'thm'; upd(); el.appendChild(b);
+  b.onclick = () => { lsSet(SNDK, lsGet(SNDK, '1') === '1' ? '0' : '1'); upd(); szelest(.3); }; }
+// zakładki 📓 Zeszyt / 💰 Zakłady; na liście zakładów: dotknięcie — karta z tym wierszem, ✕ — usunięcie
+$('ztabs').addEventListener('click', e => { const b = e.target.closest('button[data-z]'); if (!b) return; S.tab = b.dataset.z; render(); });
+$('tB').addEventListener('click', e => {
+  const d = e.target.closest('[data-zdel]'), A = zakGet();
+  if (d) { const z = A[+d.dataset.zdel]; if (z && confirm(`Usunąć zakład ${z.nazwa} (Nr ${fmt(z.nr)}, k${z.krok}, ${z.zl} zł)?`)) { A.splice(+d.dataset.zdel, 1); lsSet(ZAKK, JSON.stringify(A)); render(); } return; }
+  const r = e.target.closest('.zb[data-zi]'); if (!r) return;
+  const z = A[+r.dataset.zi], p = z && S.book[S.t].pos[z.nr]; if (!p) return;
+  if (modeleWsz().some(M => M.id === z.mid)) { modWybSet(z.mid, true); otwDla(z.mid); }
+  S.tab = 'z'; if (p.k !== S.card[S.t]) { szelest(); go(p.k); } else render();
+});
+// lista modeli nad kartą: zwiń / rozwiń, wybór modelu, statystyki, Prześledź, dodawanie i usuwanie własnych modeli
+$('mod').addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act, id = b.dataset.id, t = S.t;
+  if (a === 'szuk') return;   // link do SZUKAJ W ZESZYCIE — bez zmiany wyboru modelu
+  if (a === 'sel' && S.lpSkip) { S.lpSkip = false; return; }   // puszczenie palca po przytrzymaniu — nie przełączamy modelu
+  if (a === 'tog') { const l = b.dataset.l; lsSet(l ? OTWLK : OTWK, listaOtw(l) ? '0' : '1'); }
+  else if (a === 'sel') { const on = !modWyb().includes(id); modWybSet(id, on); if (!on && S.panel === id) S.panel = ''; }   // dotknięcie: tylko pokaż / ukryj na kartach
+  else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; if (id.startsWith('u')) lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); else lsSet(UKRK, [...lsGet(UKRK, '').split(',').filter(Boolean), id].join(',')); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
+  else if (a === 'stat') return modSheet(id);
+  else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
+  else if (a === 'bet') return zakZapisz(S.modAll[id]);
+  else if (a === 'zak') S.tab = 'b';
+  else if (a === 'go' || a === 'last') { const M = S.modAll[id], k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } return; }
+  render();
+});
+// przytrzymanie modelu (0,5 s): otwiera / zamyka jego opis — zakład, 📊 Statystyki, 🔍 Prześledź (jeden opis naraz; model idzie też na karty)
+{ const el = $('mod'); let lp = null;
+  const stop = () => { if (lp) clearTimeout(lp.t); lp = null; };
+  el.addEventListener('pointerdown', e => {
+    S.lpSkip = false; stop();
+    const mi = e.target.closest('.mi[data-id]'); if (!mi || e.target.closest('a,button') || e.button > 0) return;
+    const id = mi.dataset.id;
+    lp = { x: e.clientX, y: e.clientY, t: setTimeout(() => {
+      lp = null; S.lpSkip = true; try { navigator.vibrate && navigator.vibrate(25); } catch (er) {}
+      if (S.panel === id) S.panel = ''; else { S.panel = id; modWybSet(id, true); }
+      render();
+    }, 500) };
+  });
+  el.addEventListener('pointermove', e => { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 10) stop(); });   // przewijanie — to nie przytrzymanie
+  ['pointerup', 'pointercancel'].forEach(ev => el.addEventListener(ev, stop));
+  el.addEventListener('contextmenu', e => { if (e.target.closest('.mi')) e.preventDefault(); });
+}
+
+// ===== PRZEWRACANIE KART wokół spirali (prawa krawędź): w lewo = następna, w prawo = poprzednia; karta idzie za palcem =====
+// następna: kartka wychodzi zza spirali i kładzie się na wierzch (wolny brzeg jedzie w lewo, za palcem);
+// poprzednia: wierzchnia kartka odwraca się nad spiralą w prawo i odsłania poprzednią.
+let FL = null;   // trwa przewracanie: {dir, k1, top, go}
+const FA = 100;   // kąt schowanej kartki: tuż za krawędzią (90°), żeby ruszała od razu za palcem
+function flipStart(dir) {   // dir +1: następna wychodzi zza spirali na wierzch; -1: wierzchnia odwraca się w prawo, pod nią poprzednia
+  const k0 = S.card[S.t], k1 = k0 + dir;
+  if (k1 < 1 || k1 > lastCard(S.t) + 1) return null;
+  const go = dir < 0, top = go ? drawStage(k0, k1, 0) : drawStage(k1, k0, FA);
+  return FL = { dir, k1, top, go };
+}
+function flipSet(p) { FL.top.style.transition = 'none'; FL.top.style.transform = `rotateY(${(FL.go ? p : 1 - p) * FA}deg)`; }
+function flipEnd(p, done) {   // p: ile już przewrócone (0–1); done: dokończ, inaczej karta wraca
+  const f = FL, ms = Math.round(420 * (done ? 1 - p : p) + 120), to = (done === f.go ? FA : 0);
+  f.top.style.transition = `transform ${ms}ms cubic-bezier(.3,.7,.4,1)`; f.top.style.transform = `rotateY(${to}deg)`;
+  if (done && p > 0) szelest(Math.max(.25, ms / 1000));   // przyciski grają szelest same (w chwili dotknięcia)
+  let fin = false; const end = () => { if (fin) return; fin = true; FL = null; if (done) { S.card[S.t] = f.k1; S.follow[S.t] = f.k1 === lastCard(S.t); } render(); };
+  f.top.addEventListener('transitionend', end, { once: true }); setTimeout(end, ms + 100);
+}
+function flipTo(k) {   // przyciski ◀ ▶ i strzałki: sąsiednia karta z animacją, dalsze skoki bez
+  if (FL) return;
+  const d = k - S.card[S.t];
+  if (Math.abs(d) !== 1 || matchMedia('(prefers-reduced-motion: reduce)').matches) return go(k);
+  if (flipStart(d)) { szelest(); requestAnimationFrame(() => requestAnimationFrame(() => flipEnd(0, true))); }
+}
+function go(k) { const L = lastCard(S.t); k = Math.min(Math.max(1, k), L + 1); S.card[S.t] = k; S.follow[S.t] = k === L; render(); }
+
+// notatka przy wierszu (mecz, uwaga) — zapis tylko w zeszyt_v1_notes_t50, klucz = Nr kodu (od 1)
+const putNotes = (t, m) => { const a = jget(K.notes(t)); for (const nr in m) { const v = String(m[nr] || '').trim().toUpperCase().slice(0, 40); if (v) a[nr] = v; else delete a[nr]; } if (!lsSet(K.notes(t), JSON.stringify(a))) alert('BŁĄD zapisu pamięci telefonu!'); };
+const nextNr = (t, nr) => { const P = S.book[t].pos; let x = nr + 1; while (P[x] && P[x].d) x++; return P[x] ? x : 0; };   // następny wiersz (bez dopisków)
+function editRow(nr) {
+  const t = S.t, w = S.book[t].pos[nr], notes = jget(K.notes(t)), c = S.codes[t], cd = c[nr - 1];
+  const row = S.book[t].cards[w.k].parts[w.p][w.r - 1], dop = [...row.pre, ...row.dop].filter(x => x <= c.length);
+  const ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="sheet"><h3>${TABS[t].name} · strona ${w.k} · wiersz ${w.r}</h3>
+    <div class="s">Nr ${fmt(nr)} · ${cd ? `kod <b>${cd}</b>` : 'jeszcze bez kodu'}${dop.map(x => ` · dopisek Nr ${fmt(x)}: <b>${c[x - 1]}</b>`).join('')}</div>
+    <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="np. PAO-RAD" value="${esc(notes[nr] || '')}">
+    <div class="bb"><button id="ntDel">Usuń</button><button id="ntOk">Zapisz</button><button id="ntGo" class="pri">Dalej ▶</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove(), save = (v, dalej) => {
+    putNotes(t, { [nr]: v }); close();
+    const x = dalej ? nextNr(t, nr) : 0, k2 = x ? S.book[t].pos[x].k : S.card[t];
+    if (k2 !== S.card[t]) go(k2); else render();
+    if (x) editRow(x);
+  };
+  const inp = $('ntIn'); inp.focus();
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('ntDel').onclick = () => save('');
+  $('ntOk').onclick = () => save(inp.value);
+  $('ntGo').onclick = () => save(inp.value, true);
+  inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };
+}
+
+// ===== NOWY KOD z zeszytu: − = 0, + = 1 → wspólna lista kodów (t50razem_v1_added), ten sam zapis co w RAZEM / MOJE —
+// kod od razu widzą wszystkie aplikacje. Ostatni kod dopisany tutaj można cofnąć (zeszyt_v1_ostatni).
+const LASTK = 'zeszyt_v1_ostatni60';
+function addCodeSheet() {
+  const t = S.t, nr = S.codes[t].length + 1, w = S.book[t].pos[nr];
+  if (w.k !== S.card[t]) go(w.k);
+  const notes = jget(K.notes(t)), v = [0, 0, 0], ov = document.createElement('div'); ov.className = 'ov';
+  ov.innerHTML = `<div class="sheet"><h3>Nowy kod · Nr ${fmt(nr)}</h3>
+    <div class="s">Strona ${w.k} · wiersz ${w.r}. Dotknij cyfry: 1. cyfra 0 → 1 → 2 → 3 (gol 40–45' / 46–50' / oba), 2. i 3. cyfra 0 / 1 (gol 50–60', 60–70').</div>
+    <div class="kod">${v.map((_, i) => `<button data-i="${i}">0</button>`).join('')}<b id="kdV">000</b></div>
+    <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="mecz, np. PAO-RAD (nieobowiązkowo)" value="${esc(notes[nr] || '')}">
+    <div class="s2">Kod trafi do wszystkich aplikacji T60 (RAZEM 60, SZUKAJ 60, MOJE).</div>
+    <div class="bb"><button id="kdNo">Anuluj</button><button id="kdNt">Tylko mecz</button><button id="kdOk" class="pri">Zapisz kod</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove(), inp = $('ntIn');
+  ov.querySelectorAll('.kod button').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; v[i] = (v[i] + 1) % (i ? 2 : 4); b.textContent = v[i]; b.classList.toggle('on', !!v[i]); $('kdV').textContent = v.join('');
+  });
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('kdNo').onclick = close;
+  $('kdNt').onclick = () => { putNotes(t, { [nr]: inp.value }); close(); render(); };
+  $('kdOk').onclick = () => {
+    const code = v.join('');
+    readCodes(t);   // czytaj-zmień-zapisz: nie gubi kodów dopisanych w innej aplikacji
+    if (S.codes[t].length + 1 !== nr) { alert('W międzyczasie dopisano kod w innej aplikacji — sprawdź kartę i dopisz jeszcze raz.'); close(); render(); return; }
+    if (!lsSet(TABS[t].key, readAdded(t) + code)) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, JSON.stringify({ n: nr, c: code, t: Date.now() }));
+    if (inp.value.trim()) putNotes(t, { [nr]: inp.value });
+    close(); readCodes(t); S.follow[t] = true; render();
+  };
+}
+function undoCode() {   // cofa ostatni kod dopisany w telefonie (w dowolnej aplikacji) — każde dotknięcie jeden kod, można wiele razy
+  const t = S.t; readCodes(t);
+  const add = readAdded(t), n = S.codes[t].length, cd = add.slice(-3);
+  if (add.length < 3) { render(); alert('Nie ma kodów dopisanych w telefonie — kodów z bazy (MOJE) nie da się cofnąć.'); return; }
+  if (!confirm(`Cofnąć ostatni kod ${cd} (Nr ${fmt(n)})? Zniknie we wszystkich aplikacjach (MOJE, RAZEM, SZUKAJ…).`)) return;
+  if (!lsSet(TABS[t].key, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+  const a = jget(K.notes(t)); if (a[n]) { delete a[n]; lsSet(K.notes(t), JSON.stringify(a)); }   // mecz przy cofniętym Nr też znika
+  lsSet(LASTK, 'null'); readCodes(t); render();
+}
+$('undoB').onclick = undoCode;
+
+$('prev').onclick = () => flipTo(S.card[S.t] - 1);
+$('next').onclick = () => flipTo(S.card[S.t] + 1);
+$('lastB').onclick = () => go(lastCard(S.t));
+// przejście do wpisanej karty
+const goCard = () => {
+  const v = $('goIn').value.trim(), L = lastCard(S.t);
+  if (!/^\d+$/.test(v)) return;
+  if (+v > L + 1) { alert(`Nie ma karty ${v} — ostatnia to ${L}.`); return; }
+  $('goIn').value = ''; $('goIn').blur();
+  if (+v !== S.card[S.t]) { szelest(); go(+v); }
+};
+$('goB').onclick = goCard;
+$('goIn').onkeydown = e => { if (e.key === 'Enter') goCard(); };
+$('cardT').onclick = () => $('goIn').focus();
+$('addB').onclick = () => addCodeSheet();
+{ const st = $('card'); let d = null, noClick = 0;   // przeciąganie palcem (i myszką): karta przewraca się za palcem
+  st.addEventListener('pointerdown', e => { if (FL || (e.pointerType === 'mouse' && e.button)) return; d = { id: e.pointerId, x: e.clientX, y: e.clientY, on: false, p: 0, v: 0, x1: e.clientX, t1: e.timeStamp }; });
+  st.addEventListener('pointermove', e => {
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x, dy = e.clientY - d.y;
+    if (!d.on) {
+      if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) { if (Math.abs(dy) > 12) d = null; return; }
+      if (!flipStart(dx < 0 ? 1 : -1)) { d = null; return; }
+      d.on = true; try { st.setPointerCapture(e.pointerId); } catch (x) {}
+    }
+    d.p = Math.max(0, Math.min(1, -FL.dir * dx / (FL.top.offsetWidth * .85)));
+    d.v = (e.clientX - d.x1) / Math.max(1, e.timeStamp - d.t1); d.x1 = e.clientX; d.t1 = e.timeStamp;
+    flipSet(d.p);
+  });
+  const up = (e, cancel) => { if (!d || e.pointerId !== d.id) return; const dd = d; d = null; if (!dd.on) return; noClick = Date.now();
+    const v = e.timeStamp - dd.t1 < 90 ? -FL.dir * dd.v : 0;   // szybkie machnięcie też przewraca (tylko gdy palec był w ruchu)
+    flipEnd(dd.p, !cancel && (dd.p > .35 || v > .45)); };
+  st.addEventListener('pointerup', e => up(e)); st.addEventListener('pointercancel', e => up(e, true));
+  st.addEventListener('click', e => { if (FL || Date.now() - noClick < 400) return; const r = e.target.closest('.r'); if (!r || !+r.dataset.nr || r.classList.contains('off')) return;
+    if (+r.dataset.nr === S.codes[S.t].length + 1) addCodeSheet(); else editRow(+r.dataset.nr); });
+}
+document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') flipTo(S.card[S.t] - 1); if (e.key === 'ArrowRight') flipTo(S.card[S.t] + 1); });
+// przerysowanie tylko przy wyraźnej zmianie szerokości (obrót telefonu) i nie w trakcie wpisywania; klawiatura zmienia wysokość (i o włos szerokość) — wtedy nie ruszamy strony,
+// inaczej pole (np. kwota zakładu) traci kursor i klawiatura od razu się chowa
+let szer = window.innerWidth;
+window.addEventListener('resize', () => {
+  const a = document.activeElement; if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return;   // trwa wpisywanie — nie ruszamy
+  if (Math.abs(window.innerWidth - szer) < 40) return; szer = window.innerWidth; if (!FL && S.book[S.t]) render(); });
+// kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
+const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
+window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key)) refresh(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+window.addEventListener('focus', refresh);
+
+(async () => {
+  $('ver').textContent = APP_VER;
+  $('info').textContent = 'Wczytuję kody…';
+  { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
+    if (m) { modWybSet(m, true); otwDla(m); history.replaceState(null, '', location.pathname); } }
+  await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
+  render();
+})();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('zeszyt-sw.js').catch(() => {});
+</script>
+</body>
+</html>

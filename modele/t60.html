@@ -170,7 +170,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.10.8';
+const APP_VER = '1.11.0';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -434,6 +434,7 @@ function przenies(M, lost) {
   if (wZeszycie().some(z => same(z, M))) return true;
   const id = 'v' + Date.now().toString(36);
   if (!lsSet(MOJEK, JSON.stringify([...wZeszycie(), { id, w: M.w, cel: M.cel, jedn: M.jedn, cz: M.cz, war: M.war, limit: M.limit, ...(lost ? { lista: 'lost' } : {}) }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  lsSet('zeszyt_v1_model60', [...lsGet('zeszyt_v1_model60', '').split(',').filter(Boolean), id].join(',')); lsSet(lost ? 'zeszyt_v1_modele60_lost_otw' : 'zeszyt_v1_modele60_otw', '1');
   return true;
 }
 function statystyki(M, lost) {
@@ -448,7 +449,7 @@ function statystyki(M, lost) {
   let bal = 0, top = 0, dd = 0; Z.s.forEach(x => { bal += zysk(x, L); top = Math.max(top, bal); dd = Math.max(dd, top - bal); });
   const gTx = g => `${U[g.u0].str}${U[g.u0].t >= 0 ? '/' + (U[g.u0].t + 1) : ''}${g.u1 !== g.u0 ? `→${U[g.u1].str}${U[g.u1].t >= 0 ? '/' + (U[g.u1].t + 1) : ''}` : ''}`;
   const ov = document.createElement('div'); ov.className = 'ov';
-  const przycisk = () => wZeszycie().some(z => same(z, M)) ? '<span class="pri jest">✓ w ZESZYCIE T60</span>' : `<button id="stP" class="pri">➕ Przenieś do zeszytu T60${lost ? ' — LOST' : ''}</button>`;
+  const przycisk = () => { const z = wZeszycie().find(z => same(z, M)); return z ? `<a class="pri jest" href="../t60.html?m=${z.id}">✓ w ZESZYCIE T60 — otwórz ▶</a>` : `<button id="stP" class="pri">➕ Przenieś do zeszytu T60${lost ? ' — LOST' : ''}</button>`; };
   ov.innerHTML = `<div class="sheet stt"><h3>Model ${nazwa(M)} — statystyki</h3>
     <div class="s">Gramy na ${celOpis(M.cel)}; ${M.jedn === 't' ? 'w każdej tercji (10 wierszy)' : 'na każdej stronie (30 wierszy)'} wiersze ${M.w.join(', ')}; ${M.cz ? `gra ${M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`}${M.war ? ' (gdy na pustej był inny gol)' : ''}` : 'gra od razu'}, do ${L}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
     <div class="nw${gd && gd.za === 1 && Z.teraz <= L ? ' gra' : ''}">${now}</div>
@@ -530,6 +531,11 @@ function info() {
   $('ver').textContent = APP_VER;
   pokazFiltry();
   W.seed = await loadSeed(); czytajKody(); info(); szukaj();
+  { const q = new URLSearchParams(location.search), k = String(q.get('m') || '').split('-');   // link z ZESZYTU T60 (🔎 przy modelu): cel-wiersze-start-limit
+    const cel = { 23: ['2', '3'], 1: ['1'], 123: ['1', '2', '3'], x1x: ['x1x'], xx1: ['xx1'] }[k[0]], w = (k[1] || '').split('.').map(Number);
+    if (q.get('t') === 'l' || q.get('l')) $('tabs').querySelector('[data-t="l"]').click();
+    if (cel && w.length && w.every(x => x >= 1 && x <= 30)) statystyki({ w, cel, jedn: 's', cz: +k[2] || 1, war: '', limit: +k[3] || 9 }, !!q.get('l'));
+    if (q.toString()) history.replaceState(null, '', location.pathname); }
 })();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('../zeszyt-sw.js').catch(() => {});
 </script>

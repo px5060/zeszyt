@@ -161,6 +161,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .kod button.on{background:#1f8a4c;border-color:#1f8a4c;color:#fff}
 .kod b{margin-left:auto;font-size:24px;letter-spacing:4px}
 .sheet .s2{color:var(--mu);font-size:12px;margin-top:8px}
+.tabl{display:flex;gap:6px;margin:0 0 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid #b8902e}
+.tabl a{color:var(--tx);background:var(--card)}.tabl b{background:#b8902e;color:#fff}
 </style>
 </head>
 <body>
@@ -191,6 +193,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <main id="main">
   <div class="ttl">TRÓJKA <small>T50</small></div>
+  <div class="tabl"><b>T50</b><a href="t60.html">T60</a></div>
   <div class="ztabs" id="ztabs"><button data-z="z" class="on">📓 Zeszyt</button><button data-z="b">💰 Zakłady<span id="zbad"></span></button></div>
   <div id="msg"></div>
   <div id="tZ">
@@ -218,7 +221,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.11';
+const APP_VER = '1.11.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
