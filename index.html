@@ -153,6 +153,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 [data-theme=day] .tools input{background:#fff}
 .tools button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px 12px;font-size:14px;font-weight:700}
 .tools button.pri{flex:1;background:var(--or);border-color:var(--or);color:#fff}
+.tools button.und{font-size:19px;padding:6px 14px;line-height:1}.tools button.und:disabled{opacity:.35}
 .undo{display:flex;align-items:center;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:6px 10px;margin-bottom:6px;font-size:13px}
 .undo b{letter-spacing:2px}.undo button{margin-left:auto;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
 .kod{display:flex;gap:10px;align-items:center;margin:2px 0 12px}
@@ -203,8 +204,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <input id="goIn" type="number" inputmode="numeric" min="0" placeholder="nr karty" aria-label="numer karty">
     <button id="goB">Idź ▶</button>
     <button id="addB" class="pri">＋ Dopisz kod</button>
+    <button id="undoB" class="und" title="cofnij ostatni kod">↩</button>
   </div>
-  <div id="undo"></div>
   <div class="info" id="info"></div>
   <div id="mod"></div>
   <div id="card" class="stage"></div>
@@ -217,7 +218,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.10';
+const APP_VER = '1.9.11';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -489,9 +490,8 @@ function render() {
   $('lastB').classList.toggle('on', k === L);
   const w = S.book[t].pos[n];
   $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> (baza ${fmt(n - S.nAdd[t])} + ${fmt(S.nAdd[t])} z telefonu) · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)}) — karta ${w.k}, ${partName(w.k, w.p)}, wiersz ${w.r}${w.d ? ' (dopisek)' : ''}` : 'Brak kodów.';
-  const z = jobj(LASTK), un = z && z.n === n && c[n - 1] === z.c && S.nAdd[t] > 0;   // cofnąć można tylko kod dopisany tutaj i wciąż ostatni
-  $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
-  if (un) $('undoB').onclick = undoCode;
+  // ↩ zawsze na wierzchu: cofa ostatni kod z telefonu (dowolnie wiele razy); bazy z MOJE cofnąć się nie da
+  $('undoB').disabled = !(S.nAdd[t] > 0); $('undoB').title = S.nAdd[t] > 0 ? `cofnij ostatni kod ${c[n - 1]} (Nr ${fmt(n)})` : 'brak kodów dopisanych w telefonie do cofnięcia';
   // modele liczone zawsze (lista pokazuje CZEKAJ / GRAJ); oznaczenia na kartach tylko wybranego modelu przy rozwiniętej liście
   const ML = modeleWsz(), mkey = `${n}:${c[n - 1]}:${lsGet(MOJEK, '[]')}`;
   if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(c, S.book[t], M)); S.modKey = mkey; }
@@ -656,13 +656,16 @@ function addCodeSheet() {
     close(); readCodes(t); S.follow[t] = true; render();
   };
 }
-function undoCode() {
-  const t = S.t, z = jobj(LASTK), add = readAdded(t), n = S.codes[t].length;
-  if (!z || z.n !== n || add.slice(-3) !== z.c) { render(); return; }
-  if (!confirm(`Cofnąć kod ${z.c} (Nr ${fmt(n)})? Zniknie też w RAZEM, SZUKAJ i MOJE.`)) return;
+function undoCode() {   // cofa ostatni kod dopisany w telefonie (w dowolnej aplikacji) — każde dotknięcie jeden kod, można wiele razy
+  const t = S.t; readCodes(t);
+  const add = readAdded(t), n = S.codes[t].length, cd = add.slice(-3);
+  if (add.length < 3) { render(); alert('Nie ma kodów dopisanych w telefonie — kodów z bazy (MOJE) nie da się cofnąć.'); return; }
+  if (!confirm(`Cofnąć ostatni kod ${cd} (Nr ${fmt(n)})? Zniknie we wszystkich aplikacjach (MOJE, RAZEM, SZUKAJ…).`)) return;
   if (!lsSet(TABS[t].key, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+  const a = jget(K.notes(t)); if (a[n]) { delete a[n]; lsSet(K.notes(t), JSON.stringify(a)); }   // mecz przy cofniętym Nr też znika
   lsSet(LASTK, 'null'); readCodes(t); render();
 }
+$('undoB').onclick = undoCode;
 
 $('prev').onclick = () => flipTo(S.card[S.t] - 1);
 $('next').onclick = () => flipTo(S.card[S.t] + 1);
