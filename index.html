@@ -226,7 +226,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.6';
+const APP_VER = '1.11.7';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -547,6 +547,7 @@ $('tB').addEventListener('click', e => {
   S.tab = 'z'; if (p.k !== S.card[S.t]) { szelest(); go(p.k); } else render();
 });
 // lista modeli nad kartą: zwiń / rozwiń, wybór modelu, statystyki, Prześledź, dodawanie i usuwanie własnych modeli
+// 🗑: własny model (z SZUKAJ: T50 id „u…”, T60 id „v…”) — usuń z listy; wbudowany — ukryj (1.11.7)
 $('mod').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, id = b.dataset.id, t = S.t;
@@ -554,7 +555,7 @@ $('mod').addEventListener('click', e => {
   if (a === 'sel' && S.lpSkip) { S.lpSkip = false; return; }   // puszczenie palca po przytrzymaniu — nie przełączamy modelu
   if (a === 'tog') { const l = b.dataset.l; lsSet(l ? OTWLK : OTWK, listaOtw(l) ? '0' : '1'); }
   else if (a === 'sel') { const on = !modWyb().includes(id); modWybSet(id, on); if (!on && S.panel === id) S.panel = ''; }   // dotknięcie: tylko pokaż / ukryj na kartach
-  else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; if (id.startsWith('u')) lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); else lsSet(UKRK, [...lsGet(UKRK, '').split(',').filter(Boolean), id].join(',')); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
+  else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; if (mojeModele().some(m => m.id === id)) lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); else lsSet(UKRK, [...lsGet(UKRK, '').split(',').filter(Boolean), id].join(',')); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
   else if (a === 'stat') return modSheet(id);
   else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
   else if (a === 'bet') return zakZapisz(S.modAll[id]);
