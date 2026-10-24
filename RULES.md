@@ -301,3 +301,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   ostatni kod `zeszyt_v1_ostatni60`. SZUKAJ T60 „Przenieś do zeszytu T60” od razu wybiera model; link „✓ w ZESZYCIE T60 — otwórz ▶”,
   🔎 w ZESZYCIE T60 → `modele/t60.html?m=cel-wiersze-start-limit`.
 - 1.11.1: w ZESZYCIE T60 zera pokazane jako „0” (szare), nie „−” — jak w tabeli użytkownika.
+- 1.11.2: w ZESZYCIE T60 cyfra **2** (2xx) czerwona, **3** (3xx) czerwono-czarna (pół na pół), na prośbę użytkownika.
