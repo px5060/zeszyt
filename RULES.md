@@ -278,3 +278,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   od 1. kroku); **krok gry**; gra do kroku, gier ≥ (domyślnie 50), BUST ≤ (domyślnie 2); sortowanie.
 - Na stałe: strona 30 (3 × 10), modele z 2 i 3 wierszy (dowolne), bez warunku startu; sprawdzenie 65/35 tylko w statystykach modelu.
   Nowy klucz filtrów `zeszyt_v1_szukaj60b` (stare ustawienia nie przeszkadzają). Domyślnie: 3 141 modeli, GRAJ teraz 28.
+- 1.10.7: start gry po **1, 2, 3, 4 albo 5** pustych stronach (kilka naraz; domyślnie po 1 i po 2).
