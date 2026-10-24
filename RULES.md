@@ -256,3 +256,6 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## T60: „wszystkie” przy wierszach modelu i warunku startu (od 1.10.2)
 - Prośba użytkownika: żeby nie dzielić — chip **„wszystkie”** (domyślny): wiersze modelu = dowolne + ciągłe (dowolne i tak obejmują ciągłe
   zakresy), warunek startu = bez warunku + „na pustej był inny gol” (oba warianty w jednym szukaniu; w nazwie modelu z warunkiem „+gol”).
+
+## T60: bez strony 27 (od 1.10.3)
+- Prośba użytkownika: jednostka gry tylko **strona 30** i **tercja 10** (3 × 10 na stronie); opcja „strona 27” usunięta (zapisany filtr `s27` → strona 30).

@@ -150,7 +150,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div class="flt" id="flt">
     <div class="fr"><span>Gramy na (kilka naraz) — 1. cyfra: 1 = gol 40–45', 2 = 46–50', 3 = oba; x1x = 50–60'; xx1 = 60–70'</span>
       <button class="ch" data-g="cel" data-v="1">1xx</button><button class="ch" data-g="cel" data-v="2">2xx</button><button class="ch" data-g="cel" data-v="3">3xx</button><button class="ch" data-g="cel" data-v="x1x">x1x</button><button class="ch" data-g="cel" data-v="xx1">xx1</button></div>
-    <div class="fr"><span>Jednostka gry</span><button class="ch" data-g="jedn" data-v="s">strona 30 (3 × 10)</button><button class="ch" data-g="jedn" data-v="t">tercja 10</button><button class="ch" data-g="jedn" data-v="s27">strona 27 (10 · 10 · 7, do porównań)</button></div>
+    <div class="fr"><span>Jednostka gry</span><button class="ch" data-g="jedn" data-v="s">strona 30 (3 × 10)</button><button class="ch" data-g="jedn" data-v="t">tercja 10</button></div>
     <div class="fr"><span>Wierszy modelu na stronie / tercji (kilka naraz)</span><span class="row" id="mFr"></span></div>
     <div class="fr"><span>Wiersze modelu</span><button class="ch" data-g="ciag" data-v="all">wszystkie</button><button class="ch" data-g="ciag" data-v="0">dowolne</button><button class="ch" data-g="ciag" data-v="1">ciągły zakres</button></div>
     <div class="fr"><span>Start gry (kilka naraz)</span><button class="ch" data-g="cz" data-v="0">od razu</button><button class="ch" data-g="cz" data-v="1">po 1 pustej</button><button class="ch" data-g="cz" data-v="2">po 2</button><button class="ch" data-g="cz" data-v="3">po 3</button><button class="ch" data-g="cz" data-v="4">po 4</button><button class="ch" data-g="cz" data-v="5">po 5</button></div>
@@ -180,7 +180,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.10.2';
+const APP_VER = '1.10.3';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -219,8 +219,8 @@ function czytajKody() {   // → czy coś się zmieniło
 
 // ===== SILNIK T60 =====
 // jednostka (od 1.10.1 — wybór użytkownika: strona 30 = 3 × 10): strona 30 wierszy od Nr 1, tercja (10 wierszy, 3 na stronie)
-// albo — do porównań — strona 27 (10 · 10 · 7). Wiersz r jednostki u = kod Nr U[u].s + r.
-const STR = 30, DL = { s: 30, s27: 27 };
+// (strona 27 = 10 · 10 · 7 usunięta w 1.10.3 na prośbę użytkownika). Wiersz r jednostki u = kod Nr U[u].s + r.
+const STR = 30, DL = { s: 30 };
 function jednostki(jedn, n) {
   const U = []; let s = 0, str = 1;
   while (s <= n + 30) {
@@ -275,8 +275,8 @@ const celTx = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x));
 const celOpis = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x)), o = [];
   if (d.length) o.push(d.length === 3 ? 'gol 40–50\' (1xx, 2xx, 3xx)' : d.map(x => ({ 1: '1xx (40–45\')', 2: '2xx (46–50\')', 3: '3xx' })[x]).join(', '));
   if (cel.includes('x1x')) o.push('x1x (50–60\')'); if (cel.includes('xx1')) o.push('xx1 (60–70\')'); return o.join(' lub '); };
-const nazwa = M => `${celTx(M.cel)} ${M.w.join('·')}${M.jedn === 't' ? ' T' : M.jedn === 's27' ? ' S27' : ''}${M.cz === 1 ? '' : M.cz ? ` ×${M.cz}` : ' od razu'}${M.war ? ' +gol' : ''} k${M.limit}`;
-const dop = M => [M.jedn === 't' ? 'tercja' : M.jedn === 's27' ? 'strona 27' : 'strona', M.cz ? (M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`) : 'od razu', M.war ? 'gdy na pustej inny gol' : '', `do k${M.limit}`].filter(Boolean).join(' · ');
+const nazwa = M => `${celTx(M.cel)} ${M.w.join('·')}${M.jedn === 't' ? ' T' : ''}${M.cz === 1 ? '' : M.cz ? ` ×${M.cz}` : ' od razu'}${M.war ? ' +gol' : ''} k${M.limit}`;
+const dop = M => [M.jedn === 't' ? 'tercja' : 'strona', M.cz ? (M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`) : 'od razu', M.war ? 'gdy na pustej inny gol' : '', `do k${M.limit}`].filter(Boolean).join(' · ');
 const same = (a, b) => a.w.join() === b.w.join() && a.cel.join() === b.cel.join() && a.jedn === b.jedn && a.cz === b.cz && a.war === b.war && a.limit === b.limit;
 const wZeszycie = () => { try { const a = JSON.parse(lsGet(MOJEK, '[]')); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
 const odm = n => n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'wiersze' : 'wierszy';
@@ -305,6 +305,7 @@ const pokazChipy = () => document.querySelectorAll('.ch[data-g]').forEach(b => b
 const maxR = () => F.jedn[0] === 't' ? 10 : DL[F.jedn[0]] || 30;
 function krokChipy() {
   F.krok = F.krok.filter(v => v === 'all' || +v <= F.L); if (!F.krok.length) F.krok = ['all'];
+  if (!['s', 't'].includes(F.jedn[0])) F.jedn = ['s'];
   $('krokFr').innerHTML = '<span>Krok gry (model już w grze)</span><button class="ch" data-g="krok" data-v="all">każdy</button>'
     + Array.from({ length: F.L }, (_, i) => `<button class="ch" data-g="krok" data-v="${i + 1}">k${i + 1}</button>`).join('');
 }
@@ -384,7 +385,7 @@ function kafelek(x, attr, lo) {
 }
 function pokazWyniki() {
   const R = W.wynik, L = F.L;
-  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (sprawdzono ${fmt(W.przeszukano || 0)}): ${celOpis(F.cel)}, ${F.jedn[0] === 't' ? 'tercje' : F.jedn[0] === 's27' ? 'strony 27' : 'strony 30'}, do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}${F.MX ? `, najdłużej ≤ ${F.MX}` : ''}.`
+  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (sprawdzono ${fmt(W.przeszukano || 0)}): ${celOpis(F.cel)}, ${F.jedn[0] === 't' ? 'tercje' : 'strony 30'}, do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}${F.MX ? `, najdłużej ≤ ${F.MX}` : ''}.`
     + (R.length ? ` ${stanSuma(R, L)}` : '');
   $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => kafelek(x, `data-j="${j}"`)).join('') + (R.length > W.ile ? `<button class="wiecej" id="wiecej">Pokaż więcej (${fmt(R.length - W.ile)})</button>` : '');
   if ($('wiecej')) $('wiecej').onclick = () => { W.ile += 50; pokazWyniki(); };
@@ -426,7 +427,7 @@ function szukajLost() {
   };
   krok();
 }
-function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${celOpis(F.cel)}</b> · <b>${F.jedn[0] === 't' ? 'tercje 10' : F.jedn[0] === 's27' ? 'strony 27' : 'strony 30'}</b> · wierszy <b>${F.m.join(', ')}</b> · start <b>${F.cz.map(v => +v ? `po ${v}` : 'od razu').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
+function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${celOpis(F.cel)}</b> · <b>${F.jedn[0] === 't' ? 'tercje 10' : 'strony 30'}</b> · wierszy <b>${F.m.join(', ')}</b> · start <b>${F.cz.map(v => +v ? `po ${v}` : 'od razu').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
 function pokazLost() {
   const R = W.lost || [], L = F.L;
   $('wynL').innerHTML = `Modele po LOST: <b>${fmt(R.length)}</b> (sprawdzono ${fmt(W.przeszukanoL || 0)}) · LOST ${F.lM}–${F.lB}, LOST po LOST ≤ ${F.lR}. ${stanSuma(R, L)}`;
@@ -455,7 +456,7 @@ function statystyki(M, lost) {
   const ov = document.createElement('div'); ov.className = 'ov';
   const przycisk = () => wZeszycie().some(z => same(z, M)) ? '<span class="pri jest">✓ w ZESZYCIE T60</span>' : `<button id="stP" class="pri">➕ Przenieś do zeszytu T60${lost ? ' — LOST' : ''}</button>`;
   ov.innerHTML = `<div class="sheet stt"><h3>Model ${nazwa(M)} — statystyki</h3>
-    <div class="s">Gramy na ${celOpis(M.cel)}; ${M.jedn === 't' ? 'w każdej tercji (10 wierszy)' : M.jedn === 's27' ? 'na każdej stronie 27 wierszy (10 · 10 · 7)' : 'na każdej stronie (30 wierszy)'} wiersze ${M.w.join(', ')}; ${M.cz ? `gra ${M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`}${M.war ? ' (gdy na pustej był inny gol)' : ''}` : 'gra od razu'}, do ${L}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+    <div class="s">Gramy na ${celOpis(M.cel)}; ${M.jedn === 't' ? 'w każdej tercji (10 wierszy)' : 'na każdej stronie (30 wierszy)'} wiersze ${M.w.join(', ')}; ${M.cz ? `gra ${M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`}${M.war ? ' (gdy na pustej był inny gol)' : ''}` : 'gra od razu'}, do ${L}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
     <div class="nw${gd && gd.za === 1 && Z.teraz <= L ? ' gra' : ''}">${now}</div>
     <div class="nums"><div><b>${N.g}</b>gier</div><div><b>${N.g - N.bust}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
       <div><b>${N.mx}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(dd)}</b>największy spadek (zł)</div></div>
