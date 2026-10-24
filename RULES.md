@@ -246,3 +246,9 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   (`zeszyt_v1_modele60`, z LOST — `lista: 'lost'`; ZESZYT T60 — następny krok). Zakładka LOST i „+ Dopisz kod” T60 (1. cyfra 0–3).
 - Nazwa modelu T60: `[cel] wiersze [T = tercja] [×n = po n pustych | od razu] [+gol] kL`, np. „1-3xx 1·15·25 k6”.
 - Sprawdzone: 1·15·25 (k6) 106 gier 0 BUST, 3·24 (k9) 128 / 0, 10·14·16 (k9) 123 / 0 — zgodne z analizą w Pythonie.
+
+## T60: strona 30 wierszy (3 × 10) — wybór użytkownika (od 1.10.1)
+- Porównanie (1xx/2xx/3xx, 1–3 wiersze, po 1–3 pustych, ≥ 50 gier): strona 27 — 0 BUST do k9: 131 modeli, do k6: 1; tercje 10/10/7 i równe
+  po 10 — ok. 41–42 do k9, 0 do k6; **strona 30 — 196 do k9, 2 do k6** (3·7·18 104 gry, 4·9 ×2). Użytkownik wybrał **3 × 10**.
+- Wyszukiwarka T60: jednostka domyślna **strona 30** (`jedn: 's'`), **tercja 10** (`'t'`, 3 na stronie), strona 27 (`'s27'`, do porównań, w nazwie „S27”).
+  Numeracja w „Dopisz kod” i w informacji o ostatnim kodzie: strona 30, wiersz 1–30. ZESZYT T60 będzie miał strony 30 wierszy.
