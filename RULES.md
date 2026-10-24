@@ -300,3 +300,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   `zeszyt_v1_modele60_lost_otw`, Prześledź `zeszyt_v1_przesledz60`, zakłady `zeszyt_v1_zaklady60`, mecze `zeszyt_v1_notes_t60`,
   ostatni kod `zeszyt_v1_ostatni60`. SZUKAJ T60 „Przenieś do zeszytu T60” od razu wybiera model; link „✓ w ZESZYCIE T60 — otwórz ▶”,
   🔎 w ZESZYCIE T60 → `modele/t60.html?m=cel-wiersze-start-limit`.
+- 1.11.1: w ZESZYCIE T60 zera pokazane jako „0” (szare), nie „−” — jak w tabeli użytkownika.

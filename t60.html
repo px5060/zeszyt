@@ -222,7 +222,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.11.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.0';
+const APP_VER = '1.11.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -267,7 +267,7 @@ function readCodes(t) {   // → czy coś się zmieniło
   S.codes[t] = c; S.nAdd[t] = add.length / 3; if (ch || !S.book[t]) S.book[t] = buildBook(c.length); return ch;
 }
 const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
-const mark = d => d === '0' ? '−' : d;   // T60: cyfry kodu (1. cyfra 0–3: gol 40–45' / 46–50' / oba; potem 50–60', 60–70'); 0 = −
+const mark = d => d;   // T60: cyfry kodu jak w tabeli (1. cyfra 0–3: gol 40–45' / 46–50' / oba; potem 50–60', 60–70'); 0 — szare (1.11.1: „0” zamiast „−”)
 
 // ===== MODELE — układy podświetlane na kartach zeszytu (rozwijana lista „Modele” nad kartą) =====
 // W każdej połowie liczą się tylko wiersze modelu (3 kroki na połowę), WIN = + na środku (poz 1). Połowa bez + w tych wierszach
