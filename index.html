@@ -82,6 +82,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mh{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;font-weight:800;font-size:15px}
 .mods .mh .ar{width:14px;color:#2ea85a}.mods .mh small{color:var(--mu);font-weight:600}.mods .mh .stan{font-size:11.5px}
 .mods .mh .zw{margin-left:auto;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 10px;font-size:13px}
+.mods.ml{border-color:#a8423a}.mods.ml .mh .ar{color:#e0483e}
 .mods .mi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-top:1px solid var(--bd);cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}.mods .mi.pan{background:#c97a4526}
 .mods .mi.sel{background:#1f8a4c22;box-shadow:inset 4px 0 0 #1f8a4c}
 .mods .mi .sq{flex:none;width:13px;height:13px;border-radius:3px;background:#f2c230;box-shadow:0 0 0 1px #0007}.mods .mi .sq.g{animation:sqB .5s steps(1) infinite}
@@ -216,7 +217,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.7';
+const APP_VER = '1.9.9';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -275,6 +276,10 @@ const mojeModele = () => parseModele(lsGet(MOJEK, '[]'));
 const UKRK = 'zeszyt_v1_modele_usuniete';   // usunięte modele wbudowane (np. 16·18·27) — od 1.9.7 każdy model można usunąć
 const modeleWsz = () => { const u = lsGet(UKRK, '').split(','); return [...MODELE.filter(m => !u.includes(m.id)), ...mojeModele()].map(modDef); };
 const modOtw = () => lsGet(OTWK, lsGet(MODK, '') ? '1' : '0') === '1';
+// osobna rozwijana lista „Modele LOST” (od 1.9.9): modele przeniesione z zakładki 🔻 LOST w SZUKAJ W ZESZYCIE (lista: 'lost' w zeszyt_v1_modele)
+const OTWLK = 'zeszyt_v1_modele_lost_otw';
+const listaOtw = l => l === 'lost' ? lsGet(OTWLK, '0') === '1' : modOtw();
+const otwDla = id => { const M = modeleWsz().find(m => m.id === id); lsSet(M && M.lista === 'lost' ? OTWLK : OTWK, '1'); };
 const modWyb = () => lsGet(MODK, '').split(',').filter(Boolean);   // wybrane modele (id po przecinku)
 const modWybSet = (id, on) => { const a = modWyb(); if (on !== a.includes(id)) lsSet(MODK, (on ? [...a, id] : a.filter(x => x !== id)).join(',')); };
 function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
@@ -376,25 +381,26 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
     <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}</div>
     <div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
 }
-function modLista() {   // lista „Modele” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
-  const otw = modOtw(), sel = modWyb(), ML = modeleWsz(), R = id => S.modAll[id];
-  let h = `<div class="mods"><div class="mh" data-act="tog"><span class="ar">${otw ? '▾' : '▸'}</span>Modele <small>(${ML.length})</small>`
+function modLista(l) {   // lista „Modele” / „Modele LOST” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
+  const otw = listaOtw(l), sel = modWyb(), ML = modeleWsz().filter(M => (M.lista === 'lost' ? 'lost' : '') === l), R = id => S.modAll[id];
+  let h = `<div class="mods${l ? ' ml' : ''}"><div class="mh" data-act="tog" data-l="${l}"><span class="ar">${otw ? '▾' : '▸'}</span>${l ? 'Modele LOST' : 'Modele'} <small>(${ML.length})</small>`
     + `<span class="zw">${otw ? 'Zwiń' : 'Rozwiń'}</span></div>`;   // bez znaczka GRAJ w nagłówku — GRAJ świeci tylko przy modelu na liście
   if (otw) {
     for (const M of ML) {
       const on = sel.includes(M.id), T = R(M.id).teraz;
       const lo = modLost(R(M.id));   // po LOST-cie (od LOST-u bez WIN) — biało-czerwona ramka jak w MOJE
       h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}${S.panel === M.id ? ' pan' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${modGraj(R(M.id)) ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
-        + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/?m=${modKod(M)}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a><button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button></div>`;
+        + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/?m=${modKod(M)}${l ? '&l=1' : ''}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a><button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button></div>`;
       if (S.panel === M.id) h += modPanel(R(M.id));   // opis z zakładem, Statystykami i Prześledź — po przytrzymaniu modelu
     }
-    h += `<div class="mfoot"><span>Dotknij modelu — pokaże się na kartach (jeszcze raz — zniknie; można kilka naraz). <b>Przytrzymaj</b> — zakład, 📊 Statystyki, 🔍 Prześledź.</span><a href="modele/">🔎 Dodaj model — SZUKAJ W ZESZYCIE ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
+    if (l && !ML.length) h += '<div class="mfoot"><span>Brak modeli LOST. Przenosisz je z SZUKAJ W ZESZYCIE → 🔻 LOST → model → „➕ Przenieś do zeszytu”.</span></div>';
+    else h += `<div class="mfoot"><span>Dotknij modelu — pokaże się na kartach (jeszcze raz — zniknie; można kilka naraz). <b>Przytrzymaj</b> — zakład, 📊 Statystyki, 🔍 Prześledź.</span><a href="modele/${l ? '?t=l' : ''}">🔎 Dodaj model — SZUKAJ W ZESZYCIE${l ? ' (LOST)' : ''} ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
   }
   return h + '</div>';
 }
 function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   const t = S.t, M = S.modAll[id]; if (!M) return;
-  const N = modNum(M), T = M.teraz, on = modWyb().includes(id) && modOtw(), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+  const N = modNum(M), T = M.teraz, on = modWyb().includes(id) && listaOtw(M.lista === 'lost' ? 'lost' : ''), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   const now = !T ? 'Brak danych.' : T.gra
     ? `<b class="big">${T.s > M.limit ? '⏸ po BUST' : modGraj(M) ? '▶ GRAJ' : T.s === 1 ? '⏳ OD 1. KROKU' : '⏳ CZEKAJ na grę'} — krok ${T.s}, ${zaIle(zaW(T))}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
     : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez ${bokTx(M.poz)}, tej gry nie gramy; czekamy na ${CELTX[M.poz]}.<br>${modGdzie(T)}`
@@ -413,10 +419,10 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
     <div class="bb"><button id="stOn">${on ? 'Ukryj z kart' : 'Pokaż na kartach'}</button><button id="stTr" class="pri">${on && lsGet(PRZK, '0') === '1' ? '🔍 Prześledź: wyłącz' : '🔍 Prześledź'}</button><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
-  ov.onclick = e => { if (e.target === ov) close(); const b = e.target.closest('.ost button'); if (b) { close(); modWybSet(id, true); lsSet(OTWK, '1'); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } } };
+  ov.onclick = e => { if (e.target === ov) close(); const b = e.target.closest('.ost button'); if (b) { close(); modWybSet(id, true); otwDla(id); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } } };
   $('stX').onclick = close;
-  $('stOn').onclick = () => { modWybSet(id, !on); lsSet(OTWK, '1'); close(); render(); };
-  $('stTr').onclick = () => { lsSet(PRZK, on && lsGet(PRZK, '0') === '1' ? '0' : '1'); modWybSet(id, true); lsSet(OTWK, '1'); close(); render(); };
+  $('stOn').onclick = () => { modWybSet(id, !on); otwDla(id); close(); render(); };
+  $('stTr').onclick = () => { lsSet(PRZK, on && lsGet(PRZK, '0') === '1' ? '0' : '1'); modWybSet(id, true); otwDla(id); close(); render(); };
 }
 function modNota(M, k) {   // adnotacja dla karty krótszej niż model (karta 0: 26 / 25 wierszy) — model jej nie liczy
   const P = partsOf(k); if (P.every(R => R >= M.mx)) return '';
@@ -489,9 +495,9 @@ function render() {
   // modele liczone zawsze (lista pokazuje CZEKAJ / GRAJ); oznaczenia na kartach tylko wybranego modelu przy rozwiniętej liście
   const ML = modeleWsz(), mkey = `${n}:${c[n - 1]}:${lsGet(MOJEK, '[]')}`;
   if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(c, S.book[t], M)); S.modKey = mkey; }
-  S.mods = modOtw() ? modWyb().map(id => S.modAll[id]).filter(Boolean) : [];
+  S.mods = modWyb().map(id => S.modAll[id]).filter(M => M && listaOtw(M.lista === 'lost' ? 'lost' : ''));
   S.modMk = modMkWsz(S.mods, lsGet(PRZK, '0') === '1');
-  $('mod').innerHTML = modLista();
+  $('mod').innerHTML = modLista('') + modLista('lost');
   $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(lsGet(PRZK, '0') === '1')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
   S.zakNr = new Set(zakGet().filter(z => S.mods.some(M => M.id === z.mid)).map(z => z.nr));
   const zp = zakGet().filter(z => zakRes(z) === 'pend').length; $('zbad').textContent = zp ? zp : '';
@@ -529,7 +535,7 @@ $('tB').addEventListener('click', e => {
   if (d) { const z = A[+d.dataset.zdel]; if (z && confirm(`Usunąć zakład ${z.nazwa} (Nr ${fmt(z.nr)}, k${z.krok}, ${z.zl} zł)?`)) { A.splice(+d.dataset.zdel, 1); lsSet(ZAKK, JSON.stringify(A)); render(); } return; }
   const r = e.target.closest('.zb[data-zi]'); if (!r) return;
   const z = A[+r.dataset.zi], p = z && S.book[S.t].pos[z.nr]; if (!p) return;
-  if (modeleWsz().some(M => M.id === z.mid)) { modWybSet(z.mid, true); lsSet(OTWK, '1'); }
+  if (modeleWsz().some(M => M.id === z.mid)) { modWybSet(z.mid, true); otwDla(z.mid); }
   S.tab = 'z'; if (p.k !== S.card[S.t]) { szelest(); go(p.k); } else render();
 });
 // lista modeli nad kartą: zwiń / rozwiń, wybór modelu, statystyki, Prześledź, dodawanie i usuwanie własnych modeli
@@ -538,7 +544,7 @@ $('mod').addEventListener('click', e => {
   const a = b.dataset.act, id = b.dataset.id, t = S.t;
   if (a === 'szuk') return;   // link do SZUKAJ W ZESZYCIE — bez zmiany wyboru modelu
   if (a === 'sel' && S.lpSkip) { S.lpSkip = false; return; }   // puszczenie palca po przytrzymaniu — nie przełączamy modelu
-  if (a === 'tog') lsSet(OTWK, modOtw() ? '0' : '1');
+  if (a === 'tog') { const l = b.dataset.l; lsSet(l ? OTWLK : OTWK, listaOtw(l) ? '0' : '1'); }
   else if (a === 'sel') { const on = !modWyb().includes(id); modWybSet(id, on); if (!on && S.panel === id) S.panel = ''; }   // dotknięcie: tylko pokaż / ukryj na kartach
   else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; if (id.startsWith('u')) lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); else lsSet(UKRK, [...lsGet(UKRK, '').split(',').filter(Boolean), id].join(',')); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
   else if (a === 'stat') return modSheet(id);
@@ -706,7 +712,7 @@ window.addEventListener('focus', refresh);
   $('ver').textContent = APP_VER;
   $('info').textContent = 'Wczytuję kody…';
   { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
-    if (m) { modWybSet(m, true); lsSet(OTWK, '1'); history.replaceState(null, '', location.pathname); } }
+    if (m) { modWybSet(m, true); otwDla(m); history.replaceState(null, '', location.pathname); } }
   await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
   render();
 })();
