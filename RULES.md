@@ -307,3 +307,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Prośba użytkownika (jak w MOJE): „Ostatnie gry” = same kolorowe kwadraciki bez opisu — **zielony WIN, czerwony LOST** (gra dłuższa niż limit),
   od najstarszej do najnowszej (do 20), najnowsza z obwódką i ▲ pod spodem. Dotknięcie — karta tej gry (opis w podpowiedzi przy przytrzymaniu myszką).
   Wcześniej wszystkie gry miały napis „WIN”, nawet przegrane. ZESZYT T50 i T60.
+- 1.11.4: kwadraciki „Ostatnie gry” także w statystykach **SZUKAJ W ZESZYCIE** (T50 i T60; w T60 zamiast listy „Gra po grze”).

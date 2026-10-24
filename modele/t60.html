@@ -83,6 +83,11 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .stt td{padding:3px 4px;text-align:right;border-top:1px solid var(--bd)}.stt td:first-child,.stt th:first-child{text-align:left}
 .stt td.bar{width:38%;text-align:left}.stt td.bar i{display:block;height:10px;border-radius:3px;background:var(--gr)}
 .stt .ost{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.stt .ost span{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:5px 8px;font-size:12px}.stt .ost b{color:var(--gr2)}
+/* ostatnie gry jak w MOJE: same kwadraciki — zielony WIN, czerwony LOST; najnowsza z obwódką i ▲ */
+.stt .ost.kw{gap:4px;margin-bottom:18px}.stt .ost.kw i{width:22px;height:22px;border-radius:4px;position:relative;display:block}
+.stt .ost.kw i.w{background:#2ea85a}.stt .ost.kw i.l{background:#e0483e}
+.stt .ost.kw i.now{box-shadow:0 0 0 2px var(--pan),0 0 0 4px var(--tx)}.stt .ost.kw i.now::after{content:'▲';position:absolute;left:50%;top:26px;transform:translateX(-50%);font-size:10px;color:var(--tx);font-style:normal}
+
 .stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}
 .stt .bb{display:flex;gap:8px;position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}
 .stt .bb>span{flex:2;display:flex}.stt .bb button,.stt .bb a{flex:1;text-align:center;text-decoration:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:11px;font-size:15px;font-weight:800}
@@ -170,7 +175,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.11.0';
+const APP_VER = '1.11.4';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -459,7 +464,7 @@ function statystyki(M, lost) {
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>Ile ${jn} trwała gra</h4><div class="s">${Object.keys(dl).sort((a, b) => a - b).map(k => `${k} — <b>${dl[k]}</b>`).join(' · ')}</div>
     <h4>Najdłuższe gry</h4><div class="ost">${[...Z.G].sort((a, b) => b.s - a.s).slice(0, 6).map(g => `<span>${M.jedn === 't' ? 'str./terc.' : 'strony'} ${gTx(g)} · ${g.s > L ? `<b class="lo">BUST k${g.s}</b>` : `<b>k${g.s}</b>`}</span>`).join('')}</div>
-    <h4>Gra po grze (ostatnie 30)</h4><div class="ost">${Z.G.slice(-30).reverse().map(g => `<span>${gTx(g)} w.${g.r} · ${g.s > L ? `<b class="lo">BUST k${g.s}</b>` : `<b>WIN ${g.s}</b>`}</span>`).join('')}</div>
+    <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${Z.G.slice(-20).map((g, i, A) => `<i class="${g.s > L ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > L ? 'LOST' : 'WIN'} — krok ${g.s}, strona ${gTx(g)} w.${g.r}"></i>`).join('')}</div>
     <div class="bb"><span id="stPp">${przycisk()}</span><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
