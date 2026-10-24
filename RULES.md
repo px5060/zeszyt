@@ -271,3 +271,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## T60: warunek startu bez „wszystkie” (od 1.10.5)
 - Prośba użytkownika: przy warunku startu usunięte „wszystkie” — jeden wybór: **bez warunku** (domyślnie) albo **na pustej był inny gol**.
   Zapisane „wszystkie” zamienia się na „bez warunku”. Przy wierszach modelu „wszystkie” zostaje.
+
+## T60: uproszczona wyszukiwarka jak T50 (od 1.10.6)
+- Prośba użytkownika: za dużo możliwości, nie da się znaleźć modelu. Teraz jak SZUKAJ T50: **gramy na** (kilka naraz, każdy cel szukany
+  osobno) 1xx·2xx·3xx (gol 40–50') / x1x / xx1; **start** po 1 / po 2 pustych stronach; **stan** (wszystkie, GRAJ teraz, CZEKAJ na grę,
+  od 1. kroku); **krok gry**; gra do kroku, gier ≥ (domyślnie 50), BUST ≤ (domyślnie 2); sortowanie.
+- Na stałe: strona 30 (3 × 10), modele z 2 i 3 wierszy (dowolne), bez warunku startu; sprawdzenie 65/35 tylko w statystykach modelu.
+  Nowy klucz filtrów `zeszyt_v1_szukaj60b` (stare ustawienia nie przeszkadzają). Domyślnie: 3 141 modeli, GRAJ teraz 28.
