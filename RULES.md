@@ -311,3 +311,9 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - 1.11.5: w każdym kwadraciku „Ostatnie gry” **numer kroku** — przy WIN krok wygranej, przy LOST ile kroków trwała gra (ZESZYT i SZUKAJ, T50 i T60).
 - 1.11.6: ↩ cofnięcie kodu (ZESZYT T50 i T60) usuwa **tylko kod** — wpisana nazwa meczu zostaje przy wierszu (prośba użytkownika).
 - 1.11.7: 🗑 usuwa każdy własny model (z SZUKAJ: T50 id „u…”, T60 id „v…”) — wcześniej modele T60 nie znikały, bo kosz sprawdzał tylko „u…”.
+
+## Statystyki w ZESZYCIE: co było po wyniku i po LOST (od 1.11.8)
+- Prośba użytkownika (jak w MOJE), **tylko w ZESZYCIE** (T50 i T60; nie w SZUKAJ): w statystykach modelu **dotknięcie kwadracika** (np. WIN 3)
+  pokazuje, co było w całej historii modelu **w następnej grze po takim wyniku** — rozkład od najczęstszego (WIN 1 × 12, WIN 2 × 8, L × 1 …)
+  i ostatnie po kolei; pod spodem „Idź do karty tej gry ▶” (wcześniej dotknięcie od razu przenosiło na kartę).
+- Sekcja **„Po LOST — następna gra”** (gdy model miał LOST): jakie WIN-y (albo LOST) były w grze zaraz po każdym LOST.

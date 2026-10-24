@@ -171,6 +171,14 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .r .m b.d3{display:inline-block;font:inherit;background:linear-gradient(90deg,#d42a20 50%,#111 50%);-webkit-background-clip:text;background-clip:text;color:transparent}   /* 3xx — czerwono-czarny */
 .tabl{display:flex;gap:6px;margin:0 0 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid #b8902e}
 .tabl a{color:var(--tx);background:var(--card)}.tabl b{background:#b8902e;color:#fff}
+
+/* co było po wyniku (dotknięcie kwadracika) i po LOST */
+.stt .po{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font-size:13px;margin:0 0 10px;line-height:1.5}
+.stt .po .roz{display:flex;flex-wrap:wrap;gap:6px 12px;margin:6px 0}.stt .po .roz span{display:inline-flex;align-items:center;gap:4px;font-weight:800}
+.stt .po i,.stt .po .sqs i{display:inline-block;min-width:22px;height:22px;padding:0 3px;border-radius:4px;color:#fff;font:800 12px/22px system-ui,sans-serif;font-style:normal;text-align:center}
+.stt .po i.w{background:#2ea85a}.stt .po i.l{background:#e0483e}.stt .po .sqs{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.stt .po .s3{color:var(--mu);font-size:12px}
+.stt .po .ida{margin-top:8px;background:var(--pan);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
+.stt .ost.kw .sel{outline:3px solid #f2c230;outline-offset:1px}
 </style>
 </head>
 <body>
@@ -229,7 +237,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.11.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.7';
+const APP_VER = '1.11.8';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -411,6 +419,20 @@ function modLista(l) {   // lista „Modele” / „Modele LOST” nad kartą: z
   }
   return h + '</div>';
 }
+
+// ===== CO BYŁO PO TAKIM WYNIKU (od 1.11.8, jak w MOJE): wynik gry = WIN n albo LOST (dłuższa niż limit) — następna gra modelu w całej historii
+const wynK = (g, L) => g.s > L ? 'L' : g.s, wynTx = v => v === 'L' ? 'LOST' : `WIN ${v}`;
+const kwI = (g, L) => `<i class="${g.s > L ? 'l' : 'w'}">${g.s}</i>`;
+function poHtml(G, L, v) {   // rozkład następnych gier (od najczęstszej) + ostatnie po kolei
+  const nx = [], ile = G.filter(g => wynK(g, L) === v).length, cnt = {};
+  G.forEach((g, i) => { if (wynK(g, L) === v && G[i + 1]) nx.push(G[i + 1]); });
+  if (!nx.length) return `<b>Po ${wynTx(v)}</b>: to była ostatnia gra — następnej jeszcze nie było.`;
+  nx.forEach(g => { const k = wynK(g, L); cnt[k] = (cnt[k] || 0) + 1; });
+  const roz = Object.entries(cnt).sort((a, b) => b[1] - a[1] || (a[0] === 'L') - (b[0] === 'L') || a[0] - b[0]);
+  return `<b>Po ${wynTx(v)}</b> (${ile}× w historii${ile > nx.length ? ', ostatni jeszcze bez następnej' : ''}) następna gra — najczęściej:`
+    + `<div class="roz">${roz.map(([k, c]) => `<span><i class="${k === 'L' ? 'l' : 'w'}">${k === 'L' ? 'L' : k}</i>× ${c}</span>`).join('')}</div>`
+    + `<div class="s3">kolejno (ostatnie, od najstarszej):</div><div class="sqs">${nx.slice(-15).map(g => kwI(g, L)).join('')}</div>`;
+}
 function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   const t = S.t, M = S.modAll[id]; if (!M) return;
   const N = modNum(M), T = M.teraz, on = modWyb().includes(id) && listaOtw(M.lista === 'lost' ? 'lost' : ''), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
@@ -427,11 +449,19 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
       <div><b>${N.max}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(N.dd)}</b>największy spadek (zł)</div></div>
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>WIN na której stronie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. strona — <b>${N.pol[x]}</b>`).join(' · ')}</div>
-    <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<button data-k="${g.k}" class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, ${g.k}${pn(g)} w.${g.r}">${g.s}</button>`).join('')}</div>
+    <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<button data-k="${g.k}" data-i="${N.G.length - A.length + i}" class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, ${g.k}${pn(g)} w.${g.r}">${g.s}</button>`).join('')}</div>
+    <div class="po" id="poW">Dotknij kwadracika — zobaczysz, co było w historii po takim wyniku.</div>
+    ${N.bust ? `<h4>Po LOST — następna gra</h4><div class="po">${poHtml(N.G, M.limit, 'L')}</div>` : ''}
     <div class="bb"><button id="stOn">${on ? 'Ukryj z kart' : 'Pokaż na kartach'}</button><button id="stTr" class="pri">${on && lsGet(PRZK, '0') === '1' ? '🔍 Prześledź: wyłącz' : '🔍 Prześledź'}</button><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
-  ov.onclick = e => { if (e.target === ov) close(); const b = e.target.closest('.ost button'); if (b) { close(); modWybSet(id, true); otwDla(id); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } } };
+  ov.onclick = e => {
+    if (e.target === ov) close();
+    const q = e.target.closest('.ost.kw button');   // dotknięcie kwadracika: co było po takim wyniku (+ przejście do karty tej gry)
+    if (q) { ov.querySelectorAll('.ost.kw .sel').forEach(x => x.classList.remove('sel')); q.classList.add('sel'); const g = N.G[+q.dataset.i];
+      $('poW').innerHTML = poHtml(N.G, M.limit, wynK(g, M.limit)) + `<br><button class="ida" data-k="${g.k}">Idź do karty tej gry ▶</button>`; return; }
+    const b = e.target.closest('.ida'); if (b) { close(); modWybSet(id, true); otwDla(id); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } }
+  };
   $('stX').onclick = close;
   $('stOn').onclick = () => { modWybSet(id, !on); otwDla(id); close(); render(); };
   $('stTr').onclick = () => { lsSet(PRZK, on && lsGet(PRZK, '0') === '1' ? '0' : '1'); modWybSet(id, true); otwDla(id); close(); render(); };
