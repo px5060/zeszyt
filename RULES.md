@@ -259,3 +259,6 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 
 ## T60: bez strony 27 (od 1.10.3)
 - Prośba użytkownika: jednostka gry tylko **strona 30** i **tercja 10** (3 × 10 na stronie); opcja „strona 27” usunięta (zapisany filtr `s27` → strona 30).
+
+## T60: mniej pól (od 1.10.4)
+- Prośba użytkownika: usunięte pola „Najdłużej najwyżej”, „Bilans co najmniej” i „Musi mieć wiersz” — zostają: gra do kroku, gier co najmniej, BUST najwyżej.
