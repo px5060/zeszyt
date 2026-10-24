@@ -87,6 +87,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .stt .bb{display:flex;gap:8px;position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}
 .stt .bb>span{flex:2;display:flex}.stt .bb button,.stt .bb a{flex:1;text-align:center;text-decoration:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:11px;font-size:15px;font-weight:800}
 .stt .bb .pri{background:var(--gr);border-color:var(--gr);color:#fff}.stt .bb .pri.jest{background:transparent;color:var(--gr2)}
+/* przełącznik T50 / T60 */
+.tabl{display:flex;gap:6px;margin:0 2px 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid var(--gr)}
+.tabl a{color:var(--tx);background:var(--card)}.tabl b{background:var(--gr);color:#fff}
 </style>
 </head>
 <body>
@@ -97,7 +100,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
     ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
     ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ W Z', '#1f8a4c']];
-  const el = document.getElementById('appbar'), here = location.pathname.replace(/index\.html$/, '');
+  const el = document.getElementById('appbar'), here = location.pathname.replace(/(index|t60)\.html$/, '');
   if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
   if (el) {   // dzień / noc — wspólny wybór z ZESZYTEM (zeszyt_v1_theme)
     const tb = document.createElement('button'), root = document.documentElement, upd = () => { tb.textContent = root.dataset.theme === 'day' ? '🌙' : '☀️'; tb.title = root.dataset.theme === 'day' ? 'tryb nocny' : 'tryb dzienny'; };
@@ -116,6 +119,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <main>
   <div class="ttl">SZUKAJ W ZESZYCIE <small>TRÓJKA T50 · gra 3 kroków na połowę</small></div>
+  <div class="tabl"><b>T50</b><a href="t60.html">T60</a></div>
   <div id="msg"></div>
   <div class="info" id="info">Wczytuję kody…</div>
   <div class="tabs" id="tabs"><button data-t="s" class="on">🔎 Szukaj</button><button data-t="l">🔻 LOST</button><button data-t="k">＋ Dopisz kod</button></div>
@@ -164,7 +168,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.9';
+const APP_VER = '1.10.0';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';

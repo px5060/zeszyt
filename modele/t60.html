@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pl" data-themable>
+<script>try { const v = localStorage.getItem('zeszyt_v1_theme') || localStorage.getItem('px_theme'); if (v === 'day') document.documentElement.dataset.theme = 'day'; } catch (e) {}</script>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1f2a">
+<title>SZUKAJ W ZESZYCIE T60</title>
+<link rel="manifest" href="modele.webmanifest">
+<link rel="icon" href="../zeszyt-192.png">
+<link rel="apple-touch-icon" href="../zeszyt-192.png">
+<meta name="apple-mobile-web-app-title" content="SZUKAJ W Z">
+<style>
+:root{--bg:#12151c;--pan:#1b1f2a;--card:#242a38;--bd:#323a4d;--tx:#e8ebf2;--mu:#8b93a7;--gr:#1f8a4c;--gr2:#2ea85a;--ye:#f2c230;--red:#e0483e}
+:root[data-theme=day]{--bg:#eef1f6;--pan:#ffffff;--card:#e3e7ef;--bd:#c3cad8;--tx:#161a22;--mu:#566074;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:0;z-index:10;background:var(--pan);border-bottom:1px solid var(--bd);padding:8px 12px}
+header .t{display:flex;justify-content:space-between;align-items:center;gap:8px;position:relative;padding-bottom:6px}
+header .n{color:var(--mu);font-size:10px;position:absolute;right:6px;bottom:1px}
+#appbar{display:flex;gap:2px;flex-wrap:wrap;padding:3px 0;min-width:0;flex:1}#appbar a,#appbar b{flex:none;font:700 10.5px/1 system-ui,sans-serif;border-radius:6px;padding:5px 3px;text-decoration:none;color:#e8ebf2;border:1.5px solid;background:transparent}#appbar b{color:#fff;border-color:transparent}#appbar a{transition:transform .15s}#appbar a.big{transform:scale(1.45);background:#2b3245;position:relative;z-index:5;box-shadow:0 0 0 2px #fff6}
+#appbar .thm{flex:none;border:1.5px solid #888;border-radius:6px;background:transparent;padding:2px 4px;font-size:13px;line-height:1;cursor:pointer}
+[data-theme=day] #appbar a{color:#161a22}[data-theme=day] #appbar a.big{background:#fff}
+main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
+.ttl{font-size:18px;font-weight:800;margin:0 2px 6px}.ttl small{font-size:13px;color:var(--mu);font-weight:700}
+.info{color:var(--mu);font-size:12px;margin:0 2px 8px}.info b{color:var(--tx)}
+.err{background:#5a1f1f;border:1px solid #a8423a;color:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+/* filtry */
+.flt{background:var(--pan);border:1px solid var(--gr);border-radius:10px;padding:10px;margin-bottom:10px}
+.fr{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px}.fr>span{width:100%;color:var(--mu);font-size:12px;font-weight:700}
+.ch{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:16px;padding:6px 11px;font-size:13px;font-weight:700}
+.ch.on{background:var(--gr);border-color:var(--gr);color:#fff}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.nums label{display:flex;flex-direction:column;gap:3px;color:var(--mu);font-size:12px;font-weight:700}
+.nums input,.nums select,.srt select{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:8px;font-size:16px;font-weight:800;width:100%}
+[data-theme=day] .nums input,[data-theme=day] .nums select,[data-theme=day] .srt select{background:#fff}
+.srt{display:flex;align-items:center;gap:8px;color:var(--mu);font-size:12px;font-weight:700}.srt select{flex:1;font-size:14px;font-weight:700}
+.go{display:block;width:100%;margin-top:10px;background:var(--gr);border:0;color:#fff;border-radius:10px;padding:11px;font-size:16px;font-weight:900}
+.go:disabled{opacity:.6}
+/* wyniki */
+.wyn{color:var(--mu);font-size:12.5px;margin:2px 2px 8px}.wyn b{color:var(--tx)}
+.md{background:var(--pan);border:1px solid var(--bd);border-radius:10px;padding:9px 10px;margin-bottom:7px}
+.md.gra{border-color:var(--ye);box-shadow:inset 4px 0 0 var(--ye)}
+.md .l1{display:flex;align-items:center;gap:8px}.md .l1 b{font-size:16.5px}.md .l1 small{color:var(--mu);font-size:11.5px}
+.md .l1 .stan{margin-left:auto;flex:none}
+.md .l2{margin-top:4px;color:var(--mu);font-size:12.5px}.md .l2 b{color:var(--tx)}.md .l2 b.z{color:var(--gr2)}.md .l2 b.r{color:var(--red)}
+.stan{display:inline-block;padding:1px 7px;border-radius:5px;font-weight:900;font-size:12px;color:#1b1f2a;background:var(--ye)}
+.stan.gra{background:#2ee66b;animation:sqB .5s steps(1) infinite}.stan.po{background:var(--red);color:#fff}.stan.cz{background:#c97a45;color:#fff}.stan.od1{background:#8e4fc9;color:#fff}
+.md.cz{border-color:#c97a45}.md.od1{border-color:#8e4fc9}.md .l2.gr{color:var(--tx)}.md .l2 b.za{color:#2ee66b}
+@keyframes sqB{50%{background:var(--ye)}}
+.wiecej{display:block;width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14px;font-weight:800}
+.hint{color:var(--mu);font-size:11.5px;margin-top:10px;text-align:center}
+/* zakładki i dopisywanie kodu (− = 0, + = 1) */
+.tabs{display:flex;gap:6px;margin-bottom:10px}.tabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:10px;font-size:14.5px;font-weight:800}
+.tabs button.on{background:var(--gr);border-color:var(--gr);color:#fff}
+.kd{background:var(--pan);border:1px solid var(--gr);border-radius:10px;padding:12px;margin-bottom:10px}
+.kd h3{margin:0 0 3px;font-size:16px}.kd .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}
+.kod{display:flex;gap:10px;align-items:center;margin:2px 0 12px}
+.kod button{width:68px;height:68px;font:900 38px/1 system-ui,sans-serif;background:var(--card);border:2px solid var(--bd);color:var(--tx);border-radius:12px}
+.kod button.on{background:var(--gr);border-color:var(--gr);color:#fff}.kod b{margin-left:auto;font-size:26px;letter-spacing:4px}
+.kd input{width:100%;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:10px;font-size:17px;text-transform:uppercase}
+[data-theme=day] .kd input{background:#fff}
+.kd .zap{display:block;width:100%;margin-top:10px;background:var(--gr);border:0;color:#fff;border-radius:10px;padding:12px;font-size:16px;font-weight:900}
+.kd .s2{color:var(--mu);font-size:12px;margin-top:8px}.kd .ok{margin-top:8px;color:var(--gr2);font-weight:800}
+.undo{display:flex;align-items:center;gap:8px;background:var(--pan);border:1px solid var(--bd);border-radius:9px;padding:6px 10px;margin-bottom:10px;font-size:13px}
+.undo b{letter-spacing:2px}.undo button{margin-left:auto;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
+.ost2{background:var(--pan);border:1px solid var(--bd);border-radius:10px;padding:8px 10px}.ost2 h4{margin:0 0 6px;font-size:13px;color:var(--mu)}
+.ost2 div{display:flex;gap:10px;padding:3px 0;border-top:1px solid var(--bd);font-size:13.5px}.ost2 div:first-of-type{border-top:0}
+.ost2 .zn{font-weight:900;letter-spacing:3px}.ost2 small{color:var(--mu);margin-left:auto}
+.md{cursor:pointer}.md .jz{color:var(--gr2);font-weight:800}
+.md.lo{border-color:#8e2a2a}.md.lo.gra{border-color:var(--ye)}.stt .lo,.md .lo,.stt .ost b.lo{color:var(--red)}
+.ls{color:var(--mu);font-size:12.5px;margin-bottom:10px;line-height:1.6}.ls b{color:var(--tx)}.ls .ch{padding:3px 9px;font-size:12px;margin-left:4px}
+/* okno statystyk modelu */
+.ov{position:fixed;inset:0;background:#000a;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--pan);border:1px solid var(--bd);border-radius:14px 14px 0 0;width:min(100%,560px);padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+.sheet h3{margin:0 0 4px;font-size:16px}.sheet .s{color:var(--mu);font-size:12.5px;margin-bottom:10px}.sheet .s b{color:var(--tx)}
+.sheet.stt{max-height:88vh;overflow:auto}
+.stt .nw{border-radius:9px;padding:8px 10px;margin:6px 0 10px;font-size:13.5px;background:var(--card);border:1px solid var(--bd)}
+.stt .nw.gra{border-color:#2ee66b;box-shadow:0 0 0 1px #2ee66b inset}.stt .nw b.big{font-size:16px}
+.stt .nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.stt .nums div{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:6px;text-align:center;font-size:11.5px;color:var(--mu)}.stt .nums b{display:block;font-size:18px;color:var(--tx)}
+.stt table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}.stt th{color:var(--mu);font-weight:600;font-size:11.5px;text-align:right;padding:3px 4px}
+.stt td{padding:3px 4px;text-align:right;border-top:1px solid var(--bd)}.stt td:first-child,.stt th:first-child{text-align:left}
+.stt td.bar{width:38%;text-align:left}.stt td.bar i{display:block;height:10px;border-radius:3px;background:var(--gr)}
+.stt .ost{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.stt .ost span{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:5px 8px;font-size:12px}.stt .ost b{color:var(--gr2)}
+.stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}
+.stt .bb{display:flex;gap:8px;position:sticky;bottom:calc(-14px - env(safe-area-inset-bottom));margin:10px -14px calc(-14px - env(safe-area-inset-bottom));padding:8px 14px calc(14px + env(safe-area-inset-bottom));background:var(--pan);border-top:1px solid var(--bd)}
+.stt .bb>span{flex:2;display:flex}.stt .bb button,.stt .bb a{flex:1;text-align:center;text-decoration:none;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:11px;font-size:15px;font-weight:800}
+.stt .bb .pri{background:var(--gr);border-color:var(--gr);color:#fff}.stt .bb .pri.jest{background:transparent;color:var(--gr2)}
+
+/* przełącznik T50 / T60 */
+.tabl{display:flex;gap:6px;margin:0 2px 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid var(--gr)}
+.tabl a{color:var(--tx);background:var(--card)}.tabl b{background:var(--gr);color:#fff}
+.fr .row{display:flex;flex-wrap:wrap;gap:6px;width:auto!important;color:inherit}.fr .row .ch{min-width:38px}
+.fr .pp{display:flex;align-items:center;gap:6px;color:var(--mu);font-size:12px;font-weight:700}.fr .pp select{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:6px;font-size:14px;font-weight:800}
+.nums input::placeholder{color:var(--mu);font-weight:600;font-size:13px}
+</style>
+</head>
+<body>
+<header><div class="t"><div id="appbar"></div><span class="n" id="ver"></span></div></header>
+<script>
+(function () {   // pasek aplikacji — jak w MOJE i ZESZYCIE (ten sam adres px5060.github.io, wspólne kody)
+  const A = [['/moje/', 'MOJE', '#c97a45'], ['/t50razem/', 'R50', '#2e7d4f'], ['/all60/', 'R60', '#2e7d4f'], ['/szukaj50/', 'S50', '#2e75b6'], ['/szukaj60/', 'S60', '#2e75b6'],
+    ['/szukaj50plus/', 'S+50', '#7a3fb0'], ['/szukaj60plus/', 'S+60', '#7a3fb0'], ['/szukajbust50/', 'L50', '#8e2a2a'], ['/szukajbust60/', 'L60', '#8e2a2a'],
+    ['intent://www.sofascore.com/#Intent;scheme=https;package=com.sofascore.results;S.browser_fallback_url=https%3A%2F%2Fwww.sofascore.com%2F;end', 'SOFA', '#5b6bd6'],   // aplikacja SofaScore (Android; bez niej strona www)
+    ['/zeszyt/', '📓 ZESZYT', '#b8902e'], ['/zeszyt/modele/', '🔎 SZUKAJ W Z', '#1f8a4c']];
+  const el = document.getElementById('appbar'), here = location.pathname.replace(/(index|t60)\.html$/, '');
+  if (el) el.innerHTML = [...A.filter(([u]) => here.endsWith(u)), ...A.filter(([u]) => !here.endsWith(u))].map(([u, l, c]) => here.endsWith(u) ? `<b style="background:${c}">${l}</b>` : `<a href="${u}" style="border-color:${c}">${l}</a>`).join('');
+  if (el) {   // dzień / noc — wspólny wybór z ZESZYTEM (zeszyt_v1_theme)
+    const tb = document.createElement('button'), root = document.documentElement, upd = () => { tb.textContent = root.dataset.theme === 'day' ? '🌙' : '☀️'; tb.title = root.dataset.theme === 'day' ? 'tryb nocny' : 'tryb dzienny'; };
+    tb.className = 'thm'; upd(); el.appendChild(tb);
+    tb.onclick = () => { const d = root.dataset.theme === 'day' ? 'night' : 'day'; if (d === 'day') root.dataset.theme = 'day'; else delete root.dataset.theme; try { localStorage.setItem('zeszyt_v1_theme', d); } catch (e) {} upd(); };
+  }
+  // 1. dotknięcie powiększa przycisk, 2. dotknięcie powiększonego otwiera aplikację
+  if (el) el.addEventListener('click', e => {
+    const a = e.target.closest('a'); if (!a) return;
+    if (a.classList.contains('big')) return;
+    e.preventDefault(); el.querySelectorAll('a.big').forEach(x => x.classList.remove('big')); a.classList.add('big');
+    clearTimeout(el._t); el._t = setTimeout(() => a.classList.remove('big'), 4000);
+  });
+})();
+</script>
+
+<main>
+  <div class="ttl">SZUKAJ W ZESZYCIE <small>TRÓJKA T60 · strona 27 wierszy (10 · 10 · 7)</small></div>
+  <div class="tabl"><a href="./">T50</a><b>T60</b></div>
+  <div id="msg"></div>
+  <div class="info" id="info">Wczytuję kody…</div>
+  <div class="tabs" id="tabs"><button data-t="s" class="on">🔎 Szukaj</button><button data-t="l">🔻 LOST</button><button data-t="k">＋ Dopisz kod</button></div>
+  <div id="tabL" hidden>
+    <div class="flt" id="fltL">
+      <div class="ls" id="lsOpis"></div>
+      <div class="nums">
+        <label>LOST co najmniej<input id="lM" type="number" inputmode="numeric" min="1"></label>
+        <label>LOST najwyżej<input id="lB" type="number" inputmode="numeric" min="0"></label>
+        <label>LOST po LOST najwyżej<input id="lR" type="number" inputmode="numeric" min="0"></label>
+      </div>
+      <div class="fr"><span>Stan po LOST</span><button class="ch" data-g="lstan" data-v="all">wszystkie</button><button class="ch" data-g="lstan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="lstan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="lstan" data-v="od1">od 1. kroku</button></div>
+      <button class="go" id="goL">🔻 Szukaj modeli po LOST</button>
+    </div>
+    <div class="wyn" id="wynL"></div>
+    <div id="listaL"></div>
+  </div>
+  <div id="tabK" hidden>
+    <div class="kd" id="kd"></div>
+    <div id="undo"></div>
+    <div class="ost2" id="ost2"></div>
+  </div>
+  <div id="tabS">
+  <div class="flt" id="flt">
+    <div class="fr"><span>Gramy na (kilka naraz) — 1. cyfra: 1 = gol 40–45', 2 = 46–50', 3 = oba; x1x = 50–60'; xx1 = 60–70'</span>
+      <button class="ch" data-g="cel" data-v="1">1xx</button><button class="ch" data-g="cel" data-v="2">2xx</button><button class="ch" data-g="cel" data-v="3">3xx</button><button class="ch" data-g="cel" data-v="x1x">x1x</button><button class="ch" data-g="cel" data-v="xx1">xx1</button></div>
+    <div class="fr"><span>Jednostka gry</span><button class="ch" data-g="jedn" data-v="s">strona 27 wierszy</button><button class="ch" data-g="jedn" data-v="t">tercja 10 / 10 / 7</button></div>
+    <div class="fr"><span>Wierszy modelu na stronie / tercji (kilka naraz)</span><span class="row" id="mFr"></span></div>
+    <div class="fr"><span>Wiersze modelu</span><button class="ch" data-g="ciag" data-v="0">dowolne</button><button class="ch" data-g="ciag" data-v="1">ciągły zakres</button></div>
+    <div class="fr"><span>Start gry (kilka naraz)</span><button class="ch" data-g="cz" data-v="0">od razu</button><button class="ch" data-g="cz" data-v="1">po 1 pustej</button><button class="ch" data-g="cz" data-v="2">po 2</button><button class="ch" data-g="cz" data-v="3">po 3</button><button class="ch" data-g="cz" data-v="4">po 4</button><button class="ch" data-g="cz" data-v="5">po 5</button></div>
+    <div class="fr"><span>Warunek startu</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="gol">na pustej był inny gol</button></div>
+    <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="stan" data-v="od1">od 1. kroku</button></div>
+    <div class="fr" id="krokFr"></div>
+    <div class="nums">
+      <label>Gra do kroku<select id="fL"></select></label>
+      <label>Gier co najmniej<input id="fG" type="number" inputmode="numeric" min="0"></label>
+      <label>BUST najwyżej<input id="fB" type="number" inputmode="numeric" min="0"></label>
+      <label>Najdłużej najwyżej<input id="fMX" type="number" inputmode="numeric" min="0" placeholder="bez"></label>
+      <label>Bilans co najmniej<input id="fBAL" type="number" inputmode="numeric" placeholder="bez"></label>
+      <label>Musi mieć wiersz<input id="fMU" type="number" inputmode="numeric" min="0" placeholder="dowolny"></label>
+    </div>
+    <div class="fr"><span>Sprawdzenie na nowszej części tabeli — starsza część / nowsza część</span>
+      <label class="pp">podział<select id="fSP"></select></label><button class="ch" data-g="spr" data-v="all">pokaż wszystkie</button><button class="ch" data-g="spr" data-v="0">tylko 0 BUST w obu częściach</button></div>
+    <div class="srt">Sortuj<select id="fS"><option value="b">najmniej BUST, potem najwięcej gier</option><option value="g">najwięcej gier</option><option value="k">najkrótsze gry (najdłużej)</option><option value="z">najwyższy bilans</option><option value="t">najpierw najbliższa gra</option></select></div>
+    <button class="go" id="goB">🔎 Szukaj</button>
+  </div>
+  <div class="wyn" id="wyn"></div>
+  <div id="lista"></div>
+  </div>
+  <div class="hint">T60: kod = 3 cyfry. 1. cyfra: 0 brak gola 40–50', 1 gol 40–45', 2 gol 46–50', 3 oba; 2. cyfra: gol 50–60'; 3. cyfra: gol 60–70'.
+    Strona = 27 wierszy (tercje 10 · 10 · 7) od Nr 1. Model = wybrane wiersze strony (albo tercji). Strona bez trafienia na wierszach modelu = pusta;
+    po pustej (1–5) gra na tych samych wierszach następnych stron, krok za krokiem do WIN. BUST = gra dłuższa niż „gra do kroku”. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+</main>
+
+<script>
+"use strict";
+const APP_VER = '1.10.0';
+// SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
+// Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
+const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
+const FK = 'zeszyt_v1_szukaj60', MOJEK = 'zeszyt_v1_modele60', LASTK = 'zeszyt_v1_ostatni60', NOTK = 'zeszyt_v1_notes_t60';
+const $ = id => document.getElementById(id);
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
+const KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
+const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
+const zysk = (s, L) => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
+const DOMYSL = { cel: ['1', '2', '3'], jedn: ['s'], m: ['2', '3'], ciag: ['0'], cz: ['1'], war: [''], stan: ['all'], krok: ['all'], spr: ['all'],
+  L: 9, G: 50, B: 0, MX: 0, BAL: '', MU: 0, SP: 65, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
+let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
+const W = { seed: '', seedErr: false, c: [], wynik: [], ile: 50, lost: null, ileL: 50 };
+
+// ===== KODY =====
+async function loadSeed() {   // baza kodów T60 z aplikacji MOJE (ten sam adres), kopia na brak internetu w pamięci podręcznej
+  const ok = s => s.length > 0 && s.length % 3 === 0;
+  try {
+    const r = await fetch(SEED, { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status);
+    const s = (await r.text()).replace(/\D/g, ''); if (!ok(s)) throw new Error('zły plik');
+    try { const c = await caches.open(SEED_CACHE); await c.put(SEED, new Response(s)); } catch (e) {}
+    return s;
+  } catch (e) {
+    try { const c = await caches.open(SEED_CACHE), r = await c.match(SEED); if (r) { const s = await r.text(); if (ok(s)) return s; } } catch (e2) {}
+    W.seedErr = true; return '';
+  }
+}
+function czytajKody() {   // → czy coś się zmieniło
+  const add = lsGet(ADDK, ''), s = W.seed + (/^(\d{3})*$/.test(add) ? add : ''), c = s.match(/\d{3}/g) || [];
+  if (W.c.length && c.length === W.c.length && c[c.length - 1] === W.c[W.c.length - 1]) return false;
+  W.c = c; W.P = {}; return true;
+}
+
+// ===== SILNIK T60 =====
+// jednostka: strona (27 wierszy, od Nr 1) albo tercja (10 / 10 / 7). Wiersz r jednostki u = kod Nr U[u].s + r.
+const TER = [10, 10, 7];
+function jednostki(jedn, n) {
+  const U = []; let s = 0, str = 1;
+  while (s <= n + 27) {
+    if (jedn === 't') TER.forEach((len, t) => { U.push({ s, len, str, t }); s += len; });
+    else { U.push({ s, len: 27, str, t: -1 }); s += 27; }
+    str++;
+  }
+  return U;
+}
+const trafia = (cd, cel) => (cd[0] !== '0' && cel.includes(cd[0])) || (cd[1] === '1' && cel.includes('x1x')) || (cd[2] === '1' && cel.includes('xx1'));
+const innyGol = (cd, cel) => (cd[0] !== '0' && !cel.includes(cd[0])) || (cd[1] === '1' && !cel.includes('x1x')) || (cd[2] === '1' && !cel.includes('xx1'));
+function przygotuj(cel, jedn) {   // każda jednostka: wiersz → 0 brak kodu, 1 bez trafienia, 2 bez trafienia z innym golem, 3 trafienie
+  const key = cel.join() + '|' + jedn; if (W.P[key]) return W.P[key];
+  const c = W.c, n = c.length, U = jednostki(jedn, n);
+  const A = U.map(u => { const a = new Uint8Array(u.len); for (let r = 0; r < u.len; r++) { const i = u.s + r; if (i < n) { const cd = c[i]; a[r] = trafia(cd, cel) ? 3 : innyGol(cd, cel) ? 2 : 1; } } return a; });
+  const pelne = U.filter(u => u.s + u.len <= n).length;
+  return W.P[key] = { U, A, pelne };
+}
+function graj(P, M, det) {   // → {s: długości gier, u0: jednostka startu każdej gry, teraz, bez, at: [jednostka, wiersz] następnego kroku, G (szczegóły)}
+  const w = M.w, mx = w[w.length - 1], cz = M.cz, A = P.A, s = [], u0 = [], G = det ? [] : null;
+  let gra = -1, graj = true, nobs = 0, bok = false, at = null, g0 = 0;
+  scan: for (let u = 0; u < A.length; u++) {
+    const a = A[u]; if (mx > a.length) continue;   // tercja 3 (7 wierszy) krótsza niż model
+    if (gra < 0 && !cz) { gra = 0; graj = true; g0 = u; }
+    let hit = 0, b = false;
+    for (const r of w) {
+      const v = a[r - 1]; if (!v) { at = [u, r]; break scan; }
+      if (gra >= 0) gra++;
+      if (v === 3) { hit = r; break; }
+      if (v === 2) b = true;
+    }
+    if (gra >= 0) {
+      if (hit) { if (graj) { s.push(gra); u0.push(g0); if (det) G.push({ s: gra, u0: g0, u1: u, r: hit }); } gra = -1; nobs = 0; }
+      continue;
+    }
+    if (hit) { nobs = 0; bok = false; continue; }
+    bok = bok || b;
+    if (++nobs === cz) { gra = 0; graj = !M.war || bok; bok = false; g0 = u + 1; nobs = 0; }
+  }
+  return { s, u0, G, teraz: gra >= 0 && graj ? gra + 1 : 0, bez: gra >= 0 && !graj, at };
+}
+function liczby(Z, M, P) {   // gry, BUST, najdłużej, bilans, WIN na kroku, sprawdzenie (starsza / nowsza część wg jednostki startu)
+  const L = M.limit, s = Z.s, cut = Math.floor(P.pelne * F.SP / 100);
+  let bust = 0, bal = 0, mx = 0; const krok = {}, cz = [{ g: 0, b: 0, mx: 0 }, { g: 0, b: 0, mx: 0 }];
+  s.forEach((x, i) => { if (x > L) bust++; else krok[x] = (krok[x] || 0) + 1; bal += zysk(x, L); if (x > mx) mx = x;
+    const k = cz[Z.u0[i] < cut ? 0 : 1]; k.g++; if (x > L) k.b++; if (x > k.mx) k.mx = x; });
+  return { g: s.length, bust, bal, mx, krok, spr: cz, cut };
+}
+// ===== MODEL: nazwa, opis, miejsce =====
+const celTx = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x));
+  return [d.length ? (d.length === 3 ? '1-3xx' : d.join('/') + 'xx') : '', cel.includes('x1x') ? 'x1x' : '', cel.includes('xx1') ? 'xx1' : ''].filter(Boolean).join('+'); };
+const celOpis = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x)), o = [];
+  if (d.length) o.push(d.length === 3 ? 'gol 40–50\' (1xx, 2xx, 3xx)' : d.map(x => ({ 1: '1xx (40–45\')', 2: '2xx (46–50\')', 3: '3xx' })[x]).join(', '));
+  if (cel.includes('x1x')) o.push('x1x (50–60\')'); if (cel.includes('xx1')) o.push('xx1 (60–70\')'); return o.join(' lub '); };
+const nazwa = M => `${celTx(M.cel)} ${M.w.join('·')}${M.jedn === 't' ? ' T' : ''}${M.cz === 1 ? '' : M.cz ? ` ×${M.cz}` : ' od razu'}${M.war ? ' +gol' : ''} k${M.limit}`;
+const dop = M => [M.jedn === 't' ? 'tercja' : 'strona', M.cz ? (M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`) : 'od razu', M.war ? 'gdy na pustej inny gol' : '', `do k${M.limit}`].filter(Boolean).join(' · ');
+const same = (a, b) => a.w.join() === b.w.join() && a.cel.join() === b.cel.join() && a.jedn === b.jedn && a.cz === b.cz && a.war === b.war && a.limit === b.limit;
+const wZeszycie = () => { try { const a = JSON.parse(lsGet(MOJEK, '[]')); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
+const odm = n => n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'wiersze' : 'wierszy';
+const zaIle = n => n === 1 ? 'następny wiersz' : `za ${n} ${odm(n)}`;
+const jTx = u => u.t < 0 ? `strona ${u.str}` : `strona ${u.str} tercja ${u.t + 1}`;
+function gdzie(Z, P) { if (!Z.at) return null; const u = P.U[Z.at[0]], r = Z.at[1], nr = u.s + r; return { za: nr - W.c.length, nr, u, r }; }
+const stanGry = (t, za, L) => !t || t > L || !za ? '' : za === 1 ? 'gra' : t === 1 ? 'od1' : 'czeka';
+const stanPasuje = (f, t, za, L) => f === 'all' || !!stanGry(t, za, L) && (f === 'gra' ? za === 1 : f === 'od1' ? t === 1 : f === 'czeka' && t > 1 && za > 1);
+const krokOk = (t, za, L) => F.krok[0] === 'all' || !!za && t >= 1 && t <= L && F.krok.includes(String(t));
+function stanZnak(x, L) {
+  const st = stanGry(x.teraz, x.za, L);
+  return st === 'gra' ? '<span class="stan gra">GRAJ teraz</span>' : st === 'od1' ? '<span class="stan od1">OD 1. KROKU</span>' : st === 'czeka' ? '<span class="stan cz">CZEKAJ na grę</span>'
+    : x.teraz > L ? `<span class="stan po">po BUST — krok ${x.teraz}</span>` : x.bez ? '<span class="stan">czeka (bez innego gola)</span>' : '<span class="stan">czeka na pustą</span>';
+}
+function stanLinia(x, L) {
+  if (!stanGry(x.teraz, x.za, L)) return '';
+  const g = x.gd, t = x.teraz;
+  return `<div class="l2 gr">Krok <b>${t}</b> (${fmt(STAWKI[t - 1])} zł)${t === 1 ? ' — <b>od 1. kroku</b> (po pustej)' : ''} · <b class="za">${zaIle(x.za)}</b> · Nr ${fmt(g.nr)}, ${jTx(g.u)} w.${g.r}</div>`;
+}
+const krokiTx = (krok, L) => Array.from({ length: L }, (_, i) => i + 1).filter(k => krok[k]).map(k => `k${k} <b>${krok[k]}</b>`).join(' · ');
+const sprTx = N => `starsza część: ${N.spr[0].g} gier, BUST <b class="${N.spr[0].b ? 'r' : 'z'}">${N.spr[0].b}</b>, najdł. ${N.spr[0].mx} · nowsza (${100 - F.SP}%): ${N.spr[1].g} gier, BUST <b class="${N.spr[1].b ? 'r' : 'z'}">${N.spr[1].b}</b>, najdł. ${N.spr[1].mx}`;
+
+// ===== filtry =====
+const pokazChipy = () => document.querySelectorAll('.ch[data-g]').forEach(b => b.classList.toggle('on', F[b.dataset.g].includes(b.dataset.v)));
+const maxR = () => F.jedn[0] === 't' ? 10 : 27;
+function krokChipy() {
+  F.krok = F.krok.filter(v => v === 'all' || +v <= F.L); if (!F.krok.length) F.krok = ['all'];
+  $('krokFr').innerHTML = '<span>Krok gry (model już w grze)</span><button class="ch" data-g="krok" data-v="all">każdy</button>'
+    + Array.from({ length: F.L }, (_, i) => `<button class="ch" data-g="krok" data-v="${i + 1}">k${i + 1}</button>`).join('');
+}
+function pokazFiltry() {
+  $('mFr').innerHTML = Array.from({ length: 9 }, (_, i) => `<button class="ch" data-g="m" data-v="${i + 1}">${i + 1}</button>`).join('');
+  krokChipy(); pokazChipy();
+  $('fL').innerHTML = Array.from({ length: 13 }, (_, i) => i + 3).map(x => `<option${x === F.L ? ' selected' : ''}>${x}</option>`).join('');
+  $('fSP').innerHTML = [0, 50, 60, 65, 70, 80].map(x => `<option value="${x}"${x === F.SP ? ' selected' : ''}>${x ? `${x} / ${100 - x}` : 'bez'}</option>`).join('');
+  $('fG').value = F.G; $('fB').value = F.B; $('fMX').value = F.MX || ''; $('fBAL').value = F.BAL; $('fMU').value = F.MU || ''; $('fS').value = F.S;
+  $('lM').value = F.lM; $('lB').value = F.lB; $('lR').value = F.lR;
+}
+const JEDEN = ['jedn', 'ciag', 'stan', 'lstan', 'spr'];   // jeden wybór
+const chipKlik = e => {
+  const b = e.target.closest('.ch[data-g]'); if (!b) return;
+  const g = b.dataset.g, v = b.dataset.v;
+  if (JEDEN.includes(g)) F[g] = [v];
+  else if (g === 'krok') F.krok = v === 'all' ? ['all'] : F.krok.includes(v) ? (F.krok.filter(x => x !== v).length ? F.krok.filter(x => x !== v) : ['all']) : [...F.krok.filter(x => x !== 'all'), v];
+  else if (F[g].includes(v)) { if (F[g].length > 1) F[g] = F[g].filter(x => x !== v); }   // co najmniej jeden zaznaczony
+  else F[g] = [...F[g], v];
+  pokazChipy();
+};
+$('flt').addEventListener('click', chipKlik); $('fltL').addEventListener('click', chipKlik);
+$('fL').addEventListener('change', () => { F.L = +$('fL').value; krokChipy(); pokazChipy(); });
+const czytajFiltry = () => {
+  F.L = +$('fL').value; F.G = Math.max(0, +$('fG').value || 0); F.B = Math.max(0, +$('fB').value || 0); F.MX = Math.max(0, +$('fMX').value || 0);
+  F.BAL = $('fBAL').value.trim(); F.MU = Math.max(0, +$('fMU').value || 0); F.SP = +$('fSP').value; F.S = $('fS').value; lsSet(FK, JSON.stringify(F));
+};
+
+// ===== szukanie: zestawy wierszy × start × warunek, w paczkach (żeby ekran nie stał) =====
+function* kandydaci(m, R, cz, war, P) {   // do 3 wierszy — wszystkie zestawy; więcej — ciągłe zakresy + najlepsze z m−1 rozbudowane o 1 wiersz
+  const ciag = F.ciag[0] === '1';
+  if (ciag) { for (let a = 1; a + m - 1 <= R; a++) yield Array.from({ length: m }, (_, i) => a + i); return; }
+  if (m <= 3) { const rek = function* (od, w) { if (w.length === m) { yield w; return; } for (let r = od; r <= R; r++) yield* rek(r + 1, [...w, r]); }; yield* rek(1, []); return; }
+  for (let a = 1; a + m - 1 <= R; a++) yield Array.from({ length: m }, (_, i) => a + i);
+  const prev = [...kandydaci(m - 1, R, cz, war, P)].map(w => { const M = { w, cz, war, limit: F.L }, Z = graj(P, M); const N = liczby(Z, M, P); return { w, k: N.bust * 1e4 + N.mx * 100 - Math.min(N.g, 99) }; })
+    .filter(x => x).sort((a, b) => a.k - b.k).slice(0, 40);
+  const byly = new Set();
+  for (const { w } of prev) for (let r = 1; r <= R; r++) if (!w.includes(r)) { const n = [...w, r].sort((a, b) => a - b), k = n.join(); if (!byly.has(k)) { byly.add(k); yield n; } }
+}
+function szukaj() {
+  czytajFiltry(); if (!W.c.length) return;
+  const L = F.L, cel = F.cel, jedn = F.jedn[0], P = przygotuj(cel, jedn), R = maxR(), defs = [];
+  for (const m of F.m.map(Number)) for (const cz of F.cz.map(Number)) for (const war of (cz ? F.war : [''])) defs.push({ m, cz, war });
+  const wyn = [], byly = new Set(); let di = 0, gen = null, ile = 0; $('goB').disabled = true;
+  const krok = () => {
+    const t0 = performance.now();
+    while (di < defs.length && performance.now() - t0 < 40) {
+      const d = defs[di]; if (!gen) gen = kandydaci(d.m, R, d.cz, d.war, P);
+      const nx = gen.next(); if (nx.done) { gen = null; di++; continue; }
+      const w = nx.value; if (F.MU && !w.includes(F.MU)) continue;
+      const M = { w, cel, jedn, cz: d.cz, war: d.war, limit: L }, key = nazwa(M); if (byly.has(key)) continue; byly.add(key); ile++;
+      const Z = graj(P, M), N = liczby(Z, M, P);
+      if (N.g < F.G || N.bust > F.B || (F.MX && N.mx > F.MX) || (F.BAL !== '' && N.bal < +F.BAL)) continue;
+      if (F.spr[0] === '0' && F.SP && (N.spr[0].b || N.spr[1].b || !N.spr[1].g)) continue;
+      const gd = Z.teraz ? gdzie(Z, P) : null, za = gd ? gd.za : 0;
+      if (!stanPasuje(F.stan[0], Z.teraz, za, L) || !krokOk(Z.teraz, za, L)) continue;
+      wyn.push({ M, ...N, teraz: Z.teraz, bez: Z.bez, za, gd });
+    }
+    $('wyn').innerHTML = `Szukam… <b>${Math.round(100 * di / defs.length)}%</b> (sprawdzono ${fmt(ile)}, znaleziono ${fmt(wyn.length)})`;
+    if (di < defs.length) return setTimeout(krok, 0);
+    const bliz = x => stanGry(x.teraz, x.za, L) ? x.za : 1e9;
+    const srt = { b: (x, y) => x.bust - y.bust || y.g - x.g || x.mx - y.mx, g: (x, y) => y.g - x.g || x.bust - y.bust, k: (x, y) => x.mx - y.mx || x.bust - y.bust || y.g - x.g,
+      z: (x, y) => y.bal - x.bal || x.bust - y.bust, t: (x, y) => bliz(x) - bliz(y) || x.bust - y.bust || y.g - x.g }[F.S];
+    W.wynik = wyn.sort(srt); W.ile = 50; W.przeszukano = ile; $('goB').disabled = false; pokazWyniki();
+  };
+  krok();
+}
+const stanSuma = (R, L) => { const c = { gra: 0, czeka: 0, od1: 0 }; R.forEach(x => { const st = stanGry(x.teraz, x.za, L); if (st) c[st]++; }); return `GRAJ teraz: <b>${c.gra}</b> · CZEKAJ na grę: <b>${c.czeka}</b> · od 1. kroku: <b>${c.od1}</b>.`; };
+function kafelek(x, attr, lo) {
+  const M = x.M, L = M.limit, st = stanGry(x.teraz, x.za, L), jest = wZeszycie().some(z => same(z, M));
+  return `<div class="md${lo ? ' lo' : ''}${st === 'gra' ? ' gra' : st ? ' ' + (st === 'od1' ? 'od1' : 'cz') : ''}" ${attr}><div class="l1"><b>${nazwa(M)}</b><small>${dop(M)}</small>${x.stan === 'lost' ? `<span class="stan po">LOST w toku · krok ${x.teraz}</span>` : stanZnak(x, L)}</div>${stanLinia(x, L)}
+    <div class="l2">Gier <b>${x.g}</b> · WIN <b>${x.g - x.bust}</b> · BUST <b class="${x.bust ? 'r' : 'z'}">${x.bust}</b> · najdłużej <b>${x.mx}</b> kroków · bilans <b class="${x.bal >= 0 ? 'z' : 'r'}">${zl(x.bal)}</b>${jest ? ' · <span class="jz">✓ w ZESZYCIE T60</span>' : ''}</div>
+    <div class="l2">WIN na kroku: ${krokiTx(x.krok, L) || '—'}</div>
+    ${lo ? `<div class="l2">LOST <b class="r">${x.bust}</b>${x.gapAvg ? ` · co ~<b>${x.gapAvg}</b> gier` : ''} · po LOST: WIN <b class="z">${x.winPo}</b> · LOST <b class="${x.rep ? 'r' : 'z'}">${x.rep}</b></div>` : ''}
+    ${F.SP ? `<div class="l2">Sprawdzenie — ${sprTx(x)}</div>` : ''}</div>`;
+}
+function pokazWyniki() {
+  const R = W.wynik, L = F.L;
+  $('wyn').innerHTML = `Znaleziono <b>${fmt(R.length)}</b> modeli (sprawdzono ${fmt(W.przeszukano || 0)}): ${celOpis(F.cel)}, ${F.jedn[0] === 't' ? 'tercje' : 'strony'}, do k${L}, gier ≥ ${F.G}, BUST ≤ ${F.B}${F.MX ? `, najdłużej ≤ ${F.MX}` : ''}.`
+    + (R.length ? ` ${stanSuma(R, L)}` : '');
+  $('lista').innerHTML = R.slice(0, W.ile).map((x, j) => kafelek(x, `data-j="${j}"`)).join('') + (R.length > W.ile ? `<button class="wiecej" id="wiecej">Pokaż więcej (${fmt(R.length - W.ile)})</button>` : '');
+  if ($('wiecej')) $('wiecej').onclick = () => { W.ile += 50; pokazWyniki(); };
+}
+
+// ===== LOST — modele, których ostatnia gra była przegrana (albo trwająca gra już za limitem) =====
+function lostDane(s, L, teraz) {
+  const gl = [...s, ...(teraz > L ? [teraz] : [])], idx = [];
+  gl.forEach((x, i) => { if (x > L) idx.push(i); });
+  let rep = 0, winPo = 0; idx.forEach(i => { if (i + 1 < gl.length) { if (gl[i + 1] > L) rep++; else winPo++; } });
+  const gaps = idx.slice(1).map((v, i) => v - idx[i]);
+  return { rep, winPo, gapAvg: gaps.length ? Math.round(gaps.reduce((a, b) => a + b, 0) / gaps.length) : 0 };
+}
+function szukajLost() {
+  czytajFiltry(); F.lM = Math.max(1, +$('lM').value || 1); F.lB = Math.max(0, +$('lB').value || 0); F.lR = Math.max(0, +$('lR').value || 0); lsSet(FK, JSON.stringify(F));
+  if (!W.c.length) return;
+  const L = F.L, cel = F.cel, jedn = F.jedn[0], P = przygotuj(cel, jedn), R = maxR(), defs = [];
+  for (const m of F.m.map(Number)) for (const cz of F.cz.map(Number)) for (const war of (cz ? F.war : [''])) defs.push({ m, cz, war });
+  const wyn = [], byly = new Set(); let di = 0, gen = null, ile = 0; $('goL').disabled = true;
+  const krok = () => {
+    const t0 = performance.now();
+    while (di < defs.length && performance.now() - t0 < 40) {
+      const d = defs[di]; if (!gen) gen = kandydaci(d.m, R, d.cz, d.war, P);
+      const nx = gen.next(); if (nx.done) { gen = null; di++; continue; }
+      const w = nx.value; if (F.MU && !w.includes(F.MU)) continue;
+      const M = { w, cel, jedn, cz: d.cz, war: d.war, limit: L }, key = nazwa(M); if (byly.has(key)) continue; byly.add(key); ile++;
+      const Z = graj(P, M), s = Z.s; if (s.length < F.G) continue;
+      const wToku = Z.teraz > L; if (!wToku && !(s.length && s[s.length - 1] > L)) continue;
+      const N = liczby(Z, M, P), D = lostDane(s, L, Z.teraz), nb = N.bust + (wToku ? 1 : 0);
+      if (nb < F.lM || nb > F.lB || D.rep > F.lR) continue;
+      const gd = Z.teraz && !wToku ? gdzie(Z, P) : null, za = gd ? gd.za : 0;
+      if (!stanPasuje(F.lstan[0], Z.teraz, za, L)) continue;
+      wyn.push({ M, ...N, bust: nb, ...D, teraz: Z.teraz, bez: Z.bez, za, gd, stan: wToku ? 'lost' : stanGry(Z.teraz, za, L) || 'nic' });
+    }
+    $('wynL').innerHTML = `Szukam… <b>${Math.round(100 * di / defs.length)}%</b> (znaleziono ${fmt(wyn.length)})`;
+    if (di < defs.length) return setTimeout(krok, 0);
+    const kol = { gra: 0, od1: 1, czeka: 2, nic: 3, lost: 4 };
+    W.lost = wyn.sort((x, y) => kol[x.stan] - kol[y.stan] || x.bust - y.bust || y.g - x.g); W.ileL = 50; W.przeszukanoL = ile; $('goL').disabled = false; pokazLost();
+  };
+  krok();
+}
+function lsOpis() { $('lsOpis').innerHTML = `Ustawienia z zakładki Szukaj: <b>${celOpis(F.cel)}</b> · <b>${F.jedn[0] === 't' ? 'tercje' : 'strony'}</b> · wierszy <b>${F.m.join(', ')}</b> · start <b>${F.cz.map(v => +v ? `po ${v}` : 'od razu').join(', ')}</b> · gra do <b>k${F.L}</b> · gier ≥ <b>${F.G}</b> <button class="ch" id="lsZm">zmień ▶</button>`; }
+function pokazLost() {
+  const R = W.lost || [], L = F.L;
+  $('wynL').innerHTML = `Modele po LOST: <b>${fmt(R.length)}</b> (sprawdzono ${fmt(W.przeszukanoL || 0)}) · LOST ${F.lM}–${F.lB}, LOST po LOST ≤ ${F.lR}. ${stanSuma(R, L)}`;
+  $('listaL').innerHTML = R.slice(0, W.ileL).map((x, j) => kafelek(x, `data-l="${j}"`, true)).join('') + (R.length > W.ileL ? `<button class="wiecej" id="wiecejL">Pokaż więcej (${fmt(R.length - W.ileL)})</button>` : '');
+  if ($('wiecejL')) $('wiecejL').onclick = () => { W.ileL += 50; pokazLost(); };
+}
+
+// ===== statystyki modelu + „Przenieś do zeszytu T60” =====
+function przenies(M, lost) {
+  if (wZeszycie().some(z => same(z, M))) return true;
+  const id = 'v' + Date.now().toString(36);
+  if (!lsSet(MOJEK, JSON.stringify([...wZeszycie(), { id, w: M.w, cel: M.cel, jedn: M.jedn, cz: M.cz, war: M.war, limit: M.limit, ...(lost ? { lista: 'lost' } : {}) }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  return true;
+}
+function statystyki(M, lost) {
+  const P = przygotuj(M.cel, M.jedn), Z = graj(P, M, true), N = liczby(Z, M, P), L = M.limit, gd = Z.teraz ? gdzie(Z, P) : null, U = P.U;
+  const now = Z.teraz && Z.teraz > L ? `<b class="big">⏸ po BUST</b> — krok ${Z.teraz} jest za limitem (k${L}); czekamy na koniec gry.`
+    : Z.teraz ? `<b class="big">${gd.za === 1 ? '▶ GRAJ teraz' : Z.teraz === 1 ? '⏳ OD 1. KROKU' : '⏳ CZEKAJ na grę'} — krok ${Z.teraz}, ${zaIle(gd.za)}</b><br>Nr ${fmt(gd.nr)}, ${jTx(gd.u)}, wiersz ${gd.r} · stawka <b>${fmt(STAWKI[Z.teraz - 1])} zł</b>${Z.teraz > 1 ? ` · w tej grze już postawione ${fmt(sumSt(Z.teraz - 1))} zł` : ''}`
+    : Z.bez ? '<b class="big">⏸ CZEKAJ</b> — pusta bez innego gola, tej gry nie gramy.' : `<b class="big">⏸ CZEKAJ</b> — na pustą (wiersze ${M.w.join(', ')} bez trafienia).`;
+  const mxK = Math.max(1, ...Object.values(N.krok));
+  const rows = Array.from({ length: L }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(zysk(s, L))}</td></tr>`).join('');
+  const dl = {}; Z.G.forEach(g => { const k = g.u1 - g.u0 + 1; dl[k] = (dl[k] || 0) + 1; });
+  const jn = M.jedn === 't' ? 'tercji' : 'stron';
+  let bal = 0, top = 0, dd = 0; Z.s.forEach(x => { bal += zysk(x, L); top = Math.max(top, bal); dd = Math.max(dd, top - bal); });
+  const gTx = g => `${U[g.u0].str}${U[g.u0].t >= 0 ? '/' + (U[g.u0].t + 1) : ''}${g.u1 !== g.u0 ? `→${U[g.u1].str}${U[g.u1].t >= 0 ? '/' + (U[g.u1].t + 1) : ''}` : ''}`;
+  const ov = document.createElement('div'); ov.className = 'ov';
+  const przycisk = () => wZeszycie().some(z => same(z, M)) ? '<span class="pri jest">✓ w ZESZYCIE T60</span>' : `<button id="stP" class="pri">➕ Przenieś do zeszytu T60${lost ? ' — LOST' : ''}</button>`;
+  ov.innerHTML = `<div class="sheet stt"><h3>Model ${nazwa(M)} — statystyki</h3>
+    <div class="s">Gramy na ${celOpis(M.cel)}; ${M.jedn === 't' ? 'w każdej tercji (10 / 10 / 7)' : 'na każdej stronie (27 wierszy)'} wiersze ${M.w.join(', ')}; ${M.cz ? `gra ${M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`}${M.war ? ' (gdy na pustej był inny gol)' : ''}` : 'gra od razu'}, do ${L}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+    <div class="nw${gd && gd.za === 1 && Z.teraz <= L ? ' gra' : ''}">${now}</div>
+    <div class="nums"><div><b>${N.g}</b>gier</div><div><b>${N.g - N.bust}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
+      <div><b>${N.mx}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(dd)}</b>największy spadek (zł)</div></div>
+    ${F.SP ? `<div class="s">Sprawdzenie (podział ${F.SP} / ${100 - F.SP}, ${jn} 1–${N.cut} i dalej) — ${sprTx(N)}</div>` : ''}
+    <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
+    <h4>Ile ${jn} trwała gra</h4><div class="s">${Object.keys(dl).sort((a, b) => a - b).map(k => `${k} — <b>${dl[k]}</b>`).join(' · ')}</div>
+    <h4>Najdłuższe gry</h4><div class="ost">${[...Z.G].sort((a, b) => b.s - a.s).slice(0, 6).map(g => `<span>${M.jedn === 't' ? 'str./terc.' : 'strony'} ${gTx(g)} · ${g.s > L ? `<b class="lo">BUST k${g.s}</b>` : `<b>k${g.s}</b>`}</span>`).join('')}</div>
+    <h4>Gra po grze (ostatnie 30)</h4><div class="ost">${Z.G.slice(-30).reverse().map(g => `<span>${gTx(g)} w.${g.r} · ${g.s > L ? `<b class="lo">BUST k${g.s}</b>` : `<b>WIN ${g.s}</b>`}</span>`).join('')}</div>
+    <div class="bb"><span id="stPp">${przycisk()}</span><button id="stX">Zamknij</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => ov.remove();
+  ov.onclick = e => { if (e.target === ov) close(); };
+  $('stX').onclick = close;
+  if ($('stP')) $('stP').onclick = () => { if (przenies(M, lost)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); if (W.lost) pokazLost(); } };
+}
+$('lista').addEventListener('click', e => { const d = e.target.closest('.md[data-j]'); if (d) statystyki(W.wynik[+d.dataset.j].M); });
+$('listaL').addEventListener('click', e => { const d = e.target.closest('.md[data-l]'); if (d) statystyki(W.lost[+d.dataset.l].M, true); });
+$('goL').onclick = szukajLost;
+$('goB').onclick = szukaj;
+
+// ===== DOPISZ KOD T60 — 1. cyfra 0 / 1 / 2 / 3, potem 0 / 1, 0 / 1 → wspólna lista kodów T60 (t60razem_v1_added), jak w RAZEM / MOJE =====
+const KV = [0, 0, 0], OPIS = [['brak gola 40–50\'', 'gol 40–45\'', 'gol 46–50\'', 'gole 40–45\' i 46–50\''], ['brak gola 50–60\'', 'gol 50–60\''], ['brak gola 60–70\'', 'gol 60–70\'']];
+function kodTab(ok) {
+  const n = W.c.length, nr = n + 1, s = Math.floor(n / 27) + 1, r = n % 27 + 1;
+  $('kd').innerHTML = `<h3>Nowy kod T60 · Nr ${fmt(nr)}</h3>
+    <div class="s">Strona ${s}, wiersz ${r} (tercja ${r <= 10 ? 1 : r <= 20 ? 2 : 3}). Dotknij cyfry, żeby ją zmienić: 1. cyfra 0 → 1 → 2 → 3, pozostałe 0 / 1.</div>
+    <div class="kod">${KV.map((v, i) => `<button data-i="${i}" class="${v ? 'on' : ''}">${v}</button>`).join('')}<b>${KV.join('')}</b></div>
+    <div class="s">${KV.map((v, i) => OPIS[i][v]).join(' · ')}</div>
+    <input id="kdN" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="mecz, np. PAO-RAD (nieobowiązkowo)">
+    <button class="zap" id="kdOk">Zapisz kod ${KV.join('')}</button>
+    <div class="s2">Kod trafi do wszystkich aplikacji T60: MOJE, RAZEM, SZUKAJ 60, L60 … — od razu.</div>${ok ? `<div class="ok">${ok}</div>` : ''}`;
+  const z = (() => { try { return JSON.parse(lsGet(LASTK, 'null')); } catch (e) { return null; } })(), add = lsGet(ADDK, '');
+  const un = z && z.n === n && W.c[n - 1] === z.c && add.length >= 3 && add.slice(-3) === z.c;
+  $('undo').innerHTML = un ? `<div class="undo">Dopisany tutaj: <b>${z.c}</b> (Nr ${fmt(n)})<button id="undoB">↩ Cofnij</button></div>` : '';
+  $('ost2').innerHTML = `<h4>Ostatnie kody</h4>` + W.c.slice(-8).map((cd, i, A) => { const x = n - A.length + 1 + i; return `<div><span>Nr ${fmt(x)}</span><span class="zn">${cd.split('').join(' ')}</span><small>strona ${Math.floor((x - 1) / 27) + 1} w.${(x - 1) % 27 + 1}</small></div>`; }).reverse().join('');
+}
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button[data-t]'); if (!b) return;
+  $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  $('tabS').hidden = b.dataset.t !== 's'; $('tabK').hidden = b.dataset.t !== 'k'; $('tabL').hidden = b.dataset.t !== 'l';
+  if (b.dataset.t === 'k') kodTab();
+  if (b.dataset.t === 'l') { lsOpis(); if (!W.lost) szukajLost(); }
+});
+$('tabL').addEventListener('click', e => { if (e.target.id === 'lsZm') $('tabs').querySelector('[data-t="s"]').click(); });
+$('tabK').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.i) { const i = +b.dataset.i; KV[i] = (KV[i] + 1) % (i ? 2 : 4); const nm = $('kdN').value; kodTab(); $('kdN').value = nm; return; }
+  if (b.id === 'kdOk') {
+    const code = KV.join(''), nr = W.c.length + 1, add = lsGet(ADDK, '');
+    if (!/^(\d{3})*$/.test(add)) { alert('Lista kodów w telefonie jest uszkodzona — nie zapisuję.'); return; }
+    if (czytajKody() || W.c.length + 1 !== nr) { info(); kodTab(); alert('W międzyczasie dopisano kod w innej aplikacji — sprawdź i dopisz jeszcze raz.'); return; }
+    if (!lsSet(ADDK, add + code)) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, JSON.stringify({ n: nr, c: code, t: Date.now() }));
+    const nm = $('kdN').value.trim().toUpperCase().slice(0, 40);
+    if (nm) { try { const a = JSON.parse(lsGet(NOTK, '{}')) || {}; a[nr] = nm; lsSet(NOTK, JSON.stringify(a)); } catch (e) {} }
+    KV.fill(0); czytajKody(); info(); W.lost = null; kodTab(`✓ Zapisano ${code} (Nr ${fmt(nr)}) — wyniki modeli przeliczone.`); szukaj();
+  }
+  if (b.id === 'undoB') {
+    const z = JSON.parse(lsGet(LASTK, 'null')), add = lsGet(ADDK, '');
+    if (!z || z.n !== W.c.length || add.slice(-3) !== z.c) { kodTab(); return; }
+    if (!confirm(`Cofnąć kod ${z.c} (Nr ${fmt(z.n)})? Zniknie też w MOJE, RAZEM i SZUKAJ.`)) return;
+    if (!lsSet(ADDK, add.slice(0, -3))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
+    lsSet(LASTK, 'null'); czytajKody(); info(); W.lost = null; kodTab(`↩ Cofnięto ${z.c}.`); szukaj();
+  }
+});
+
+// kody dopisane w innej aplikacji — po powrocie przelicz
+const odswiez = () => { if (W.seed !== '' || W.seedErr) { if (czytajKody()) { info(); szukaj(); W.lost = null; if (!$('tabK').hidden) kodTab(); if (!$('tabL').hidden) szukajLost(); } else pokazWyniki(); } };
+window.addEventListener('storage', e => { if (!e.key || e.key === ADDK) odswiez(); if (e.key === MOJEK) pokazWyniki(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) odswiez(); });
+function info() {
+  const c = W.c, n = c.length;
+  $('msg').innerHTML = W.seedErr ? '<div class="err">Nie udało się wczytać bazy kodów T60 (plik z aplikacji MOJE). Połącz z internetem i otwórz jeszcze raz. Teraz liczone są tylko kody dopisane w telefonie.</div>' : '';
+  $('info').innerHTML = n ? `Kodów: <b>${fmt(n)}</b> · ostatni: <b>${c[n - 1]}</b> (Nr ${fmt(n)}) — strona ${Math.floor((n - 1) / 27) + 1}, wiersz ${(n - 1) % 27 + 1}` : 'Brak kodów.';
+}
+(async () => {
+  $('ver').textContent = APP_VER;
+  pokazFiltry();
+  W.seed = await loadSeed(); czytajKody(); info(); szukaj();
+})();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('../zeszyt-sw.js').catch(() => {});
+</script>
+</body>
+</html>
