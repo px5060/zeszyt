@@ -262,3 +262,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 
 ## T60: mniej pól (od 1.10.4)
 - Prośba użytkownika: usunięte pola „Najdłużej najwyżej”, „Bilans co najmniej” i „Musi mieć wiersz” — zostają: gra do kroku, gier co najmniej, BUST najwyżej.
+
+## ZESZYT: ↩ cofanie wielu kodów (od 1.9.11)
+- Prośba użytkownika: przycisk **↩** zawsze na wierzchu (obok „＋ Dopisz kod”). Każde dotknięcie (z potwierdzeniem) cofa **ostatni kod dopisany
+  w telefonie** — w dowolnej aplikacji (`t50razem_v1_added`), można wiele razy z rzędu; mecz przy cofniętym Nr też znika.
+  Kodów z bazy MOJE cofnąć się nie da (przycisk wyszarzony, gdy w telefonie nie ma dopisanych kodów). Stara ramka „Dopisany tutaj … ↩ Cofnij” usunięta.
