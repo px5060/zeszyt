@@ -267,3 +267,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Prośba użytkownika: przycisk **↩** zawsze na wierzchu (obok „＋ Dopisz kod”). Każde dotknięcie (z potwierdzeniem) cofa **ostatni kod dopisany
   w telefonie** — w dowolnej aplikacji (`t50razem_v1_added`), można wiele razy z rzędu; mecz przy cofniętym Nr też znika.
   Kodów z bazy MOJE cofnąć się nie da (przycisk wyszarzony, gdy w telefonie nie ma dopisanych kodów). Stara ramka „Dopisany tutaj … ↩ Cofnij” usunięta.
+
+## T60: warunek startu bez „wszystkie” (od 1.10.5)
+- Prośba użytkownika: przy warunku startu usunięte „wszystkie” — jeden wybór: **bez warunku** (domyślnie) albo **na pustej był inny gol**.
+  Zapisane „wszystkie” zamienia się na „bez warunku”. Przy wierszach modelu „wszystkie” zostaje.
