@@ -302,3 +302,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   🔎 w ZESZYCIE T60 → `modele/t60.html?m=cel-wiersze-start-limit`.
 - 1.11.1: w ZESZYCIE T60 zera pokazane jako „0” (szare), nie „−” — jak w tabeli użytkownika.
 - 1.11.2: w ZESZYCIE T60 cyfra **2** (2xx) czerwona, **3** (3xx) czerwono-czarna (pół na pół), na prośbę użytkownika.
+
+## Statystyki modelu w ZESZYCIE: ostatnie gry jako kwadraciki (od 1.11.3)
+- Prośba użytkownika (jak w MOJE): „Ostatnie gry” = same kolorowe kwadraciki bez opisu — **zielony WIN, czerwony LOST** (gra dłuższa niż limit),
+  od najstarszej do najnowszej (do 20), najnowsza z obwódką i ▲ pod spodem. Dotknięcie — karta tej gry (opis w podpowiedzi przy przytrzymaniu myszką).
+  Wcześniej wszystkie gry miały napis „WIN”, nawet przegrane. ZESZYT T50 i T60.
