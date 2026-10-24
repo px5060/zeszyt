@@ -22,7 +22,7 @@ Licznik setek kodów (Nr w tabeli TRÓJKA: 1 … 99, 00, 1 …) przy prawej kraw
   od 1. kroku (po pustej trójce) — na kafelku krok i za ile wierszy.
   „➕ Do zeszytu” — model trafia do listy modeli w ZESZYCIE. Silnik wspólny: `silnik.js`.
 
-- **SZUKAJ W ZESZYCIE T60** (`/zeszyt/modele/t60.html`, przełącznik T50 / T60): strony 30 wierszy (3 × 10; do porównań 27 i tercje), gra na 1xx/2xx/3xx, x1x, xx1,
+- **SZUKAJ W ZESZYCIE T60** (`/zeszyt/modele/t60.html`, przełącznik T50 / T60): strony 30 wierszy (3 × 10) albo tercje po 10, gra na 1xx/2xx/3xx, x1x, xx1,
   1–9 wierszy modelu, sprawdzenie na nowszej części tabeli, LOST, dopisywanie kodu T60.
 
 Bez budowania — `index.html` jest gotowy. Ikony: `python3 make_icons.py`. Zasady pracy: `RULES.md`.

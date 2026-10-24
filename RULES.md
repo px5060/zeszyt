@@ -252,3 +252,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   po 10 — ok. 41–42 do k9, 0 do k6; **strona 30 — 196 do k9, 2 do k6** (3·7·18 104 gry, 4·9 ×2). Użytkownik wybrał **3 × 10**.
 - Wyszukiwarka T60: jednostka domyślna **strona 30** (`jedn: 's'`), **tercja 10** (`'t'`, 3 na stronie), strona 27 (`'s27'`, do porównań, w nazwie „S27”).
   Numeracja w „Dopisz kod” i w informacji o ostatnim kodzie: strona 30, wiersz 1–30. ZESZYT T60 będzie miał strony 30 wierszy.
+
+## T60: „wszystkie” przy wierszach modelu i warunku startu (od 1.10.2)
+- Prośba użytkownika: żeby nie dzielić — chip **„wszystkie”** (domyślny): wiersze modelu = dowolne + ciągłe (dowolne i tak obejmują ciągłe
+  zakresy), warunek startu = bez warunku + „na pustej był inny gol” (oba warianty w jednym szukaniu; w nazwie modelu z warunkiem „+gol”).
+
+## T60: bez strony 27 (od 1.10.3)
+- Prośba użytkownika: jednostka gry tylko **strona 30** i **tercja 10** (3 × 10 na stronie); opcja „strona 27” usunięta (zapisany filtr `s27` → strona 30).
