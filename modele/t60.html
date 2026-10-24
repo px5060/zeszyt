@@ -152,9 +152,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
       <button class="ch" data-g="cel" data-v="1">1xx</button><button class="ch" data-g="cel" data-v="2">2xx</button><button class="ch" data-g="cel" data-v="3">3xx</button><button class="ch" data-g="cel" data-v="x1x">x1x</button><button class="ch" data-g="cel" data-v="xx1">xx1</button></div>
     <div class="fr"><span>Jednostka gry</span><button class="ch" data-g="jedn" data-v="s">strona 30 (3 × 10)</button><button class="ch" data-g="jedn" data-v="t">tercja 10</button><button class="ch" data-g="jedn" data-v="s27">strona 27 (10 · 10 · 7, do porównań)</button></div>
     <div class="fr"><span>Wierszy modelu na stronie / tercji (kilka naraz)</span><span class="row" id="mFr"></span></div>
-    <div class="fr"><span>Wiersze modelu</span><button class="ch" data-g="ciag" data-v="0">dowolne</button><button class="ch" data-g="ciag" data-v="1">ciągły zakres</button></div>
+    <div class="fr"><span>Wiersze modelu</span><button class="ch" data-g="ciag" data-v="all">wszystkie</button><button class="ch" data-g="ciag" data-v="0">dowolne</button><button class="ch" data-g="ciag" data-v="1">ciągły zakres</button></div>
     <div class="fr"><span>Start gry (kilka naraz)</span><button class="ch" data-g="cz" data-v="0">od razu</button><button class="ch" data-g="cz" data-v="1">po 1 pustej</button><button class="ch" data-g="cz" data-v="2">po 2</button><button class="ch" data-g="cz" data-v="3">po 3</button><button class="ch" data-g="cz" data-v="4">po 4</button><button class="ch" data-g="cz" data-v="5">po 5</button></div>
-    <div class="fr"><span>Warunek startu</span><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="gol">na pustej był inny gol</button></div>
+    <div class="fr"><span>Warunek startu</span><button class="ch" data-g="war" data-v="*">wszystkie</button><button class="ch" data-g="war" data-v="">bez warunku</button><button class="ch" data-g="war" data-v="gol">na pustej był inny gol</button></div>
     <div class="fr"><span>Stan teraz</span><button class="ch" data-g="stan" data-v="all">wszystkie</button><button class="ch" data-g="stan" data-v="gra">GRAJ teraz</button><button class="ch" data-g="stan" data-v="czeka">CZEKAJ na grę</button><button class="ch" data-g="stan" data-v="od1">od 1. kroku</button></div>
     <div class="fr" id="krokFr"></div>
     <div class="nums">
@@ -180,7 +180,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.10.1';
+const APP_VER = '1.10.2';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -193,7 +193,7 @@ const zl = v => `${v >= 0 ? '+' : '−'}${fmt(Math.abs(v))} zł`;
 const KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
 const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const zysk = (s, L) => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
-const DOMYSL = { cel: ['1', '2', '3'], jedn: ['s'], m: ['2', '3'], ciag: ['0'], cz: ['1'], war: [''], stan: ['all'], krok: ['all'], spr: ['all'],
+const DOMYSL = { cel: ['1', '2', '3'], jedn: ['s'], m: ['2', '3'], ciag: ['all'], cz: ['1'], war: ['', 'gol'], stan: ['all'], krok: ['all'], spr: ['all'],
   L: 9, G: 50, B: 0, MX: 0, BAL: '', MU: 0, SP: 65, S: 'b', lM: 1, lB: 5, lR: 0, lstan: ['all'] };
 let F = (() => { try { return { ...DOMYSL, ...JSON.parse(lsGet(FK, '{}')) }; } catch (e) { return { ...DOMYSL }; } })();
 const W = { seed: '', seedErr: false, c: [], wynik: [], ile: 50, lost: null, ileL: 50 };
@@ -300,7 +300,8 @@ const krokiTx = (krok, L) => Array.from({ length: L }, (_, i) => i + 1).filter(k
 const sprTx = N => `starsza część: ${N.spr[0].g} gier, BUST <b class="${N.spr[0].b ? 'r' : 'z'}">${N.spr[0].b}</b>, najdł. ${N.spr[0].mx} · nowsza (${100 - F.SP}%): ${N.spr[1].g} gier, BUST <b class="${N.spr[1].b ? 'r' : 'z'}">${N.spr[1].b}</b>, najdł. ${N.spr[1].mx}`;
 
 // ===== filtry =====
-const pokazChipy = () => document.querySelectorAll('.ch[data-g]').forEach(b => b.classList.toggle('on', F[b.dataset.g].includes(b.dataset.v)));
+// „wszystkie” przy warunku = oba (bez warunku i „inny gol”); przy wierszach = dowolne + ciągłe (dowolne obejmują też ciągłe zakresy)
+const pokazChipy = () => document.querySelectorAll('.ch[data-g]').forEach(b => b.classList.toggle('on', b.dataset.g === 'war' && b.dataset.v === '*' ? F.war.length === 2 : b.dataset.g === 'war' && F.war.length === 2 ? false : F[b.dataset.g].includes(b.dataset.v)));
 const maxR = () => F.jedn[0] === 't' ? 10 : DL[F.jedn[0]] || 30;
 function krokChipy() {
   F.krok = F.krok.filter(v => v === 'all' || +v <= F.L); if (!F.krok.length) F.krok = ['all'];
@@ -319,7 +320,8 @@ const JEDEN = ['jedn', 'ciag', 'stan', 'lstan', 'spr'];   // jeden wybór
 const chipKlik = e => {
   const b = e.target.closest('.ch[data-g]'); if (!b) return;
   const g = b.dataset.g, v = b.dataset.v;
-  if (JEDEN.includes(g)) F[g] = [v];
+  if (g === 'war' && (v === '*' || F.war.length === 2)) F.war = v === '*' ? ['', 'gol'] : [v];
+  else if (JEDEN.includes(g)) F[g] = [v];
   else if (g === 'krok') F.krok = v === 'all' ? ['all'] : F.krok.includes(v) ? (F.krok.filter(x => x !== v).length ? F.krok.filter(x => x !== v) : ['all']) : [...F.krok.filter(x => x !== 'all'), v];
   else if (F[g].includes(v)) { if (F[g].length > 1) F[g] = F[g].filter(x => x !== v); }   // co najmniej jeden zaznaczony
   else F[g] = [...F[g], v];
