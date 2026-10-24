@@ -217,7 +217,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.9.9';
+const APP_VER = '1.9.10';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -701,7 +701,12 @@ $('addB').onclick = () => addCodeSheet();
     if (+r.dataset.nr === S.codes[S.t].length + 1) addCodeSheet(); else editRow(+r.dataset.nr); });
 }
 document.addEventListener('keydown', e => { if (document.querySelector('.ov')) return; if (e.key === 'ArrowLeft') flipTo(S.card[S.t] - 1); if (e.key === 'ArrowRight') flipTo(S.card[S.t] + 1); });
-window.addEventListener('resize', () => { if (!FL && S.book[S.t]) render(); });
+// przerysowanie tylko przy wyraźnej zmianie szerokości (obrót telefonu) i nie w trakcie wpisywania; klawiatura zmienia wysokość (i o włos szerokość) — wtedy nie ruszamy strony,
+// inaczej pole (np. kwota zakładu) traci kursor i klawiatura od razu się chowa
+let szer = window.innerWidth;
+window.addEventListener('resize', () => {
+  const a = document.activeElement; if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return;   // trwa wpisywanie — nie ruszamy
+  if (Math.abs(window.innerWidth - szer) < 40) return; szer = window.innerWidth; if (!FL && S.book[S.t]) render(); });
 // kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
 const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
 window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key)) refresh(); });

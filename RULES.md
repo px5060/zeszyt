@@ -226,3 +226,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   w `zeszyt_v1_modele` pole `lista: 'lost'`). Z zakładki Szukaj — jak dotąd na zwykłą listę.
 - Każda lista zwija się osobno (`zeszyt_v1_modele_otw`, `zeszyt_v1_modele_lost_otw`); zwinięta = jej modele bez oznaczeń na kartach.
   Dotknięcie / przytrzymanie, 🗑, 🔎 — tak samo. 🔎 z listy LOST i „Dodaj model” otwierają w SZUKAJ W ZESZYCIE zakładkę LOST.
+
+## Klawiatura przy zakładzie (od 1.9.10)
+- Błąd: w polu kwoty / Nr / kroku zakładu klawiatura wyjeżdżała i od razu się chowała — wysunięta klawiatura zmienia wysokość okna,
+  a `resize` przerysowywał całą stronę (pole traciło kursor). Teraz przerysowanie tylko przy zmianie szerokości o ≥ 40 px (obrót telefonu) i nigdy, gdy kursor jest w polu (INPUT / SELECT).
