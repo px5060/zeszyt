@@ -308,3 +308,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   od najstarszej do najnowszej (do 20), najnowsza z obwódką i ▲ pod spodem. Dotknięcie — karta tej gry (opis w podpowiedzi przy przytrzymaniu myszką).
   Wcześniej wszystkie gry miały napis „WIN”, nawet przegrane. ZESZYT T50 i T60.
 - 1.11.4: kwadraciki „Ostatnie gry” także w statystykach **SZUKAJ W ZESZYCIE** (T50 i T60; w T60 zamiast listy „Gra po grze”).
+- 1.11.5: w każdym kwadraciku „Ostatnie gry” **numer kroku** — przy WIN krok wygranej, przy LOST ile kroków trwała gra (ZESZYT i SZUKAJ, T50 i T60).
