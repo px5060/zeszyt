@@ -167,7 +167,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .kod b{margin-left:auto;font-size:24px;letter-spacing:4px}
 .sheet .s2{color:var(--mu);font-size:12px;margin-top:8px}
 .r .m.z0{color:#a7aec0;font-weight:600}
-.r .nt i.z50{color:#3f63c9}   /* nazwa meczu z T50 (połączenie T60 ↔ T50), gdy w T60 nie wpisano własnej */
+.r .nt i.z50{color:var(--ink)}   /* nazwa meczu z T50 (połączenie T60 ↔ T50) — czarna jak w T50 (1.12.2, prośba użytkownika) */
 .sheet .l50{margin-top:8px;padding:8px;border:1px dashed var(--bd);border-radius:9px;font-size:13px;line-height:1.6}.sheet .l50 button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-weight:700}
 .sheet .l50 .lk{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.sheet .l50 input{width:96px;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:4px 6px;font-size:15px}
 .r .m.d2{color:#d42a20}   /* 2xx — gol 46–50' czerwony */
@@ -240,7 +240,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.11.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.12.1';
+const APP_VER = '1.12.2';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
