@@ -234,7 +234,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.12.0';
+const APP_VER = '1.12.1';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -584,6 +584,16 @@ function szelest(len = .4) {
 { const el = $('appbar'), b = document.createElement('button'), upd = () => { b.textContent = lsGet(SNDK, '1') === '1' ? '🔊' : '🔇'; b.title = 'szelest kartki'; };
   b.className = 'thm'; upd(); el.appendChild(b);
   b.onclick = () => { lsSet(SNDK, lsGet(SNDK, '1') === '1' ? '0' : '1'); upd(); szelest(.3); }; }
+// 🏆 na pasku: głos z telefonu „Maciek, jesteś mistrzem zeszytów!” (mowa przeglądarki, po polsku; od 1.12.1 — prośba użytkownika)
+{ const el = $('appbar'), b = document.createElement('button');
+  b.className = 'thm'; b.textContent = '🏆'; b.title = 'Maciek, jesteś mistrzem zeszytów!'; el.appendChild(b);
+  b.onclick = () => {
+    const tx = 'Maciek, jesteś mistrzem zeszytów!';
+    if (!('speechSynthesis' in window)) { alert(tx); return; }
+    const u = new SpeechSynthesisUtterance(tx), pl = speechSynthesis.getVoices().find(v => /^pl/i.test(v.lang));
+    u.lang = 'pl-PL'; if (pl) u.voice = pl; u.rate = .95; u.pitch = 1.05;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }; }
 // zakładki 📓 Zeszyt / 💰 Zakłady; na liście zakładów: dotknięcie — karta z tym wierszem, ✕ — usunięcie
 $('ztabs').addEventListener('click', e => { const b = e.target.closest('button[data-z]'); if (!b) return; S.tab = b.dataset.z; render(); });
 $('tB').addEventListener('click', e => {
