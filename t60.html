@@ -167,6 +167,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .kod b{margin-left:auto;font-size:24px;letter-spacing:4px}
 .sheet .s2{color:var(--mu);font-size:12px;margin-top:8px}
 .r .m.z0{color:#a7aec0;font-weight:600}
+.r .nt i.z50{color:#3f63c9}   /* nazwa meczu z T50 (połączenie T60 ↔ T50), gdy w T60 nie wpisano własnej */
+.sheet .l50{margin-top:8px;padding:8px;border:1px dashed var(--bd);border-radius:9px;font-size:13px;line-height:1.6}.sheet .l50 button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-weight:700}
+.sheet .l50 .lk{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.sheet .l50 input{width:96px;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:4px 6px;font-size:15px}
 .r .m.d2{color:#d42a20}   /* 2xx — gol 46–50' czerwony */
 .r .m b.d3{display:inline-block;font:inherit;background:linear-gradient(90deg,#d42a20 50%,#111 50%);-webkit-background-clip:text;background-clip:text;color:transparent}   /* 3xx — czerwono-czarny */
 .tabl{display:flex;gap:6px;margin:0 0 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid #b8902e}
@@ -237,7 +240,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.11.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.8';
+const APP_VER = '1.12.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -261,7 +264,7 @@ const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && ty
 const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-const S = { t: 't60', seed: {}, seedErr: {}, codes: {}, nAdd: {}, book: {}, card: {}, follow: {}, mods: [], modMk: {}, zakNr: new Set(), panel: '', lpSkip: false };
+const S = { t: 't60', seed: {}, seedErr: {}, codes: {}, raw: {}, n50: {}, lnk: [], nAdd: {}, book: {}, card: {}, follow: {}, mods: [], modMk: {}, zakNr: new Set(), panel: '', lpSkip: false };
 
 async function loadSeed(t) {
   const url = TABS[t].seed, ok = s => s.length > 0 && s.length % 3 === 0;
@@ -276,13 +279,46 @@ async function loadSeed(t) {
   }
 }
 function readAdded(t) { const s = lsGet(TABS[t].key, ''); return /^(\d{3})*$/.test(s) ? s : ''; }
-function readCodes(t) {   // → czy coś się zmieniło
-  const add = readAdded(t), s = (S.seed[t] || '') + add, c = s.match(/\d{3}/g) || [];
-  const ch = c.length !== (S.codes[t] || []).length || c[c.length - 1] !== (S.codes[t] || [])[c.length - 1];
-  S.codes[t] = c; S.nAdd[t] = add.length / 3; if (ch || !S.book[t]) S.book[t] = buildBook(c.length); return ch;
+// poprawki kodów z bazy MOJE (od 1.12.0): bazy nie da się zmienić z telefonu, więc poprawka kodu z bazy leży w zeszyt_v1_poprawki_<t>
+// (widzą ją ZESZYT i SZUKAJ W ZESZYCIE); kod dopisany w telefonie poprawiamy wprost na wspólnej liście (widzą wszystkie aplikacje)
+const PK = t => 'zeszyt_v1_poprawki_' + t;
+function readCodes(t) {   // → czy coś się zmieniło (także poprawka kodu w środku tabeli)
+  const add = readAdded(t), seed = S.seed[t] || '', c = (seed + add).match(/\d{3}/g) || [], P = jget(PK(t)), nS = seed.length / 3;
+  for (const nr in P) if (+nr >= 1 && +nr <= nS && /^\d{3}$/.test(P[nr])) c[nr - 1] = P[nr];
+  const key = c.join(''), ch = key !== S.raw[t];
+  S.raw[t] = key; S.codes[t] = c; S.nAdd[t] = add.length / 3; if (ch) S.modKey = '';
+  if (ch || !S.book[t]) S.book[t] = buildBook(c.length); return ch;
 }
+function zmienKod(t, nr, code) {   // poprawka już wpisanego kodu (dowolny wiersz)
+  readCodes(t);
+  const nS = S.codes[t].length - S.nAdd[t];
+  if (nr > nS) {
+    const add = readAdded(t), i = (nr - nS - 1) * 3;
+    if (!lsSet(TABS[t].key, add.slice(0, i) + code + add.slice(i + 3))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  } else {
+    const P = jget(PK(t)); if (code === (S.seed[t] || '').substr((nr - 1) * 3, 3)) delete P[nr]; else P[nr] = code;
+    if (!lsSet(PK(t), JSON.stringify(P))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  }
+  readCodes(t); return true;
+}
+// ===== NAZWY MECZÓW Z T50 (od 1.12.0): połączenie „ten wiersz T60 = Nr … w T50” (zeszyt_v1_t60_t50: [{n60, n50}]).
+// Od połączonego wiersza w dół (do następnego połączenia): Nr w T50 = Nr w T60 + (n50 − n60). Nazwa z T50 pokazuje się (niebieska),
+// gdy w T60 nie wpisano własnej. Gdy kolejność meczów się rozjedzie — nowe połączenie niżej poprawia dalsze wiersze.
+const LNK = 'zeszyt_v1_t60_t50';
+const linki = () => { try { const a = JSON.parse(lsGet(LNK, '[]')); return Array.isArray(a) ? a.filter(x => x && x.n60 > 0 && x.n50 > 0).sort((a, b) => a.n60 - b.n60) : []; } catch (e) { return []; } };
+const nr50 = (nr, L = linki()) => { let x = null; for (const a of L) if (a.n60 <= nr) x = a; const m = x ? nr + x.n50 - x.n60 : 0; return m > 0 ? m : 0; };
+const notes50 = () => jget('zeszyt_v1_notes_t50');
+function wykryjLink() {   // propozycja połączenia: te same nazwy meczów w T60 i T50 — najczęstsze przesunięcie Nr
+  const a = jget(K.notes('t60')), b = notes50(), idx = {}, cnt = {};
+  for (const n in b) (idx[b[n]] = idx[b[n]] || []).push(+n);
+  for (const n in a) for (const m of idx[a[n]] || []) { const d = m - n; cnt[d] = (cnt[d] || 0) + 1; }
+  const best = Object.entries(cnt).sort((x, y) => y[1] - x[1])[0];
+  return best && best[1] >= 2 ? { d: +best[0], ile: best[1] } : null;
+}
+function zapiszLink(n60, n50) { const a = linki().filter(x => x.n60 !== n60); a.push({ n60, n50 }); lsSet(LNK, JSON.stringify(a)); }
 const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
 const mark = d => d;   // T60: cyfry kodu jak w tabeli (1. cyfra 0–3: gol 40–45' / 46–50' / oba; potem 50–60', 60–70'); 0 — szare (1.11.1: „0” zamiast „−”)
+const nastCyfra = (i, d) => i ? d ^ 1 : (d + 1) % 4, KTX = '1. cyfra 0 → 1 → 2 → 3, 2. i 3. cyfra 0 / 1.';   // poprawka kodu T60
 
 // ===== MODELE — układy podświetlane na kartach zeszytu (rozwijana lista „Modele” nad kartą) =====
 // W każdej połowie liczą się tylko wiersze modelu (3 kroki na połowę), WIN = + na środku (poz 1). Połowa bez + w tych wierszach
@@ -491,9 +527,10 @@ function rowHtml(t, row, r, cls, k, p, notes, q) {
   const zak = mo && nr && S.zakNr.has(nr) ? '💰' : '';   // na tym wierszu postawiony zakład wybranego modelu
   const x2 = mm && mm.n > 1 ? `<b class="x2">×${mm.n}</b>` : '';   // ten sam wiersz w kilku wybranych modelach (karta 1 — wąsko: na rogu ramki)
   const ks = mm && (mm.l || x2 && !q) ? `<span class="ks ${mm.c}" title="${esc(mm.kto.join('\n'))}">${q ? mm.l.replace(/start/g, 'S').replace(/WIN /g, 'W').replace(/BUST/g, 'B').replace(/LOST /g, 'L').replace(/ /g, '') : mm.l}${zak}${q ? '' : x2}</span>` : zak ? `<span class="ks n">${zak}</span>` : '';
-  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}${q ? x2 : ''}</span><span class="nt">${ks}${dp}<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i></span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
+  return `<div class="${cls}" data-nr="${nr}"><span class="no">${r}</span><span class="kd${kc}">${ms}${q ? x2 : ''}</span><span class="nt">${ks}${dp}${nr && !notes[nr] && S.n50[nr50(nr, S.lnk)] ? `<i class="z50">${esc(S.n50[nr50(nr, S.lnk)])}</i>` : `<i>${esc(nr ? notes[nr] || '' : 'bez kodu')}</i>`}</span>${q ? '' : `<span class="hc">${hasHund(k, p) && nr ? hund(nr) : ''}</span>`}</div>`;
 }
 function paperHtml(t, k) {   // jedna karta: połowy po 10 kratek (karta 1: 4 części), wiersz = kratka, czerwone linie po 10 i 20, dziurki na spiralę
+  S.n50 = notes50(); S.lnk = linki();   // nazwy meczów z T50 (połączenie T60 ↔ T50)
   const notes = jget(K.notes(t)), card = S.book[t].cards[k], P = partsOf(k), q = P.length === 4, W = q ? [5, 4, 4, 4] : [10, 10];
   let x = 0, h = '', holes = '';
   card.parts.forEach((part, p) => {
@@ -648,20 +685,37 @@ function editRow(nr) {
   const t = S.t, w = S.book[t].pos[nr], notes = jget(K.notes(t)), c = S.codes[t], cd = c[nr - 1];
   const row = S.book[t].cards[w.k].parts[w.p][w.r - 1], dop = [...row.pre, ...row.dop].filter(x => x <= c.length);
   const ov = document.createElement('div'); ov.className = 'ov';
+  const v = cd ? [...cd].map(Number) : null, zBazy = cd && nr <= c.length - S.nAdd[t];   // od 1.12.0: kod też można poprawić
+  const n50 = notes50(), m50 = nr50(nr), nm50 = m50 ? n50[m50] || '' : '', pr = !linki().length && wykryjLink();
   ov.innerHTML = `<div class="sheet"><h3>${TABS[t].name} · strona ${w.k} · wiersz ${w.r}</h3>
     <div class="s">Nr ${fmt(nr)} · ${cd ? `kod <b>${cd}</b>` : 'jeszcze bez kodu'}${dop.map(x => ` · dopisek Nr ${fmt(x)}: <b>${c[x - 1]}</b>`).join('')}</div>
+    ${cd ? `<div class="s">Poprawka kodu — dotknij cyfry: ${KTX}</div><div class="kod">${v.map((d, i) => `<button data-i="${i}" class="${d ? 'on' : ''}">${mark(String(d))}</button>`).join('')}<b id="kdV">${cd}</b></div>
+      ${zBazy ? '<div class="s2">To kod z bazy MOJE — poprawka będzie w ZESZYCIE i SZUKAJ W ZESZYCIE (MOJE i RAZEM zostaną przy starym kodzie).</div>' : ''}` : ''}
     <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="np. PAO-RAD" value="${esc(notes[nr] || '')}">
-    <div class="bb"><button id="ntDel">Usuń</button><button id="ntOk">Zapisz</button><button id="ntGo" class="pri">Dalej ▶</button></div></div>`;
+    <div class="l50">${m50 ? `T50 Nr ${fmt(m50)}: ${nm50 ? `<b>${esc(nm50)}</b> <button id="z50">↓ Wpisz tę nazwę</button>` : 'bez nazwy meczu'}` : 'Nazwy z T50: połącz ten wiersz z meczem w T50.'}
+      <div class="lk">🔗 Ten mecz w T50 to Nr <input id="lnkIn" type="number" inputmode="numeric" min="1" value="${m50 || ''}"><button id="lnkOk">Połącz</button></div><div id="lnkPod" class="s2"></div>
+      ${pr ? `<div class="s2">Wykryto po nazwach: T50 Nr = T60 Nr ${pr.d >= 0 ? '+' : '−'} ${fmt(Math.abs(pr.d))} (${pr.ile} tych samych meczów) <button id="lnkAuto">Użyj</button></div>` : ''}</div>
+    <div class="bb"><button id="ntDel">Usuń mecz</button><button id="ntOk">Zapisz</button><button id="ntGo" class="pri">Dalej ▶</button></div></div>`;
   document.body.appendChild(ov);
-  const close = () => ov.remove(), save = (v, dalej) => {
-    putNotes(t, { [nr]: v }); close();
+  if (cd) ov.querySelectorAll('.kod button').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; v[i] = nastCyfra(i, v[i]); b.textContent = mark(String(v[i])); b.classList.toggle('on', !!v[i]); $('kdV').textContent = v.join('');
+  });
+  const pod = () => { const m = +$('lnkIn').value, x = m > 0 ? n50[m] : ''; $('lnkPod').innerHTML = m > 0 ? `T50 Nr ${fmt(m)}: ${x ? `<b>${esc(x)}</b>` : 'bez nazwy'}` : ''; };
+  $('lnkIn').oninput = pod;
+  $('lnkOk').onclick = () => { const m = +$('lnkIn').value; if (!(m > 0)) return; zapiszLink(nr, m); ov.remove(); render(); editRow(nr); };
+  if ($('lnkAuto')) $('lnkAuto').onclick = () => { const n60 = Math.max(1, 1 - pr.d); zapiszLink(n60, n60 + pr.d); ov.remove(); render(); editRow(nr); };
+  if ($('z50')) $('z50').onclick = () => { $('ntIn').value = nm50; };
+  const close = () => ov.remove(), save = (tx, dalej) => {
+    const nowy = v ? v.join('') : cd;
+    if (cd && nowy !== cd) { if (!confirm(`Zmienić kod Nr ${fmt(nr)}: ${cd} → ${nowy}?`)) return; if (!zmienKod(t, nr, nowy)) return; }
+    putNotes(t, { [nr]: tx }); close();
     const x = dalej ? nextNr(t, nr) : 0, k2 = x ? S.book[t].pos[x].k : S.card[t];
     if (k2 !== S.card[t]) go(k2); else render();
     if (x) editRow(x);
   };
   const inp = $('ntIn'); inp.focus();
   ov.onclick = e => { if (e.target === ov) close(); };
-  $('ntDel').onclick = () => save('');
+  $('ntDel').onclick = () => { if (v) v.splice(0, 3, ...[...cd].map(Number)); save(''); };   // „Usuń mecz” — tylko nazwa, kod bez zmian
   $('ntOk').onclick = () => save(inp.value);
   $('ntGo').onclick = () => save(inp.value, true);
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };
@@ -677,7 +731,7 @@ function addCodeSheet() {
   ov.innerHTML = `<div class="sheet"><h3>Nowy kod · Nr ${fmt(nr)}</h3>
     <div class="s">Strona ${w.k} · wiersz ${w.r}. Dotknij cyfry: 1. cyfra 0 → 1 → 2 → 3 (gol 40–45' / 46–50' / oba), 2. i 3. cyfra 0 / 1 (gol 50–60', 60–70').</div>
     <div class="kod">${v.map((_, i) => `<button data-i="${i}">0</button>`).join('')}<b id="kdV">000</b></div>
-    <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="mecz, np. PAO-RAD (nieobowiązkowo)" value="${esc(notes[nr] || '')}">
+    <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="mecz, np. PAO-RAD (nieobowiązkowo)" value="${esc(notes[nr] || notes50()[nr50(nr)] || '')}">
     <div class="s2">Kod trafi do wszystkich aplikacji T60 (RAZEM 60, SZUKAJ 60, MOJE).</div>
     <div class="bb"><button id="kdNo">Anuluj</button><button id="kdNt">Tylko mecz</button><button id="kdOk" class="pri">Zapisz kod</button></div></div>`;
   document.body.appendChild(ov);
@@ -753,7 +807,7 @@ window.addEventListener('resize', () => {
   if (Math.abs(window.innerWidth - szer) < 40) return; szer = window.innerWidth; if (!FL && S.book[S.t]) render(); });
 // kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
 const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
-window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key)) refresh(); });
+window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key) || e.key.startsWith('zeszyt_v1_poprawki_')) refresh(); if (e.key === 'zeszyt_v1_notes_t50' || e.key === LNK) render(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 window.addEventListener('focus', refresh);
 

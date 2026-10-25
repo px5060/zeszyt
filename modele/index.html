@@ -173,7 +173,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.5';
+const APP_VER = '1.12.0';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -202,10 +202,13 @@ async function loadSeed() {   // baza kodów z aplikacji MOJE (ten sam adres), k
     W.seedErr = true; return '';
   }
 }
-function czytajKody() {   // → czy coś się zmieniło
-  const add = lsGet(ADDK, ''), s = W.seed + (/^(\d{3})*$/.test(add) ? add : ''), c = s.match(/\d{3}/g) || [];
-  if (W.H && c.length === W.c.length && c[c.length - 1] === W.c[W.c.length - 1]) return false;
-  W.c = c; W.B = buildBook(c.length); W.H = przygotuj(c, W.B); return true;
+const PKOD = 'zeszyt_v1_poprawki_t50';   // poprawki kodów z bazy MOJE zrobione w ZESZYCIE (od 1.12.0)
+function czytajKody() {   // → czy coś się zmieniło (także poprawka kodu w środku tabeli)
+  const add = lsGet(ADDK, ''), s = W.seed + (/^(\d{3})*$/.test(add) ? add : ''), c = s.match(/\d{3}/g) || [], nS = W.seed.length / 3;
+  let P = {}; try { P = JSON.parse(lsGet(PKOD, '{}')) || {}; } catch (e) {}
+  for (const nr in P) if (+nr >= 1 && +nr <= nS && /^\d{3}$/.test(P[nr])) c[nr - 1] = P[nr];
+  const key = c.join(''); if (W.H && key === W.key) return false;
+  W.key = key; W.c = c; W.B = buildBook(c.length); W.H = przygotuj(c, W.B); return true;
 }
 const wZeszycie = () => { const u = lsGet('zeszyt_v1_modele_usuniete', '').split(','); return [...MODELE.filter(m => !u.includes(m.id)), ...parseModele(lsGet(MOJEK, '[]'))].map(modDef); };   // bez usuniętych wbudowanych
 // ===== STAN GRY MODELU (od 1.9.5): GRAJ teraz = następny krok wypada w następnym wierszu; CZEKAJ na grę = kolejny krok (2., 3.…)
@@ -454,7 +457,7 @@ $('tabK').addEventListener('click', e => {
 
 // kody dopisane w innej aplikacji — po powrocie przelicz
 const odswiez = () => { if (W.seed !== '' || W.seedErr) { if (czytajKody()) { info(); szukaj(); W.lost = null; if (!$('tabK').hidden) kodTab(); if (!$('tabL').hidden) szukajLost(); } else pokazWyniki(); } };
-window.addEventListener('storage', e => { if (!e.key || e.key === ADDK) odswiez(); if (e.key === MOJEK) pokazWyniki(); });
+window.addEventListener('storage', e => { if (!e.key || e.key === ADDK || e.key === PKOD) odswiez(); if (e.key === MOJEK) pokazWyniki(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) odswiez(); });
 function info() {
   const c = W.c, n = c.length;
