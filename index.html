@@ -176,6 +176,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .stt .po i.w{background:#2ea85a}.stt .po i.l{background:#e0483e}.stt .po .sqs{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.stt .po .s3{color:var(--mu);font-size:12px}
 .stt .po .ida{margin-top:8px;background:var(--pan);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
 .stt .ost.kw .sel{outline:3px solid #f2c230;outline-offset:1px}
+/* podgląd modelu w ramce (SZUKAJ W Z → statystyki): sam zeszyt z nawigacją kart */
+.podglad header,.podglad .ttl,.podglad .tabl,.podglad .ztabs,.podglad .tools,.podglad #info,.podglad #mod,.podglad #msg,.podglad .hint{display:none!important}
+.podglad #card{pointer-events:none}
 </style>
 </head>
 <body>
@@ -234,7 +237,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.13.1';
+const APP_VER = '1.14.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -251,8 +254,10 @@ const hasHund = (k, p) => k > 60 || (k === 60 && p === 1);
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
-const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+// PODGLĄD (od 1.14.0): ?podglad=<kod modelu> — ramka w statystykach SZUKAJ W Z: zeszyt z tym jednym modelem; zapisy tylko w PAM (nic w pamięci telefonu)
+const PODGLAD = new URLSearchParams(location.search).get('podglad'), PAM = {};
+const lsGet = (k, d) => { if (PODGLAD && k in PAM) return PAM[k]; try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
+const lsSet = (k, v) => { if (PODGLAD) { PAM[k] = String(v); return true; } try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
 const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } };
 const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -793,10 +798,16 @@ window.addEventListener('focus', refresh);
 (async () => {
   $('ver').textContent = APP_VER;
   $('info').textContent = 'Wczytuję kody…';
-  { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
+  if (PODGLAD) {   // podgląd: tylko ten model (bieżąca gra i kolejne kroki), bez dźwięku; wysokość strony → ramka w SZUKAJ W Z
+    const M = modZKodu(PODGLAD); document.body.classList.add('podglad');
+    if (M) { PAM[MOJEK] = JSON.stringify([...mojeModele(), { ...M, id: 'pg', lista: '' }]); PAM[MODK] = 'pg'; PAM[OTWK] = '1'; }
+    PAM[PRZK] = '0'; PAM[SNDK] = '0';
+    if (window.ResizeObserver) new ResizeObserver(() => parent.postMessage({ zeszytH: document.documentElement.scrollHeight }, '*')).observe(document.body);
+  } else { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
     if (m) { modWybSet(m, true); otwDla(m); history.replaceState(null, '', location.pathname); } }
   await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
   render();
+  if (PODGLAD) { const T = S.modAll.pg && S.modAll.pg.teraz; if (T && T.k != null && T.k !== S.card[S.t]) go(T.k); }   // karta bieżącej gry modelu
 })();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('zeszyt-sw.js').catch(() => {});
 </script>
@@ -808,6 +819,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
     d.style.cssText = 'position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:99999;max-width:92vw;text-align:center;background:#1e7d3a;color:#fff;padding:8px 14px;border-radius:18px;font:600 13px system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.45);pointer-events:none;transition:opacity .5s';
     document.body.appendChild(d); setTimeout(() => { d.style.opacity = '0'; setTimeout(() => d.remove(), 600); }, 3500);
   }
+  if (window.top !== window) return;   // nie w ramce podglądu
   const url = location.origin + location.pathname;
   navigator.serviceWorker.ready.then(async () => {
     for (let i = 0; i < 30; i++) {

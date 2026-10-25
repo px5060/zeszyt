@@ -342,3 +342,9 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   Wystarczy raz otworzyć z internetem. Dane i tak są w pamięci telefonu (localStorage), więc wpisywanie kodów offline działa.
 - Rejestracja pomocnika także na `localhost` (testy). MOJE: to samo w `moje-sw.js` (repo moje, build.py) — razem z pulami z SZUKAJ.
 - Po starcie zielony komunikat na 3,5 s: „✓ Pobrane — działa też bez internetu”, a bez sieci „📴 Bez internetu — działa z pamięci telefonu”.
+
+## Podgląd na zeszycie w statystykach SZUKAJ W Z (1.14.0)
+- Na dole statystyk modelu (T50 i T60) ramka z zeszytem: `../?podglad=<kod>` / `../t60.html?podglad=<kod>`.
+- Zeszyt w podglądzie pokazuje tylko ten model (bieżąca gra: następny krok ▶ i dalsze kroki do limitu), otwiera się na karcie bieżącej gry; ◀ ▶ — inne karty.
+- Podgląd **nic nie zapisuje** w pamięci telefonu (zapisy tylko w PAM w ramce) — model nie trafia do zeszytu, dopóki nie naciśniesz „Przenieś do zeszytu”.
+- W podglądzie ukryte: pasek aplikacji, przełącznik T50/T60, dopisywanie kodów, listy modeli; bez dźwięku i bez komunikatu offline.
