@@ -237,7 +237,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.14.0';
+const APP_VER = '1.15.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -255,7 +255,10 @@ const hasHund = (k, p) => k > 60 || (k === 60 && p === 1);
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // PODGLĄD (od 1.14.0): ?podglad=<kod modelu> — ramka w statystykach SZUKAJ W Z: zeszyt z tym jednym modelem; zapisy tylko w PAM (nic w pamięci telefonu)
-const PODGLAD = new URLSearchParams(location.search).get('podglad'), PAM = {};
+// ZNACZ (od 1.15.0): ?znacz=Nr:typ[:krok],… — bieżąca gra modelu z SZUKAJ+ (STEP s, TRIGGER t, krok bez trafienia k, WIN w, BUST b, zakład do gry n);
+// też tryb podglądu (bez zapisu), bez modeli zeszytu
+const ZNACZ = new URLSearchParams(location.search).get('znacz');
+const PODGLAD = new URLSearchParams(location.search).get('podglad') || (ZNACZ != null ? 'znacz' : null), PAM = {};
 const lsGet = (k, d) => { if (PODGLAD && k in PAM) return PAM[k]; try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { if (PODGLAD) { PAM[k] = String(v); return true; } try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
 const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } };
@@ -505,7 +508,8 @@ function rowHtml(t, row, r, cls, k, p, notes, q) {
   const box = (x, up) => `<span class="dp">${up ? '↑' : ''}${[...c[x - 1]].map(mark).join('')}</span>`;
   const dp = row.pre.filter(x => x <= n).map(x => box(x, 1)).join('') + row.dop.filter(x => x <= n).map(x => box(x)).join('');
   // wiersz modelu: ramka wokół znaków, kolor i numer kroku
-  const Mw = S.mods.filter(M => M.w.includes(r)), mo = Mw.some(M => partsOf(k)[p] >= M.mx), mm = mo && S.modMk[`${k}.${p}.${r}`];
+  const zz = S.zn && S.zn[`${k}.${p}.${r}`];   // ?znacz= (gra z SZUKAJ+)
+  const Mw = S.mods.filter(M => M.w.includes(r)), mo = !!zz || Mw.some(M => partsOf(k)[p] >= M.mx), mm = zz || mo && S.modMk[`${k}.${p}.${r}`];
   const sz = !mo && Mw.some(M => r <= partsOf(k)[p]);   // krótka połowa (karta 0): wiersz modelu tylko do wglądu
   const kc = mo ? ' m' + (mm ? mm.c : 'f') : sz ? ' msz' : '';
   const zak = mo && nr && S.zakNr.has(nr) ? '💰' : '';   // na tym wierszu postawiony zakład wybranego modelu
@@ -560,6 +564,7 @@ function render() {
   S.modMk = modMkWsz(S.mods, lsGet(PRZK, '0') === '1');
   $('mod').innerHTML = modLista('') + modLista('lost');
   $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(lsGet(PRZK, '0') === '1')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
+  if (S.zn) $('leg').innerHTML = `<div class="lg">${[['mp', 'STEP / TRIGGER'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'zakład do gry']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('')}</div>`;
   S.zakNr = new Set(zakGet().filter(z => S.mods.some(M => M.id === z.mid)).map(z => z.nr));
   const zp = zakGet().filter(z => zakRes(z) === 'pend').length; $('zbad').textContent = zp ? zp : '';
   $('ztabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.z === (S.tab || 'z')));
@@ -800,13 +805,20 @@ window.addEventListener('focus', refresh);
   $('info').textContent = 'Wczytuję kody…';
   if (PODGLAD) {   // podgląd: tylko ten model (bieżąca gra i kolejne kroki), bez dźwięku; wysokość strony → ramka w SZUKAJ W Z
     const M = modZKodu(PODGLAD); document.body.classList.add('podglad');
-    if (M) { PAM[MOJEK] = JSON.stringify([...mojeModele(), { ...M, id: 'pg', lista: '' }]); PAM[MODK] = 'pg'; PAM[OTWK] = '1'; }
+    if (M) { PAM[MOJEK] = JSON.stringify([...mojeModele(), { ...M, id: 'pg', lista: '' }]); PAM[MODK] = 'pg'; PAM[OTWK] = '1'; } else PAM[MODK] = '';
     PAM[PRZK] = '0'; PAM[SNDK] = '0';
     if (window.ResizeObserver) new ResizeObserver(() => parent.postMessage({ zeszytH: document.documentElement.scrollHeight }, '*')).observe(document.body);
   } else { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
     if (m) { modWybSet(m, true); otwDla(m); history.replaceState(null, '', location.pathname); } }
   await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
   render();
+  if (ZNACZ != null) { const t = S.t, B = S.book[t], zn = {}, ZT = { s: ['p', () => 'STEP'], t: ['p', () => 'TRIGGER'], k: ['k', x => 'k' + x], w: ['w', x => 'WIN ' + x], b: ['b', x => 'BUST ' + x], n: ['n', x => `▶ k${x} ${STAWKI[x - 1] || ''} zł`] };
+    let cel = null;
+    for (const it of ZNACZ.split(',')) { const [nr, ty, x] = it.split(':'), o = B.pos[+nr], z = ZT[ty]; if (!o || !z) continue;
+      const key = `${o.k}.${o.p}.${o.r}`, a = zn[key] || (zn[key] = { c: z[0], ls: [], n: 1, kto: [] }), l = z[1](x);
+      if (ty !== 's' && ty !== 't' || a.c === 'p') a.c = z[0]; a.ls.push(l); a.kto.push(`Nr ${nr}: ${l}`); if (!cel || cel.ty !== 'n') cel = { ty, k: o.k }; }   // karta zakładu do gry, inaczej ostatniego zdarzenia
+    for (const a of Object.values(zn)) a.l = a.ls.join(' / ');
+    S.zn = zn; render(); if (cel && cel.k !== S.card[S.t]) go(cel.k); }
   if (PODGLAD) { const T = S.modAll.pg && S.modAll.pg.teraz; if (T && T.k != null && T.k !== S.card[S.t]) go(T.k); }   // karta bieżącej gry modelu
 })();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('zeszyt-sw.js').catch(() => {});
