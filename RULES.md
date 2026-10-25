@@ -352,3 +352,9 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## Zeszyt z bieżącą grą z SZUKAJ+ (?znacz=, 1.15.0)
 - `?znacz=Nr:typ[:krok],…` (typ: s STEP, t TRIGGER, k krok bez trafienia, w WIN, b BUST, n zakład do gry) — ZESZYT T50 / T60 zaznacza te wiersze (z nazwami meczów), otwiera kartę zakładu do gry.
 - Tryb podglądu: nic nie zapisuje, bez modeli zeszytu. Używa go okno modelu w S+50 / S+60 (przycisk „📓 Zeszyt — bieżąca gra”).
+
+## Zakłady: dalej po przegranym (1.16.0)
+- Przy ostatnim zakładzie modelu, gdy jest przegrany: „➡ Dalej:” stan modelu teraz (GRAJ / CZEKAJ na grę za N w. / OD 1. KROKU / CZEKAJ / po BUST).
+- Gdy model jest w grze: formularz Nr wiersza · krok · zł (stawka = poprzednia × progresja) i „💰 Postaw kolejny krok — kN”. Zapis jak zwykły zakład (ten sam model).
+- Zakład czekający: „▶ GRA TERAZ” albo „gra za N wierszy”.
+- Model usunięty z listy — liczony z zapisanej definicji w zakładzie. T50 i T60.
