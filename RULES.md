@@ -341,3 +341,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   kopia w pamięci `zeszyt-offline-v1`; bez sieci — kopia (strony bez ?m= / ?v=). Przy instalacji od razu zapisuje 4 strony + silniki.
   Wystarczy raz otworzyć z internetem. Dane i tak są w pamięci telefonu (localStorage), więc wpisywanie kodów offline działa.
 - Rejestracja pomocnika także na `localhost` (testy). MOJE: to samo w `moje-sw.js` (repo moje, build.py) — razem z pulami z SZUKAJ.
+- Po starcie zielony komunikat na 3,5 s: „✓ Pobrane — działa też bez internetu”, a bez sieci „📴 Bez internetu — działa z pamięci telefonu”.
