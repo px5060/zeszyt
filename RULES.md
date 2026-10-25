@@ -334,3 +334,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## 🏆 Głos (od 1.12.1)
 - Prośba użytkownika: przycisk 🏆 na pasku ZESZYTU (T50 i T60) — telefon mówi „Maciek, jesteś mistrzem zeszytów!” (mowa przeglądarki `speechSynthesis`, głos polski; bez mowy — okienko z tekstem).
 - 1.12.2: nazwy meczów z T50 w ZESZYCIE T60 czarne (jak w T50), nie niebieskie.
+
+## Praca bez internetu (od 1.13.0)
+- Prośba użytkownika: ZESZYT, SZUKAJ W ZESZYCIE (T50, T60) i MOJE działają offline. `zeszyt-sw.js`: każde pobranie z tego samego adresu
+  (strony, silnik.js / silnik60.js, ikony, baza kodów `/moje/seed_t*.txt`) i pismo Caveat z Google — najpierw z sieci (zawsze najnowsza wersja),
+  kopia w pamięci `zeszyt-offline-v1`; bez sieci — kopia (strony bez ?m= / ?v=). Przy instalacji od razu zapisuje 4 strony + silniki.
+  Wystarczy raz otworzyć z internetem. Dane i tak są w pamięci telefonu (localStorage), więc wpisywanie kodów offline działa.
+- Rejestracja pomocnika także na `localhost` (testy). MOJE: to samo w `moje-sw.js` (repo moje, build.py) — razem z pulami z SZUKAJ.
