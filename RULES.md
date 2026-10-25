@@ -333,3 +333,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 
 ## 🏆 Głos (od 1.12.1)
 - Prośba użytkownika: przycisk 🏆 na pasku ZESZYTU (T50 i T60) — telefon mówi „Maciek, jesteś mistrzem zeszytów!” (mowa przeglądarki `speechSynthesis`, głos polski; bez mowy — okienko z tekstem).
+- 1.12.2: nazwy meczów z T50 w ZESZYCIE T60 czarne (jak w T50), nie niebieskie.
