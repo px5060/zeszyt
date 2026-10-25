@@ -317,3 +317,16 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   pokazuje, co było w całej historii modelu **w następnej grze po takim wyniku** — rozkład od najczęstszego (WIN 1 × 12, WIN 2 × 8, L × 1 …)
   i ostatnie po kolei; pod spodem „Idź do karty tej gry ▶” (wcześniej dotknięcie od razu przenosiło na kartę).
 - Sekcja **„Po LOST — następna gra”** (gdy model miał LOST): jakie WIN-y (albo LOST) były w grze zaraz po każdym LOST.
+
+## Poprawianie kodu w dowolnym wierszu i nazwy meczów z T50 w T60 (od 1.12.0)
+- Prośba użytkownika: dotknięcie wiersza z kodem (ZESZYT T50 i T60) — poza nazwą meczu można **poprawić kod** (T50: − / +;
+  T60: 1. cyfra 0 → 1 → 2 → 3, potem 0 / 1), „Zapisz” pyta „Zmienić kod Nr …: stary → nowy?”. „Usuń mecz” usuwa tylko nazwę.
+  - Kod dopisany w telefonie: poprawka wprost na wspólnej liście (`t50razem_v1_added` / `t60razem_v1_added`) — widzą wszystkie aplikacje.
+  - Kod z bazy MOJE (pliku z serwera nie zmienimy z telefonu): poprawka w `zeszyt_v1_poprawki_t50` / `_t60` ({Nr: kod}) — stosują ją
+    ZESZYT i SZUKAJ W ZESZYCIE (T50 i T60); MOJE i RAZEM zostają przy starym kodzie (komunikat w oknie). Powrót do kodu z bazy usuwa wpis.
+  - Odczyt kodów porównuje teraz cały ciąg (nie tylko liczbę i ostatni kod), więc poprawka w środku od razu przelicza modele.
+- **Nazwy meczów z T50 w ZESZYCIE T60**: w oknie wiersza T60 „🔗 Ten mecz w T50 to Nr …” + „Połącz” (podgląd nazwy z T50).
+  Połączenia `zeszyt_v1_t60_t50` = [{n60, n50}]; od połączonego wiersza w dół Nr T50 = Nr T60 + (n50 − n60) — do następnego połączenia
+  (gdy kolejność meczów się rozjedzie, nowe połączenie niżej). Nazwa z T50 widoczna na niebiesko, gdy w T60 nie wpisano własnej;
+  „↓ Wpisz tę nazwę” przepisuje ją do T60; „+ Dopisz kod” T60 podpowiada nazwę z T50. Bez połączeń — propozycja wykryta po tych samych
+  nazwach w obu tabelach („Wykryto po nazwach … Użyj”).

@@ -234,7 +234,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.11.8';
+const APP_VER = '1.12.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -257,7 +257,7 @@ const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && ty
 const jget = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : {}; } catch (e) { return {}; } };
 const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-const S = { t: 't50', seed: {}, seedErr: {}, codes: {}, nAdd: {}, book: {}, card: {}, follow: {}, mods: [], modMk: {}, zakNr: new Set(), panel: '', lpSkip: false };
+const S = { t: 't50', seed: {}, seedErr: {}, codes: {}, raw: {}, nAdd: {}, book: {}, card: {}, follow: {}, mods: [], modMk: {}, zakNr: new Set(), panel: '', lpSkip: false };
 
 async function loadSeed(t) {
   const url = TABS[t].seed, ok = s => s.length > 0 && s.length % 3 === 0;
@@ -272,13 +272,31 @@ async function loadSeed(t) {
   }
 }
 function readAdded(t) { const s = lsGet(TABS[t].key, ''); return /^(\d{3})*$/.test(s) ? s : ''; }
-function readCodes(t) {   // → czy coś się zmieniło
-  const add = readAdded(t), s = (S.seed[t] || '') + add, c = s.match(/\d{3}/g) || [];
-  const ch = c.length !== (S.codes[t] || []).length || c[c.length - 1] !== (S.codes[t] || [])[c.length - 1];
-  S.codes[t] = c; S.nAdd[t] = add.length / 3; if (ch || !S.book[t]) S.book[t] = buildBook(c.length); return ch;
+// poprawki kodów z bazy MOJE (od 1.12.0): bazy nie da się zmienić z telefonu, więc poprawka kodu z bazy leży w zeszyt_v1_poprawki_<t>
+// (widzą ją ZESZYT i SZUKAJ W ZESZYCIE); kod dopisany w telefonie poprawiamy wprost na wspólnej liście (widzą wszystkie aplikacje)
+const PK = t => 'zeszyt_v1_poprawki_' + t;
+function readCodes(t) {   // → czy coś się zmieniło (także poprawka kodu w środku tabeli)
+  const add = readAdded(t), seed = S.seed[t] || '', c = (seed + add).match(/\d{3}/g) || [], P = jget(PK(t)), nS = seed.length / 3;
+  for (const nr in P) if (+nr >= 1 && +nr <= nS && /^\d{3}$/.test(P[nr])) c[nr - 1] = P[nr];
+  const key = c.join(''), ch = key !== S.raw[t];
+  S.raw[t] = key; S.codes[t] = c; S.nAdd[t] = add.length / 3; if (ch) S.modKey = '';
+  if (ch || !S.book[t]) S.book[t] = buildBook(c.length); return ch;
+}
+function zmienKod(t, nr, code) {   // poprawka już wpisanego kodu (dowolny wiersz)
+  readCodes(t);
+  const nS = S.codes[t].length - S.nAdd[t];
+  if (nr > nS) {
+    const add = readAdded(t), i = (nr - nS - 1) * 3;
+    if (!lsSet(TABS[t].key, add.slice(0, i) + code + add.slice(i + 3))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  } else {
+    const P = jget(PK(t)); if (code === (S.seed[t] || '').substr((nr - 1) * 3, 3)) delete P[nr]; else P[nr] = code;
+    if (!lsSet(PK(t), JSON.stringify(P))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
+  }
+  readCodes(t); return true;
 }
 const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0;
 const mark = d => d === '0' ? '−' : d === '1' ? '+' : d;   // 1. znak = 1. cyfra kodu, 2. = środkowa, 3. = ostatnia
+const nastCyfra = (i, d) => d ^ 1, KTX = '− = 0, + = 1.';   // poprawka kodu: T50 — każdy znak 0 / 1
 
 // ===== MODELE — układy podświetlane na kartach zeszytu (rozwijana lista „Modele” nad kartą) =====
 // W każdej połowie liczą się tylko wiersze modelu (3 kroki na połowę), WIN = + na środku (poz 1). Połowa bez + w tych wierszach
@@ -645,20 +663,28 @@ function editRow(nr) {
   const t = S.t, w = S.book[t].pos[nr], notes = jget(K.notes(t)), c = S.codes[t], cd = c[nr - 1];
   const row = S.book[t].cards[w.k].parts[w.p][w.r - 1], dop = [...row.pre, ...row.dop].filter(x => x <= c.length);
   const ov = document.createElement('div'); ov.className = 'ov';
+  const v = cd ? [...cd].map(Number) : null, zBazy = cd && nr <= c.length - S.nAdd[t];   // od 1.12.0: kod też można poprawić
   ov.innerHTML = `<div class="sheet"><h3>${TABS[t].name} · karta ${w.k} · ${partName(w.k, w.p)} · wiersz ${w.r}</h3>
     <div class="s">Nr ${fmt(nr)} · ${cd ? `kod <b>${cd}</b>` : 'jeszcze bez kodu'}${dop.map(x => ` · dopisek Nr ${fmt(x)}: <b>${c[x - 1]}</b>`).join('')}</div>
+    ${cd ? `<div class="s">Poprawka kodu — dotknij znaku: ${KTX}</div><div class="kod">${v.map((d, i) => `<button data-i="${i}" class="${d ? 'on' : ''}">${mark(String(d))}</button>`).join('')}<b id="kdV">${cd}</b></div>
+      ${zBazy ? '<div class="s2">To kod z bazy MOJE — poprawka będzie w ZESZYCIE i SZUKAJ W ZESZYCIE (MOJE i RAZEM zostaną przy starym kodzie).</div>' : ''}` : ''}
     <input id="ntIn" maxlength="40" autocapitalize="characters" autocomplete="off" placeholder="np. PAO-RAD" value="${esc(notes[nr] || '')}">
-    <div class="bb"><button id="ntDel">Usuń</button><button id="ntOk">Zapisz</button><button id="ntGo" class="pri">Dalej ▶</button></div></div>`;
+    <div class="bb"><button id="ntDel">Usuń mecz</button><button id="ntOk">Zapisz</button><button id="ntGo" class="pri">Dalej ▶</button></div></div>`;
   document.body.appendChild(ov);
-  const close = () => ov.remove(), save = (v, dalej) => {
-    putNotes(t, { [nr]: v }); close();
+  if (cd) ov.querySelectorAll('.kod button').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i; v[i] = nastCyfra(i, v[i]); b.textContent = mark(String(v[i])); b.classList.toggle('on', !!v[i]); $('kdV').textContent = v.join('');
+  });
+  const close = () => ov.remove(), save = (tx, dalej) => {
+    const nowy = v ? v.join('') : cd;
+    if (cd && nowy !== cd) { if (!confirm(`Zmienić kod Nr ${fmt(nr)}: ${cd} → ${nowy}?`)) return; if (!zmienKod(t, nr, nowy)) return; }
+    putNotes(t, { [nr]: tx }); close();
     const x = dalej ? nextNr(t, nr) : 0, k2 = x ? S.book[t].pos[x].k : S.card[t];
     if (k2 !== S.card[t]) go(k2); else render();
     if (x) editRow(x);
   };
   const inp = $('ntIn'); inp.focus();
   ov.onclick = e => { if (e.target === ov) close(); };
-  $('ntDel').onclick = () => save('');
+  $('ntDel').onclick = () => { if (v) v.splice(0, 3, ...[...cd].map(Number)); save(''); };   // „Usuń mecz” — tylko nazwa, kod bez zmian
   $('ntOk').onclick = () => save(inp.value);
   $('ntGo').onclick = () => save(inp.value, true);
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };
@@ -750,7 +776,7 @@ window.addEventListener('resize', () => {
   if (Math.abs(window.innerWidth - szer) < 40) return; szer = window.innerWidth; if (!FL && S.book[S.t]) render(); });
 // kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
 const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
-window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key)) refresh(); });
+window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key) || e.key.startsWith('zeszyt_v1_poprawki_')) refresh(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 window.addEventListener('focus', refresh);
 
