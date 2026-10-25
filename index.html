@@ -112,6 +112,13 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .zb .r b{font-size:15px}.zb .r b.w{color:#2ea85a}.zb .r b.l{color:var(--red)}.zb .r b.p{color:#f2c230}
 .zb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-size:12px}
 .zpust{color:var(--mu);text-align:center;padding:24px 10px}
+/* dalej po przegranym zakładzie (1.16.0): stan modelu teraz + następny krok */
+.zb .zc{margin-top:7px;padding:7px 8px;border-radius:9px;background:var(--card);border:1px dashed #f2c230;font-size:13px;cursor:default}
+.zb .zc .stan{font-size:12px}
+.zb .zcf{display:grid;grid-template-columns:1.3fr .7fr 1fr;gap:5px;margin-top:6px}.zb .zcf label{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--mu)}
+.zb .zcf input{width:100%;background:var(--pan);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:6px;font-size:15px;font-weight:800}
+[data-theme=day] .zb .zcf input{background:#fff}
+.zb .zcf button{grid-column:1/-1;background:#f2c230;border:0;color:#222;border-radius:8px;padding:9px;font-size:14px;font-weight:800}
 @keyframes sqB{50%{background:#2ee66b;box-shadow:0 0 0 1px #0007,0 0 6px 2px #2ee66b}}
 .mod .bb2{display:flex;gap:6px;margin-top:6px}.mod .bb2 button{flex:1;border:0;border-radius:9px;padding:9px 6px;font-size:14px;font-weight:800;color:#fff;background:#1f8a4c}
 .mod .bb2 button.sec{background:var(--card);border:1px solid var(--bd);color:var(--tx)}
@@ -237,7 +244,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.15.0';
+const APP_VER = '1.16.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -394,14 +401,28 @@ function zakZapisz(M) {   // zakład z formularza przy modelu (domyślnie: wiers
   if (!lsSet(ZAKK, JSON.stringify(a))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
   render();
 }
+function zakModel(z) {   // model zakładu (z listy modeli; usunięty z listy — policzony z zapisanej definicji)
+  if (S.modAll[z.mid]) return S.modAll[z.mid];
+  const t = S.t, k = `${S.codes[t].length}:${JSON.stringify(z.m)}`; S.zakM = S.zakM || {};
+  return S.zakM[k] || (S.zakM[k] = liczModel(S.codes[t], S.book[t], modDef(z.m)));
+}
+function zakDalej(z, ost) {   // ostatni zakład modelu przegrany → co model robi teraz i formularz następnego kroku (Nr, krok, stawka ×2 jak progresja)
+  if (z.res !== 'lost' || ost[z.mid] !== z) return '';
+  const M = zakModel(z), T = M && M.teraz; if (!T) return '';
+  const graj = T.gra && T.s <= M.limit, krok = graj ? T.s : z.krok + 1, zl0 = Math.max(1, Math.round(z.zl * (STAWKI[krok - 1] || 0) / (STAWKI[z.krok - 1] || 1)));
+  return `<div class="zc"><div>➡ Dalej: ${modTeraz(M)}</div>${graj ? `<div class="zcf"><label>Nr wiersza<input id="zcNr-${z.i}" type="number" inputmode="numeric" value="${T.nr}"></label>`
+    + `<label>krok<input id="zcK-${z.i}" type="number" inputmode="numeric" min="1" value="${krok}"></label><label>postawione zł<input id="zcZl-${z.i}" type="number" inputmode="numeric" min="1" value="${zl0}"></label>`
+    + `<button data-zcont="${z.i}">💰 Postaw kolejny krok — k${krok}</button></div>` : `<div class="mu">Kolejny zakład pojawi się tu, gdy model wejdzie do gry.</div>`}</div>`;
+}
 function zakTab() {   // zakładka 💰 Zakłady: wynik, czekające na wynik, rozliczone
   const t = S.t, A = zakGet().map((z, i) => ({ ...z, i, res: zakRes(z), val: zakVal(z) })), done = A.filter(z => z.res !== 'pend');
   const d0 = new Date().setHours(0, 0, 0, 0), sum = L => L.reduce((a, z) => a + z.val, 0);
+  const ost = {}; A.forEach(z => { const o = ost[z.mid]; if (!o || z.nr > o.nr || (z.nr === o.nr && z.t > o.t)) ost[z.mid] = z; });   // ostatni zakład każdego modelu
   const row = z => {
     const p = S.book[t].pos[z.nr], cd = z.nr <= S.codes[t].length ? S.codes[t][z.nr - 1] : '';
     const gdzie = p ? `karta ${p.k} ${partsOf(p.k).length === 2 ? (p.p ? 'P' : 'L') : 'cz.' + (p.p + 1)} w.${p.r}` : '';
-    const wyn = z.res === 'pend' ? '<b class="p">czeka</b>' : `<b class="${z.res === 'win' ? 'w' : 'l'}">${zl(z.val)}</b><span class="zn">${[...cd].map(mark).join('')}</span>`;
-    return `<div class="zb ${z.res}" data-zi="${z.i}"><div><b>${esc(z.nazwa)}</b> <small>${modDop(modDef(z.m))}</small><br>Nr ${fmt(z.nr)} · ${gdzie} · <b>k${z.krok}</b> · <b>${fmt(z.zl)} zł</b><div class="mu">zapisany ${kiedy(z.t)}</div></div>`
+    const za = z.nr - S.codes[t].length, wyn = z.res === 'pend' ? (za === 1 ? '<b class="p">▶ GRA TERAZ</b>' : `<b class="p">czeka</b><span class="mu">gra za ${za} ${odmW(za)}</span>`) : `<b class="${z.res === 'win' ? 'w' : 'l'}">${zl(z.val)}</b><span class="zn">${[...cd].map(mark).join('')}</span>`;
+    return `<div class="zb ${z.res}" data-zi="${z.i}"><div><b>${esc(z.nazwa)}</b> <small>${modDop(modDef(z.m))}</small><br>Nr ${fmt(z.nr)} · ${gdzie} · <b>k${z.krok}</b> · <b>${fmt(z.zl)} zł</b><div class="mu">zapisany ${kiedy(z.t)}</div>${zakDalej(z, ost)}</div>`
       + `<div class="r">${wyn}<button data-zdel="${z.i}">✕ usuń</button></div></div>`;
   };
   const P = A.filter(z => z.res === 'pend').sort((a, b) => a.nr - b.nr), R = done.sort((a, b) => b.nr - a.nr || b.t - a.t);
@@ -608,6 +629,13 @@ function szelest(len = .4) {
 $('ztabs').addEventListener('click', e => { const b = e.target.closest('button[data-z]'); if (!b) return; S.tab = b.dataset.z; render(); });
 $('tB').addEventListener('click', e => {
   const d = e.target.closest('[data-zdel]'), A = zakGet();
+  const zc = e.target.closest('[data-zcont]');   // kolejny krok po przegranym zakładzie
+  if (zc) { const i = +zc.dataset.zcont, z = A[i], nr = +$('zcNr-' + i).value, krok = +$('zcK-' + i).value, kw = +$('zcZl-' + i).value;
+    if (!z) return; if (!(nr >= 1) || !(krok >= 1 && krok <= 40) || !(kw > 0)) { alert('Podaj Nr wiersza, krok i kwotę w zł.'); return; }
+    if (A.some(x => x.mid === z.mid && x.nr === nr) && !confirm(`Na Nr ${fmt(nr)} jest już zakład modelu ${z.nazwa}. Zapisać jeszcze jeden?`)) return;
+    A.push({ mid: z.mid, nazwa: z.nazwa, m: z.m, nr, krok, zl: kw, t: Date.now() });
+    if (!lsSet(ZAKK, JSON.stringify(A))) { alert('BŁĄD zapisu pamięci telefonu!'); return; } render(); return; }
+  if (e.target.closest('.zc')) return;   // pola formularza — nie przechodź do karty
   if (d) { const z = A[+d.dataset.zdel]; if (z && confirm(`Usunąć zakład ${z.nazwa} (Nr ${fmt(z.nr)}, k${z.krok}, ${z.zl} zł)?`)) { A.splice(+d.dataset.zdel, 1); lsSet(ZAKK, JSON.stringify(A)); render(); } return; }
   const r = e.target.closest('.zb[data-zi]'); if (!r) return;
   const z = A[+r.dataset.zi], p = z && S.book[S.t].pos[z.nr]; if (!p) return;
