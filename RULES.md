@@ -330,3 +330,6 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   (gdy kolejność meczów się rozjedzie, nowe połączenie niżej). Nazwa z T50 widoczna na niebiesko, gdy w T60 nie wpisano własnej;
   „↓ Wpisz tę nazwę” przepisuje ją do T60; „+ Dopisz kod” T60 podpowiada nazwę z T50. Bez połączeń — propozycja wykryta po tych samych
   nazwach w obu tabelach („Wykryto po nazwach … Użyj”).
+
+## 🏆 Głos (od 1.12.1)
+- Prośba użytkownika: przycisk 🏆 na pasku ZESZYTU (T50 i T60) — telefon mówi „Maciek, jesteś mistrzem zeszytów!” (mowa przeglądarki `speechSynthesis`, głos polski; bez mowy — okienko z tekstem).
