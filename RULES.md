@@ -348,3 +348,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Zeszyt w podglądzie pokazuje tylko ten model (bieżąca gra: następny krok ▶ i dalsze kroki do limitu), otwiera się na karcie bieżącej gry; ◀ ▶ — inne karty.
 - Podgląd **nic nie zapisuje** w pamięci telefonu (zapisy tylko w PAM w ramce) — model nie trafia do zeszytu, dopóki nie naciśniesz „Przenieś do zeszytu”.
 - W podglądzie ukryte: pasek aplikacji, przełącznik T50/T60, dopisywanie kodów, listy modeli; bez dźwięku i bez komunikatu offline.
+
+## Zeszyt z bieżącą grą z SZUKAJ+ (?znacz=, 1.15.0)
+- `?znacz=Nr:typ[:krok],…` (typ: s STEP, t TRIGGER, k krok bez trafienia, w WIN, b BUST, n zakład do gry) — ZESZYT T50 / T60 zaznacza te wiersze (z nazwami meczów), otwiera kartę zakładu do gry.
+- Tryb podglądu: nic nie zapisuje, bez modeli zeszytu. Używa go okno modelu w S+50 / S+60 (przycisk „📓 Zeszyt — bieżąca gra”).
