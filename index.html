@@ -175,6 +175,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .sheet .s2{color:var(--mu);font-size:12px;margin-top:8px}
 .tabl{display:flex;gap:6px;margin:0 0 8px}.tabl a,.tabl b{flex:1;text-align:center;border-radius:9px;padding:7px;font-weight:900;font-size:14px;text-decoration:none;border:1.5px solid #b8902e}
 .tabl a{color:var(--tx);background:var(--card)}.tabl b{background:#b8902e;color:#fff}
+/* znaczki na T50 / T60 (1.18.0): żółty = za ile wierszy grają modele (2, 3), pomarańczowy = ile gra na następnym wierszu — jak w MOJE */
+.tabl{gap:18px}.tabl a,.tabl b{position:relative}
+.zsoon,.znb{position:absolute;top:-8px;min-width:19px;height:19px;border-radius:10px;font:800 11px/19px system-ui,sans-serif;padding:0 4px;border:1px solid #fff;text-align:center}
+.zsoon{left:-4px;background:#FFD700;color:#000}.znb{right:-4px;background:#c97a45;color:#fff}
 
 /* co było po wyniku (dotknięcie kwadracika) i po LOST */
 .stt .po{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font-size:13px;margin:0 0 10px;line-height:1.5}
@@ -183,6 +187,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .stt .po i.w{background:#2ea85a}.stt .po i.l{background:#e0483e}.stt .po .sqs{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.stt .po .s3{color:var(--mu);font-size:12px}
 .stt .po .ida{margin-top:8px;background:var(--pan);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
 .stt .ost.kw .sel{outline:3px solid #f2c230;outline-offset:1px}
+.stt .ost.kw button{transition:transform .15s}.stt .ost.kw button.big{transform:scale(1.5);z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.5)}
 /* podgląd modelu w ramce (SZUKAJ W Z → statystyki): sam zeszyt z nawigacją kart */
 .podglad header,.podglad .ttl,.podglad .tabl,.podglad .ztabs,.podglad .tools,.podglad #info,.podglad #mod,.podglad #msg,.podglad .hint{display:none!important}
 .podglad #card{pointer-events:none}
@@ -216,7 +221,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <main id="main">
   <div class="ttl">TRÓJKA <small>T50</small></div>
-  <div class="tabl"><b>T50</b><a href="t60.html">T60</a></div>
+  <div class="tabl"><b>T50<span id="zbdg-t50"></span></b><a href="t60.html">T60<span id="zbdg-t60"></span></a></div>
   <div class="ztabs" id="ztabs"><button data-z="z" class="on">📓 Zeszyt</button><button data-z="b">💰 Zakłady<span id="zbad"></span></button></div>
   <div id="msg"></div>
   <div id="tZ">
@@ -244,7 +249,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.16.0';
+const APP_VER = '1.18.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -264,8 +269,8 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&am
 // PODGLĄD (od 1.14.0): ?podglad=<kod modelu> — ramka w statystykach SZUKAJ W Z: zeszyt z tym jednym modelem; zapisy tylko w PAM (nic w pamięci telefonu)
 // ZNACZ (od 1.15.0): ?znacz=Nr:typ[:krok],… — bieżąca gra modelu z SZUKAJ+ (STEP s, TRIGGER t, krok bez trafienia k, WIN w, BUST b, zakład do gry n);
 // też tryb podglądu (bez zapisu), bez modeli zeszytu
-const ZNACZ = new URLSearchParams(location.search).get('znacz');
-const PODGLAD = new URLSearchParams(location.search).get('podglad') || (ZNACZ != null ? 'znacz' : null), PAM = {};
+const ZNACZ = new URLSearchParams(location.search).get('znacz'), ZNACZKI = new URLSearchParams(location.search).get('znaczki');   // znaczki=1: ukryta ramka liczy znaczki dla drugiej tabeli
+const PODGLAD = new URLSearchParams(location.search).get('podglad') || (ZNACZ != null ? 'znacz' : ZNACZKI ? 'znaczki' : null), PAM = {};
 const lsGet = (k, d) => { if (PODGLAD && k in PAM) return PAM[k]; try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { if (PODGLAD) { PAM[k] = String(v); return true; } try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
 const jobj = k => { try { const v = JSON.parse(lsGet(k, 'null')); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } };
@@ -494,7 +499,7 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
     <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<button data-k="${g.k}" data-i="${N.G.length - A.length + i}" class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, ${g.k}${pn(g)} w.${g.r}">${g.s}</button>`).join('')}</div>
-    <div class="po" id="poW">Dotknij kwadracika — zobaczysz, co było w historii po takim wyniku.</div>
+    <div class="po" id="poW">Dotknij kwadracika — powiększy się; dotknij go jeszcze raz — zobaczysz, co było w historii po takim wyniku (WIN na kroku albo LOST).</div>
     ${N.bust ? `<h4>Po LOST — następna gra</h4><div class="po">${poHtml(N.G, M.limit, 'L')}</div>` : ''}
     <div class="bb"><button id="stOn">${on ? 'Ukryj z kart' : 'Pokaż na kartach'}</button><button id="stTr" class="pri">${on && lsGet(PRZK, '0') === '1' ? '🔍 Prześledź: wyłącz' : '🔍 Prześledź'}</button><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
@@ -502,8 +507,11 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   ov.onclick = e => {
     if (e.target === ov) close();
     const q = e.target.closest('.ost.kw button');   // dotknięcie kwadracika: co było po takim wyniku (+ przejście do karty tej gry)
-    if (q) { ov.querySelectorAll('.ost.kw .sel').forEach(x => x.classList.remove('sel')); q.classList.add('sel'); const g = N.G[+q.dataset.i];
-      $('poW').innerHTML = poHtml(N.G, M.limit, wynK(g, M.limit)) + `<br><button class="ida" data-k="${g.k}">Idź do karty tej gry ▶</button>`; return; }
+    if (q) { const g = N.G[+q.dataset.i], v = wynK(g, M.limit);   // 1. dotknięcie — powiększa kwadracik, 2. dotknięcie — co było po takim wyniku (1.17.0)
+      if (!q.classList.contains('big')) { ov.querySelectorAll('.ost.kw .big,.ost.kw .sel').forEach(x => x.classList.remove('big', 'sel')); q.classList.add('big');
+        $('poW').innerHTML = `<b>${wynTx(v)}</b> — dotknij jeszcze raz: jak układały się następne gry po ${wynTx(v)}.`; return; }
+      q.classList.add('sel');
+      $('poW').innerHTML = poHtml(N.G, M.limit, v) + `<br><button class="ida" data-k="${g.k}">Idź do karty tej gry ▶</button>`; return; }
     const b = e.target.closest('.ida'); if (b) { close(); modWybSet(id, true); otwDla(id); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } }
   };
   $('stX').onclick = close;
@@ -566,6 +574,12 @@ function fitNt(el) {   // wpisana nazwa meczu mieści się w wierszu: za długa 
   A.map(i => [i, i.scrollWidth, i.clientWidth]).forEach(([i, sw, cw]) => { if (cw > 0 && sw > cw + 1) i.style.fontSize = `${Math.max(40, 97 * cw / sw).toFixed(1)}%`; });
 }
 if (document.fonts) document.fonts.addEventListener('loadingdone', () => fitNt($('card')));   // pismo Caveat doszło później — dopasuj jeszcze raz
+// ===== ZNACZKI na przełączniku T50 / T60 (1.18.0): modele z list (Modele + Modele LOST) w grze do limitu —
+// pomarańczowy = ile gra na następnym wierszu, żółty = za ile wierszy grają (2, 3). Druga tabela: ukryta ramka t60.html?znaczki=1 (bez zapisu) przysyła swoje.
+function znaczki() { const L = Object.values(S.modAll || {}).filter(M => M.teraz && M.teraz.gra && M.teraz.s <= M.limit).map(M => zaW(M.teraz));
+  return { now: L.filter(d => d === 1).length, soon: [...new Set(L.filter(d => d >= 2 && d <= 3))].sort() }; }
+function znaczkiPokaz(t, z) { const el = $('zbdg-' + t); if (el) el.innerHTML = (z.soon.length ? `<span class="zsoon">${z.soon.join(',')}</span>` : '') + (z.now ? `<span class="znb">${z.now}</span>` : ''); }
+window.addEventListener('message', e => { const z = e.data && e.data.znaczki; if (z && z.t === 't60' && !PODGLAD) znaczkiPokaz(z.t, z); });
 function render() {
   const t = S.t, c = S.codes[t] || [], n = c.length, L = lastCard(t);
   if (S.follow[t] !== false || S.card[t] == null) S.card[t] = L;
@@ -584,6 +598,7 @@ function render() {
   S.mods = modWyb().map(id => S.modAll[id]).filter(M => M && listaOtw(M.lista === 'lost' ? 'lost' : ''));
   S.modMk = modMkWsz(S.mods, lsGet(PRZK, '0') === '1');
   $('mod').innerHTML = modLista('') + modLista('lost');
+  { const z = znaczki(); znaczkiPokaz('t50', z); if (window !== window.top) parent.postMessage({ znaczki: { t: 't50', ...z } }, '*'); }
   $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(lsGet(PRZK, '0') === '1')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
   if (S.zn) $('leg').innerHTML = `<div class="lg">${[['mp', 'STEP / TRIGGER'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'zakład do gry']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('')}</div>`;
   S.zakNr = new Set(zakGet().filter(z => S.mods.some(M => M.id === z.mid)).map(z => z.nr));
@@ -840,6 +855,7 @@ window.addEventListener('focus', refresh);
     if (m) { modWybSet(m, true); otwDla(m); history.replaceState(null, '', location.pathname); } }
   await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
   render();
+  if (!PODGLAD) { const f = document.createElement('iframe'); f.hidden = true; f.title = 'znaczki T60'; f.src = 't60.html?znaczki=1'; document.body.appendChild(f); }   // znaczki drugiej tabeli
   if (ZNACZ != null) { const t = S.t, B = S.book[t], zn = {}, ZT = { s: ['p', () => 'STEP'], t: ['p', () => 'TRIGGER'], k: ['k', x => 'k' + x], w: ['w', x => 'WIN ' + x], b: ['b', x => 'BUST ' + x], n: ['n', x => `▶ k${x} ${STAWKI[x - 1] || ''} zł`] };
     let cel = null;
     for (const it of ZNACZ.split(',')) { const [nr, ty, x] = it.split(':'), o = B.pos[+nr], z = ZT[ty]; if (!o || !z) continue;
