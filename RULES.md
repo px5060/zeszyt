@@ -371,3 +371,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Lista zakładów pogrupowana po modelu: na wierzchu ostatni zakład modelu (z „➡ Dalej”), wcześniejsze zwinięte pod nim („Wcześniejsze zakłady tego modelu · N · wynik”).
 - Grupa jest w „Czekają na wynik”, gdy jej ostatni zakład czeka; inaczej w „Rozliczone”. Liczby w nagłówkach — dalej wszystkie zakłady.
 - RAZEM (od 1.20.0): znaczniki bez kroku (`k`, `w`, `b`, `n` bez liczby) — „✗”, „WIN”, „BUST”, „▶ GRA”.
+- RAZEM (1.21.0): znacznik może mieć gotowy opis z tabeli (`Nr:typ:opis`, np. „✗ K2”, „○ K3”, „HIT ▼ K3”, „▶ K3 16 zł”); typ `o` = bez rozstrzygnięcia (szary, ○).
