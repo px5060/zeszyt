@@ -362,3 +362,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## Kwadraciki w statystykach: dwa dotknięcia (1.17.0)
 - 1. dotknięcie kwadracika (Ostatnie gry) — powiększa go; 2. dotknięcie — co było w historii po takim wyniku (WIN na kroku N albo LOST): najczęstsze następne wyniki i kolejno.
 - Tylko ZESZYT T50 i T60 (statystyki modeli z listy), nie SZUKAJ W Z.
+
+## Znaczki na przełączniku T50 / T60 (1.18.0)
+- Jak w MOJE / RAZEM: pomarańczowe kółko (prawy róg) = ile modeli z list (Modele + Modele LOST) gra na następnym wierszu; żółte (lewy róg) = za ile wierszy grają (2, 3, np. „2,3”). Tylko gra do limitu (bez „po BUST”).
+- Druga tabela liczona w ukrytej ramce (`t60.html?znaczki=1` / `./?znaczki=1`, tryb podglądu — bez zapisu), która przysyła wynik; odświeża się sama po nowym kodzie.
