@@ -366,3 +366,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## Znaczki na przełączniku T50 / T60 (1.18.0)
 - Jak w MOJE / RAZEM: pomarańczowe kółko (prawy róg) = ile modeli z list (Modele + Modele LOST) gra na następnym wierszu; żółte (lewy róg) = za ile wierszy grają (2, 3, np. „2,3”). Tylko gra do limitu (bez „po BUST”).
 - Druga tabela liczona w ukrytej ramce (`t60.html?znaczki=1` / `./?znaczki=1`, tryb podglądu — bez zapisu), która przysyła wynik; odświeża się sama po nowym kodzie.
+
+## Zakłady jednego modelu razem (1.19.0)
+- Lista zakładów pogrupowana po modelu: na wierzchu ostatni zakład modelu (z „➡ Dalej”), wcześniejsze zwinięte pod nim („Wcześniejsze zakłady tego modelu · N · wynik”).
+- Grupa jest w „Czekają na wynik”, gdy jej ostatni zakład czeka; inaczej w „Rozliczone”. Liczby w nagłówkach — dalej wszystkie zakłady.

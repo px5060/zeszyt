@@ -112,6 +112,8 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .zb .r b{font-size:15px}.zb .r b.w{color:#2ea85a}.zb .r b.l{color:var(--red)}.zb .r b.p{color:#f2c230}
 .zb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-size:12px}
 .zpust{color:var(--mu);text-align:center;padding:24px 10px}
+.zg{margin-bottom:8px}.zg>.zb{margin-bottom:0}.zgw{margin:0 0 0 14px;border-left:2px solid var(--bd);padding-left:8px}
+.zgw summary{color:var(--mu);font-size:12.5px;font-weight:700;padding:6px 2px;cursor:pointer}.zgw .zb{opacity:.85;margin-top:6px}
 /* dalej po przegranym zakładzie (1.16.0): stan modelu teraz + następny krok */
 .zb .zc{margin-top:7px;padding:7px 8px;border-radius:9px;background:var(--card);border:1px dashed #f2c230;font-size:13px;cursor:default}
 .zb .zc .stan{font-size:12px}
@@ -249,7 +251,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.18.0';
+const APP_VER = '1.19.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -431,10 +433,16 @@ function zakTab() {   // zakładka 💰 Zakłady: wynik, czekające na wynik, ro
       + `<div class="r">${wyn}<button data-zdel="${z.i}">✕ usuń</button></div></div>`;
   };
   const P = A.filter(z => z.res === 'pend').sort((a, b) => a.nr - b.nr), R = done.sort((a, b) => b.nr - a.nr || b.t - a.t);
+  // zakłady jednego modelu razem (1.19.0): na wierzchu ostatni (z „Dalej”), wcześniejsze kroki zwinięte pod nim; grupa w „Czekają”, gdy jej ostatni czeka
+  const gm = {}; A.forEach(z => (gm[z.mid] = gm[z.mid] || []).push(z));
+  const G = Object.values(gm).map(L => L.sort((a, b) => b.nr - a.nr || b.t - a.t));
+  const GP = G.filter(L => L[0].res === 'pend').sort((a, b) => a[0].nr - b[0].nr), GR = G.filter(L => L[0].res !== 'pend').sort((a, b) => b[0].nr - a[0].nr || b[0].t - a[0].t);
+  const grupa = L => { const W = L.slice(1), Wd = W.filter(z => z.res !== 'pend');
+    return `<div class="zg">${row(L[0])}${W.length ? `<details class="zgw"><summary>Wcześniejsze zakłady tego modelu · ${W.length}${Wd.length ? ` · wynik ${zl(sum(Wd))}` : ''}</summary>${W.map(row).join('')}</details>` : ''}</div>`; };
   return `<div class="zsum"><div><b>${zl(sum(done))}</b>wynik łącznie</div><div><b>${fmt(done.reduce((a, z) => a + z.zl, 0))} zł</b>postawione (rozliczone)</div><div><b>${zl(sum(done.filter(z => z.t >= d0)))}</b>dziś</div></div>`
     + (A.length ? '' : '<div class="zpust">Brak zakładów. Zakład zapisujesz w opisie modelu (lista „Modele”), gdy model GRA: „💰 Zapisz zakład”.</div>')
-    + (P.length ? `<div class="zsec">⏳ Czekają na wynik · ${P.length} · razem ${fmt(P.reduce((a, z) => a + z.zl, 0))} zł</div>` + P.map(row).join('') : '')
-    + (R.length ? `<div class="zsec">Rozliczone · ${R.length} · WIN ${R.filter(z => z.res === 'win').length} · przegrane ${R.filter(z => z.res === 'lost').length}</div>` + R.map(row).join('') : '');
+    + (P.length ? `<div class="zsec">⏳ Czekają na wynik · ${P.length} · razem ${fmt(P.reduce((a, z) => a + z.zl, 0))} zł</div>` + GP.map(grupa).join('') : '')
+    + (R.length ? `<div class="zsec">Rozliczone · ${R.length} · WIN ${R.filter(z => z.res === 'win').length} · przegrane ${R.filter(z => z.res === 'lost').length}</div>` + GR.map(grupa).join('') : '');
 }
 function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
   const T = M.teraz, all = lsGet(PRZK, '0') === '1', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`;
