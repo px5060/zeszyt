@@ -358,3 +358,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Gdy model jest w grze: formularz Nr wiersza · krok · zł (stawka = poprzednia × progresja) i „💰 Postaw kolejny krok — kN”. Zapis jak zwykły zakład (ten sam model).
 - Zakład czekający: „▶ GRA TERAZ” albo „gra za N wierszy”.
 - Model usunięty z listy — liczony z zapisanej definicji w zakładzie. T50 i T60.
+
+## Kwadraciki w statystykach: dwa dotknięcia (1.17.0)
+- 1. dotknięcie kwadracika (Ostatnie gry) — powiększa go; 2. dotknięcie — co było w historii po takim wyniku (WIN na kroku N albo LOST): najczęstsze następne wyniki i kolejno.
+- Tylko ZESZYT T50 i T60 (statystyki modeli z listy), nie SZUKAJ W Z.

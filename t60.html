@@ -189,6 +189,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .stt .po i.w{background:#2ea85a}.stt .po i.l{background:#e0483e}.stt .po .sqs{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.stt .po .s3{color:var(--mu);font-size:12px}
 .stt .po .ida{margin-top:8px;background:var(--pan);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
 .stt .ost.kw .sel{outline:3px solid #f2c230;outline-offset:1px}
+.stt .ost.kw button{transition:transform .15s}.stt .ost.kw button.big{transform:scale(1.5);z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.5)}
 /* podgląd modelu w ramce (SZUKAJ W Z → statystyki): sam zeszyt z nawigacją kart */
 .podglad header,.podglad .ttl,.podglad .tabl,.podglad .ztabs,.podglad .tools,.podglad #info,.podglad #mod,.podglad #msg,.podglad .hint{display:none!important}
 .podglad #card{pointer-events:none}
@@ -250,7 +251,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.11.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.16.0';
+const APP_VER = '1.17.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -515,7 +516,7 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>WIN na której stronie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. strona — <b>${N.pol[x]}</b>`).join(' · ')}</div>
     <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<button data-k="${g.k}" data-i="${N.G.length - A.length + i}" class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, ${g.k}${pn(g)} w.${g.r}">${g.s}</button>`).join('')}</div>
-    <div class="po" id="poW">Dotknij kwadracika — zobaczysz, co było w historii po takim wyniku.</div>
+    <div class="po" id="poW">Dotknij kwadracika — powiększy się; dotknij go jeszcze raz — zobaczysz, co było w historii po takim wyniku (WIN na kroku albo LOST).</div>
     ${N.bust ? `<h4>Po LOST — następna gra</h4><div class="po">${poHtml(N.G, M.limit, 'L')}</div>` : ''}
     <div class="bb"><button id="stOn">${on ? 'Ukryj z kart' : 'Pokaż na kartach'}</button><button id="stTr" class="pri">${on && lsGet(PRZK, '0') === '1' ? '🔍 Prześledź: wyłącz' : '🔍 Prześledź'}</button><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
@@ -523,8 +524,11 @@ function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   ov.onclick = e => {
     if (e.target === ov) close();
     const q = e.target.closest('.ost.kw button');   // dotknięcie kwadracika: co było po takim wyniku (+ przejście do karty tej gry)
-    if (q) { ov.querySelectorAll('.ost.kw .sel').forEach(x => x.classList.remove('sel')); q.classList.add('sel'); const g = N.G[+q.dataset.i];
-      $('poW').innerHTML = poHtml(N.G, M.limit, wynK(g, M.limit)) + `<br><button class="ida" data-k="${g.k}">Idź do karty tej gry ▶</button>`; return; }
+    if (q) { const g = N.G[+q.dataset.i], v = wynK(g, M.limit);   // 1. dotknięcie — powiększa kwadracik, 2. dotknięcie — co było po takim wyniku (1.17.0)
+      if (!q.classList.contains('big')) { ov.querySelectorAll('.ost.kw .big,.ost.kw .sel').forEach(x => x.classList.remove('big', 'sel')); q.classList.add('big');
+        $('poW').innerHTML = `<b>${wynTx(v)}</b> — dotknij jeszcze raz: jak układały się następne gry po ${wynTx(v)}.`; return; }
+      q.classList.add('sel');
+      $('poW').innerHTML = poHtml(N.G, M.limit, v) + `<br><button class="ida" data-k="${g.k}">Idź do karty tej gry ▶</button>`; return; }
     const b = e.target.closest('.ida'); if (b) { close(); modWybSet(id, true); otwDla(id); render(); if (+b.dataset.k !== S.card[t]) { szelest(); go(+b.dataset.k); } }
   };
   $('stX').onclick = close;
