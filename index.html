@@ -251,7 +251,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.20.0';
+const APP_VER = '1.21.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -608,7 +608,7 @@ function render() {
   $('mod').innerHTML = modLista('') + modLista('lost');
   { const z = znaczki(); znaczkiPokaz('t50', z); if (window !== window.top) parent.postMessage({ znaczki: { t: 't50', ...z } }, '*'); }
   $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(lsGet(PRZK, '0') === '1')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
-  if (S.zn) $('leg').innerHTML = `<div class="lg">${[['mp', 'STEP / TRIGGER'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'zakład do gry']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('')}</div>`;
+  if (S.zn) $('leg').innerHTML = `<div class="lg">${[['mp', 'STEP / TRIGGER / HIT'], ['mk', 'krok bez trafienia ✗'], ['mz', 'bez rozstrzygnięcia ○'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'zakład do gry']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('')}</div>`;
   S.zakNr = new Set(zakGet().filter(z => S.mods.some(M => M.id === z.mid)).map(z => z.nr));
   const zp = zakGet().filter(z => zakRes(z) === 'pend').length; $('zbad').textContent = zp ? zp : '';
   $('ztabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.z === (S.tab || 'z')));
@@ -864,10 +864,10 @@ window.addEventListener('focus', refresh);
   await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
   render();
   if (!PODGLAD) { const f = document.createElement('iframe'); f.hidden = true; f.title = 'znaczki T60'; f.src = 't60.html?znaczki=1'; document.body.appendChild(f); }   // znaczki drugiej tabeli
-  if (ZNACZ != null) { const t = S.t, B = S.book[t], zn = {}, ZT = { s: ['p', () => 'STEP'], t: ['p', () => 'TRIGGER'], k: ['k', x => x ? 'k' + x : '✗'], w: ['w', x => x ? 'WIN ' + x : 'WIN'], b: ['b', x => x ? 'BUST ' + x : 'BUST'], n: ['n', x => x ? `▶ k${x} ${STAWKI[x - 1] || ''} zł` : '▶ GRA'] };   // bez kroku (RAZEM): same znaczki
+  if (ZNACZ != null) { const t = S.t, B = S.book[t], zn = {}, ZT = { s: ['p', () => 'STEP'], t: ['p', () => 'TRIGGER'], k: ['k', x => x ? 'k' + x : '✗'], w: ['w', x => x ? 'WIN ' + x : 'WIN'], b: ['b', x => x ? 'BUST ' + x : 'BUST'], n: ['n', x => x ? `▶ k${x} ${STAWKI[x - 1] || ''} zł` : '▶ GRA'], o: ['z', () => '○'] };   // o = bez rozstrzygnięcia (RAZEM)   // bez kroku (RAZEM): same znaczki
     let cel = null;
     for (const it of ZNACZ.split(',')) { const [nr, ty, x] = it.split(':'), o = B.pos[+nr], z = ZT[ty]; if (!o || !z) continue;
-      const key = `${o.k}.${o.p}.${o.r}`, a = zn[key] || (zn[key] = { c: z[0], ls: [], n: 1, kto: [] }), l = z[1](x);
+      const key = `${o.k}.${o.p}.${o.r}`, a = zn[key] || (zn[key] = { c: z[0], ls: [], n: 1, kto: [] }), l = x && !/^\d+$/.test(x) ? x : z[1](x);   // RAZEM: gotowy opis jak w tabeli
       if (ty !== 's' && ty !== 't' || a.c === 'p') a.c = z[0]; a.ls.push(l); a.kto.push(`Nr ${nr}: ${l}`); if (!cel || cel.ty !== 'n') cel = { ty, k: o.k }; }   // karta zakładu do gry, inaczej ostatniego zdarzenia
     for (const a of Object.values(zn)) a.l = a.ls.join(' / ');
     S.zn = zn; render(); if (cel && cel.k !== S.card[S.t]) go(cel.k); }
