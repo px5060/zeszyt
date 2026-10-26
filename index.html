@@ -251,7 +251,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.19.0';
+const APP_VER = '1.20.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -864,7 +864,7 @@ window.addEventListener('focus', refresh);
   await Promise.all(Object.keys(TABS).map(async t => { S.seed[t] = await loadSeed(t); readCodes(t); }));
   render();
   if (!PODGLAD) { const f = document.createElement('iframe'); f.hidden = true; f.title = 'znaczki T60'; f.src = 't60.html?znaczki=1'; document.body.appendChild(f); }   // znaczki drugiej tabeli
-  if (ZNACZ != null) { const t = S.t, B = S.book[t], zn = {}, ZT = { s: ['p', () => 'STEP'], t: ['p', () => 'TRIGGER'], k: ['k', x => 'k' + x], w: ['w', x => 'WIN ' + x], b: ['b', x => 'BUST ' + x], n: ['n', x => `▶ k${x} ${STAWKI[x - 1] || ''} zł`] };
+  if (ZNACZ != null) { const t = S.t, B = S.book[t], zn = {}, ZT = { s: ['p', () => 'STEP'], t: ['p', () => 'TRIGGER'], k: ['k', x => x ? 'k' + x : '✗'], w: ['w', x => x ? 'WIN ' + x : 'WIN'], b: ['b', x => x ? 'BUST ' + x : 'BUST'], n: ['n', x => x ? `▶ k${x} ${STAWKI[x - 1] || ''} zł` : '▶ GRA'] };   // bez kroku (RAZEM): same znaczki
     let cel = null;
     for (const it of ZNACZ.split(',')) { const [nr, ty, x] = it.split(':'), o = B.pos[+nr], z = ZT[ty]; if (!o || !z) continue;
       const key = `${o.k}.${o.p}.${o.r}`, a = zn[key] || (zn[key] = { c: z[0], ls: [], n: 1, kto: [] }), l = z[1](x);

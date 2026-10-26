@@ -370,3 +370,4 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## Zakłady jednego modelu razem (1.19.0)
 - Lista zakładów pogrupowana po modelu: na wierzchu ostatni zakład modelu (z „➡ Dalej”), wcześniejsze zwinięte pod nim („Wcześniejsze zakłady tego modelu · N · wynik”).
 - Grupa jest w „Czekają na wynik”, gdy jej ostatni zakład czeka; inaczej w „Rozliczone”. Liczby w nagłówkach — dalej wszystkie zakłady.
+- RAZEM (od 1.20.0): znaczniki bez kroku (`k`, `w`, `b`, `n` bez liczby) — „✗”, „WIN”, „BUST”, „▶ GRA”.
