@@ -372,3 +372,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Grupa jest w „Czekają na wynik”, gdy jej ostatni zakład czeka; inaczej w „Rozliczone”. Liczby w nagłówkach — dalej wszystkie zakłady.
 - RAZEM (od 1.20.0): znaczniki bez kroku (`k`, `w`, `b`, `n` bez liczby) — „✗”, „WIN”, „BUST”, „▶ GRA”.
 - RAZEM (1.21.0): znacznik może mieć gotowy opis z tabeli (`Nr:typ:opis`, np. „✗ K2”, „○ K3”, „HIT ▼ K3”, „▶ K3 16 zł”); typ `o` = bez rozstrzygnięcia (szary, ○).
+
+## 🔎 Znajdź model po wpisaniu (1.22.0) — T50 i T60
+- Pole nad listą „Modele”: wpisz model i „🔎 Pokaż” (albo Enter). T50: 3 wiersze 1–28 w dowolnej kolejności, `K10` = gra do kroku, `+bok`, `×2` / `po 2` = po 2 pustych, `od razu`, `+XX`/`X+X`/`XX+` (albo `1xx`/`x1x`/`xx1`), albo kod `1-3.8.10-1--10`. T60: 1–6 wierszy 1–30, cel `2/3xx` (domyślnie), `1xx`, `123xx`, `x1x`, `xx1`, `K`, `×2`, `od razu`, albo kod `x1x-3.6.21-1-9`.
+- Model z listy — zaznaczony, rozwinięty opis, karta jego bieżącej (albo ostatniej) gry. Nowy — dopisany do „Modele” (można usunąć 🗑) i pokazany. Pod polem: nazwa, gier, LOST, stan.
