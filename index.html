@@ -191,7 +191,11 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .stt .ost.kw .sel{outline:3px solid #f2c230;outline-offset:1px}
 .stt .ost.kw button{transition:transform .15s}.stt .ost.kw button.big{transform:scale(1.5);z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.5)}
 /* podgląd modelu w ramce (SZUKAJ W Z → statystyki): sam zeszyt z nawigacją kart */
-.podglad header,.podglad .ttl,.podglad .tabl,.podglad .ztabs,.podglad .tools,.podglad #info,.podglad #mod,.podglad #msg,.podglad .hint{display:none!important}
+.podglad header,.podglad .ttl,.podglad .tabl,.podglad .ztabs,.podglad .tools,.podglad #info,.podglad #mod,.podglad #msg,.podglad .hint,.podglad .szm,.podglad .szi{display:none!important}
+/* 🔎 znajdź model po wpisaniu (1.22.0) */
+.szm{display:flex;gap:6px;margin:6px 0 4px}.szm input{flex:1;min-width:0;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:9px;padding:9px 10px;font-size:15px;font-weight:700}
+[data-theme=day] .szm input{background:#fff}.szm button{background:#1f8a4c;border:0;color:#fff;border-radius:9px;padding:0 14px;font-weight:800;font-size:14px}
+.szi{font-size:12.5px;color:var(--mu);margin:0 2px 6px;min-height:0}.szi b{color:var(--tx)}.szi.err{color:var(--red)}
 .podglad #card{pointer-events:none}
 </style>
 </head>
@@ -240,6 +244,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <button id="undoB" class="und" title="cofnij ostatni kod">↩</button>
   </div>
   <div class="info" id="info"></div>
+  <div class="szm"><input id="szIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="znajdź model, np. 10-3-8 K10"><button id="szB">🔎 Pokaż</button></div><div id="szInfo" class="szi"></div>
   <div id="mod"></div>
   <div id="card" class="stage"></div>
   <div id="leg"></div>
@@ -251,7 +256,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.21.0';
+const APP_VER = '1.22.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -457,6 +462,37 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
     ${zk.length ? `<div class="now"><span>Zakłady modelu: <b>${zk.length}</b> · wynik <b>${zl(zk.reduce((a, z) => a + zakVal(z), 0))}</b>${czeka ? ` · czeka ${czeka}` : ''}</span><button data-act="zak">💰 Zakłady ▶</button></div>` : ''}
     <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}</div>
     <div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
+}
+// ===== 🔎 ZNAJDŹ MODEL po wpisaniu (1.22.0): „10-3-8 K10”, „6·19·26 +bok k8”, „XX+ 3 8 10 ×2”, „od razu”, albo kod „1-3.8.10-1--10” =====
+// wiersze 1–28 (dokładnie 3, dowolna kolejność); K = gra do kroku (domyślnie 9); +bok = warunek „+ z boku”; ×2 = po 2 pustych trójkach (domyślnie 1);
+// +XX / X+X / XX+ (albo 1xx / x1x / xx1) = gdzie gramy + (domyślnie na środku). Model z listy — pokazany; nowy — dopisany do „Modele” i pokazany.
+function modZTekstu(tx) {
+  const k = modZKodu(String(tx).trim()); if (k) return k;
+  let s = ' ' + String(tx).toLowerCase().replace(/[,;]/g, ' ') + ' ', m, poz = 1, limit = 9, war = '', czekaj = 1;
+  if ((m = /\s([+x])([+x])([+x])\s/.exec(s)) && m.slice(1).filter(c => c === '+').length === 1) { poz = m.slice(1).indexOf('+'); s = s.replace(m[0], ' '); }
+  else if ((m = /\s([1x])([1x])([1x])\s/.exec(s)) && m.slice(1).filter(c => c === '1').length === 1) { poz = m.slice(1).indexOf('1'); s = s.replace(m[0], ' '); }
+  if ((m = /k\s*(\d+)/.exec(s))) { limit = +m[1]; s = s.replace(m[0], ' '); }
+  if (/bok/.test(s)) { war = 'boki'; s = s.replace(/\+?\s*boki?/g, ' '); }
+  if (/od\s*razu/.test(s)) { czekaj = 0; s = s.replace(/od\s*razu/, ' '); }
+  else if ((m = /(?:[×*]|po)\s*(\d)/.exec(s))) { czekaj = +m[1]; s = s.replace(m[0], ' '); }
+  const w = (s.match(/\d+/g) || []).map(Number);
+  if (w.length !== 3 || new Set(w).size !== 3 || w.some(r => r < 1 || r > 28)) return 'Podaj 3 różne wiersze od 1 do 28, np. 10-3-8 K10.';
+  if (!(limit >= 1 && limit <= 20)) return 'Krok K od 1 do 20.';
+  return modDef({ w: w.sort((a, b) => a - b), poz, czekaj, war: czekaj ? war : '', limit });
+}
+const modZapis = (D, id) => ({ id, w: D.w, poz: D.poz, czekaj: D.czekaj, war: D.war, limit: D.limit });
+const ID0 = 'u';
+function znajdzModel() {
+  const tx = $('szIn').value.trim(), info = $('szInfo'); if (!tx) return;
+  const D = modZTekstu(tx); info.className = 'szi';
+  if (typeof D === 'string') { info.className = 'szi err'; info.textContent = D; return; }
+  let M = modeleWsz().find(x => sameModel(x, D)), nowy = false;
+  if (!M) { const id = ID0 + Date.now().toString(36); if (!lsSet(MOJEK, JSON.stringify([...mojeModele(), modZapis(D, id)]))) { alert('BŁĄD zapisu pamięci telefonu!'); return; } M = { ...D, id }; nowy = true; }
+  modWybSet(M.id, true); otwDla(M.id); S.panel = M.id; S.tab = 'z'; render();
+  const R = S.modAll[M.id], T = R && R.teraz, k = T ? T.k : R && R.gry.length ? R.gry[R.gry.length - 1].sk : null;
+  if (k != null && k !== S.card[S.t]) { szelest(); go(k); }
+  info.innerHTML = `${nowy ? '➕ Dodany do „Modele”' : '✓ Jest na liście'}: <b>${esc(R ? R.nazwa : D.nazwa)}</b>${R ? ` · ${R.gry.length} gier · LOST ${R.gry.filter(g => g.s > R.limit).length}` : ''}${R && R.teraz ? ' · ' + modTeraz(R, true) : ''}`;
+  const el = document.querySelector('.mi.pan'); if (el) el.scrollIntoView({ block: 'nearest' });
 }
 function modLista(l) {   // lista „Modele” / „Modele LOST” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
   const otw = listaOtw(l), sel = modWyb(), ML = modeleWsz().filter(M => (M.lista === 'lost' ? 'lost' : '') === l), R = id => S.modAll[id];
@@ -845,6 +881,8 @@ let szer = window.innerWidth;
 window.addEventListener('resize', () => {
   const a = document.activeElement; if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return;   // trwa wpisywanie — nie ruszamy
   if (Math.abs(window.innerWidth - szer) < 40) return; szer = window.innerWidth; if (!FL && S.book[S.t]) render(); });
+$('szB').onclick = znajdzModel;   // 🔎 znajdź model po wpisaniu
+$('szIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('szIn').blur(); znajdzModel(); } });
 // kody wpisane w innej aplikacji (RAZEM, SZUKAJ, MOJE) — odśwież po powrocie do ZESZYTU
 const refresh = () => { let ch = false; for (const t in TABS) ch = readCodes(t) || ch; if (ch) render(); };
 window.addEventListener('storage', e => { if (!e.key || Object.values(TABS).some(T => T.key === e.key) || e.key.startsWith('zeszyt_v1_poprawki_')) refresh(); });
