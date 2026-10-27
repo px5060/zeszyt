@@ -112,19 +112,6 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .zb .r b{font-size:15px}.zb .r b.w{color:#2ea85a}.zb .r b.l{color:var(--red)}.zb .r b.p{color:#f2c230}
 .zb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-size:12px}
 .zpust{color:var(--mu);text-align:center;padding:24px 10px}
-/* ROZSĄDEK (1.22.0): zakłady próbne, obserwacja, głos rozsądku, raport */
-.zpr{grid-column:1/-1;display:flex!important;flex-direction:row!important;align-items:center;gap:7px!important;font-size:13px!important;color:var(--tx)!important;font-weight:700}
-.zpr input{width:20px!important;height:20px;margin:0}
-.zpb{display:inline-block;background:#2e75b6;color:#fff;border-radius:6px;padding:0 6px;font-size:11.5px;font-weight:800;margin-right:4px}
-.zb.pr{border-style:dashed}
-.rz{background:var(--pan);border:1.5px solid #2e75b6;border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:13.5px;line-height:1.45}
-.rz h4{margin:0 0 6px;font-size:15px}.rz .ok{color:#2ea85a;font-weight:700}.rz .ms div{margin:3px 0;font-weight:700}
-.rz details{margin-top:6px}.rz summary{cursor:pointer;color:var(--mu);font-weight:700}.rz ol{margin:6px 0 0;padding-left:20px}.rz li{margin:3px 0}
-.rz .rb{display:flex;gap:8px;align-items:end;margin-top:8px;flex-wrap:wrap}.rz label{display:flex;flex-direction:column;font-size:11.5px;color:var(--mu)}
-.rz input{width:110px;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px;font-size:15px;font-weight:800}
-[data-theme=day] .rz input{background:#fff}
-.rz button{background:#2e75b6;border:0;color:#fff;border-radius:8px;padding:9px 12px;font-weight:800;font-size:13.5px}
-.zsum.pr{opacity:.9}.zsum.pr div{border-style:dashed}
 .zg{margin-bottom:8px}.zg>.zb{margin-bottom:0}.zgw{margin:0 0 0 14px;border-left:2px solid var(--bd);padding-left:8px}
 .zgw summary{color:var(--mu);font-size:12.5px;font-weight:700;padding:6px 2px;cursor:pointer}.zgw .zb{opacity:.85;margin-top:6px}
 /* dalej po przegranym zakładzie (1.16.0): stan modelu teraz + następny krok */
@@ -264,7 +251,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.9.5"></script>
 <script>
 "use strict";
-const APP_VER = '1.22.0';
+const APP_VER = '1.21.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -412,57 +399,12 @@ const zakGet = () => { try { const a = JSON.parse(lsGet(ZAKK, '[]')); return Arr
 const zakRes = z => { const c = S.codes[S.t]; return z.nr > c.length ? 'pend' : c[z.nr - 1][z.m.poz] === '1' ? 'win' : 'lost'; };
 const zakVal = z => { const r = zakRes(z); return r === 'win' ? (KURS - 1) * z.zl : r === 'lost' ? -z.zl : 0; };
 const kiedy = t => new Date(t).toLocaleString('pl-PL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-// ===== ROZSĄDEK (1.22.0): 🧪 zakłady próbne (bez pieniędzy, liczone osobno), 👁 obserwacja modelu od wybranego Nr (uczciwy test na nowych kodach),
-// 🧭 głos rozsądku (ostrzeżenia przy zapisie prawdziwego zakładu, dzienny limit straty), 📋 raport do wklejenia w rozmowie z Claude.
-const OBSK = 'zeszyt_v1_obserwacja', BUDK = 'zeszyt_v1_budzet';
-const obsGet = () => jget(OBSK), obsSet = (id, nr) => { const o = obsGet(); if (nr) o[id] = nr; else delete o[id]; lsSet(OBSK, JSON.stringify(o)); };
-const gryNr = g => { const c = S.book[S.t].cards[g.k], row = c && c.parts[g.p][g.r - 1]; return row ? row.nr : 0; };   // Nr wiersza, w którym gra się skończyła
-const graZl = (s, L) => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);   // wynik gry od k1
-const histNaGre = M => M.gry.length ? M.gry.reduce((a, g) => a + graZl(g.s, M.limit), 0) / M.gry.length : 0;
-function obsStat(M) { const od = obsGet()[M.id]; if (!od) return null; const G = M.gry.filter(g => gryNr(g) > od);
-  return { od, g: G.length, w: G.filter(g => g.s <= M.limit).length, l: G.filter(g => g.s > M.limit).length, zl: G.reduce((a, g) => a + graZl(g.s, M.limit), 0) }; }
-const obsHtml = M => { const o = obsStat(M), h = histNaGre(M);
-  return `<div class="now"><span>${o ? `👁 Obserwuję od Nr ${fmt(o.od)}: <b>${o.g}</b> gier · WIN ${o.w} · LOST ${o.l} · <b>${zl(o.zl)}</b>${o.g ? ` (${(o.zl / o.g).toFixed(1)} zł na grę; w historii ${h.toFixed(1)} zł na grę)` : ''}`
-    : `👁 Nieobserwowany · w historii ${h.toFixed(1)} zł na grę. Obserwacja liczy tylko gry od teraz — to jest uczciwy test.`}</span><button data-act="obs" data-id="${M.id}">${o ? 'Zakończ' : 'Obserwuj ▶'}</button></div>`; };
-function rozsadek(nowy) {   // ostrzeżenia dla prawdziwych zakładów (próbne się nie liczą); nowy = zakład, który ma być zapisany
-  const n = S.codes[S.t].length, A = zakGet().filter(z => !z.p).concat(nowy && !nowy.p ? [nowy] : []), msg = [];
-  const pend = A.filter(z => z.nr > n), mods = new Set(pend.map(z => z.mid));
-  if (mods.size > 2) msg.push(`⚠ Grasz naraz ${mods.size} modele — zasada: najwyżej 2.`);
-  const d0 = new Date().setHours(0, 0, 0, 0), dzis = A.filter(z => z.t >= d0 && z.nr <= n).reduce((a, z) => a + zakVal(z), 0), bud = +lsGet(BUDK, '0');
-  if (bud > 0 && dzis <= -bud) msg.push(`⛔ Dziś ${zl(dzis)} — limit straty ${fmt(bud)} zł osiągnięty. Koniec gry na dziś.`);
-  const L = nowy ? (nowy.p ? [] : [nowy]) : pend;
-  for (const z of L) if (z.krok > 1 && !A.some(x => x !== z && x.mid === z.mid && x.krok === z.krok - 1)) msg.push(`⚠ ${z.nazwa}: k${z.krok} bez zagranego k${z.krok - 1} — wejście w środek gry.`);
-  for (const id of new Set(L.map(z => z.mid))) { const M = S.modAll[id], o = M && obsStat(M);
-    if (M && (!o || o.g < 20)) msg.push(`ℹ ${M.nazwa}: ${o ? `obserwowany dopiero ${o.g} gier` : 'nieobserwowany'} — najpierw sprawdź go na sucho (🧪 próbny).`); }
-  return [...new Set(msg)];
-}
-const rozsadekOk = z => { const m = rozsadek(z); return !m.length || confirm('🧭 Głos rozsądku:\n\n' + m.join('\n') + '\n\nZapisać mimo to?'); };
-const ZASADY = ['Jedna aplikacja do gry: ZESZYT. Reszta tylko do szukania.', 'Najwyżej 2 modele naraz. Nowy dopiero, gdy któryś zamknie grę (WIN albo LOST).',
-  'Każda gra od k1 do końca albo wcale — bez wejścia w środek i bez porzucania.', 'Nowy model najpierw na sucho (🧪 próbny) i 👁 obserwacja — co najmniej 20 gier na nowych kodach.',
-  'Stały budżet: dzienny limit straty. Po jego osiągnięciu koniec na dziś, bez odgrywania się.', 'Model, który w obserwacji jest na minus, odpada — nawet jeśli historia była świetna.',
-  'Co jakiś czas raport 📋 dla Claude — wspólna ocena, co grać dalej.'];
-function rozBox() {
-  const m = rozsadek(), bud = lsGet(BUDK, '');
-  return `<div class="rz"><h4>🧭 Rozsądek</h4><div class="ms">${m.length ? m.map(x => `<div>${esc(x)}</div>`).join('') : '<span class="ok">✓ Prawdziwe zakłady zgodne z zasadami.</span>'}</div>
-    <details><summary>Zasady gry</summary><ol>${ZASADY.map(x => `<li>${x}</li>`).join('')}</ol></details>
-    <div class="rb"><label>dzienny limit straty (zł)<input id="zBud" type="number" inputmode="numeric" min="0" value="${esc(bud)}" placeholder="np. 500"></label><button id="zRap">📋 Raport dla Claude</button></div></div>`;
-}
-function raport() {   // tekst do wklejenia w rozmowie: modele (historia + obserwacja + stan), zakłady
-  const t = S.t, c = S.codes[t], n = c.length, Z = zakGet(), L = [`ZESZYT ${TABS[t].name} · ${new Date().toLocaleString('pl-PL')} · kodów ${n} · ostatnie: ${c.slice(-10).join(' ')}`, 'MODELE:'];
-  for (const M of Object.values(S.modAll)) { const o = obsStat(M), lb = M.gry.filter(g => g.s > M.limit).length;
-    L.push(`- ${M.nazwa} [${modKod(M)}]: historia ${M.gry.length} gier, LOST ${lb}, ${histNaGre(M).toFixed(1)} zł/grę · ${o ? `obserwacja od Nr ${o.od}: ${o.g} gier, WIN ${o.w}, LOST ${o.l}, ${zl(o.zl)}` : 'bez obserwacji'} · teraz: ${String(modTeraz(M, true) || '').replace(/<[^>]+>/g, '')}`); }
-  L.push('ZAKŁADY (najnowsze 40):');
-  Z.slice(-40).forEach(z => { const r = zakRes(z); L.push(`- ${z.p ? 'PRÓBNY ' : ''}${z.nazwa} · Nr ${z.nr} · k${z.krok} · ${z.zl} zł · ${r === 'pend' ? 'czeka' : r === 'win' ? 'WIN' : 'przegrany'}${r !== 'pend' ? ' ' + zl(zakVal(z)) : ''} · ${kiedy(z.t)}`); });
-  L.push(`Limit dzienny: ${lsGet(BUDK, '') || 'brak'} · Rozsądek: ${rozsadek().join(' | ') || 'OK'}`);
-  return L.join('\n');
-}
 function zakZapisz(M) {   // zakład z formularza przy modelu (domyślnie: wiersz następnego kroku, ten krok i jego stawka)
   const nr = +$('zNr-' + M.id).value, krok = +$('zK-' + M.id).value, kw = +$('zZl-' + M.id).value;
   if (!(nr >= 1) || !(krok >= 1 && krok <= 40) || !(kw > 0)) { alert('Podaj Nr wiersza, krok i kwotę w zł.'); return; }
-  const a = zakGet(), pr = !!($('zP-' + M.id) || {}).checked;
+  const a = zakGet();
   if (a.some(z => z.mid === M.id && z.nr === nr) && !confirm(`Na Nr ${fmt(nr)} jest już zakład modelu ${M.nazwa}. Zapisać jeszcze jeden?`)) return;
-  a.push({ mid: M.id, nazwa: M.nazwa, m: { w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }, nr, krok, zl: kw, t: Date.now(), ...(pr ? { p: 1 } : {}) });
-  if (!pr && !rozsadekOk(a[a.length - 1])) return;
+  a.push({ mid: M.id, nazwa: M.nazwa, m: { w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit }, nr, krok, zl: kw, t: Date.now() });
   if (!lsSet(ZAKK, JSON.stringify(a))) { alert('BŁĄD zapisu pamięci telefonu!'); return; }
   render();
 }
@@ -477,28 +419,27 @@ function zakDalej(z, ost) {   // ostatni zakład modelu przegrany → co model r
   const graj = T.gra && T.s <= M.limit, krok = graj ? T.s : z.krok + 1, zl0 = Math.max(1, Math.round(z.zl * (STAWKI[krok - 1] || 0) / (STAWKI[z.krok - 1] || 1)));
   return `<div class="zc"><div>➡ Dalej: ${modTeraz(M)}</div>${graj ? `<div class="zcf"><label>Nr wiersza<input id="zcNr-${z.i}" type="number" inputmode="numeric" value="${T.nr}"></label>`
     + `<label>krok<input id="zcK-${z.i}" type="number" inputmode="numeric" min="1" value="${krok}"></label><label>postawione zł<input id="zcZl-${z.i}" type="number" inputmode="numeric" min="1" value="${zl0}"></label>`
-    + `<label class="zpr"><input type="checkbox" id="zcP-${z.i}"${z.p ? ' checked' : ''}> 🧪 próbny — bez pieniędzy</label><button data-zcont="${z.i}">💰 Postaw kolejny krok — k${krok}</button></div>` : `<div class="mu">Kolejny zakład pojawi się tu, gdy model wejdzie do gry.</div>`}</div>`;
+    + `<button data-zcont="${z.i}">💰 Postaw kolejny krok — k${krok}</button></div>` : `<div class="mu">Kolejny zakład pojawi się tu, gdy model wejdzie do gry.</div>`}</div>`;
 }
 function zakTab() {   // zakładka 💰 Zakłady: wynik, czekające na wynik, rozliczone
-  const t = S.t, A = zakGet().map((z, i) => ({ ...z, i, res: zakRes(z), val: zakVal(z) })), doneAll = A.filter(z => z.res !== 'pend'), done = doneAll.filter(z => !z.p), doneP = doneAll.filter(z => z.p);
+  const t = S.t, A = zakGet().map((z, i) => ({ ...z, i, res: zakRes(z), val: zakVal(z) })), done = A.filter(z => z.res !== 'pend');
   const d0 = new Date().setHours(0, 0, 0, 0), sum = L => L.reduce((a, z) => a + z.val, 0);
   const ost = {}; A.forEach(z => { const o = ost[z.mid]; if (!o || z.nr > o.nr || (z.nr === o.nr && z.t > o.t)) ost[z.mid] = z; });   // ostatni zakład każdego modelu
   const row = z => {
     const p = S.book[t].pos[z.nr], cd = z.nr <= S.codes[t].length ? S.codes[t][z.nr - 1] : '';
     const gdzie = p ? `karta ${p.k} ${partsOf(p.k).length === 2 ? (p.p ? 'P' : 'L') : 'cz.' + (p.p + 1)} w.${p.r}` : '';
     const za = z.nr - S.codes[t].length, wyn = z.res === 'pend' ? (za === 1 ? '<b class="p">▶ GRA TERAZ</b>' : `<b class="p">czeka</b><span class="mu">gra za ${za} ${odmW(za)}</span>`) : `<b class="${z.res === 'win' ? 'w' : 'l'}">${zl(z.val)}</b><span class="zn">${[...cd].map(mark).join('')}</span>`;
-    return `<div class="zb ${z.res}${z.p ? ' pr' : ''}" data-zi="${z.i}"><div>${z.p ? '<span class="zpb">🧪 próbny</span>' : ''}<b>${esc(z.nazwa)}</b> <small>${modDop(modDef(z.m))}</small><br>Nr ${fmt(z.nr)} · ${gdzie} · <b>k${z.krok}</b> · <b>${fmt(z.zl)} zł</b><div class="mu">zapisany ${kiedy(z.t)}</div>${zakDalej(z, ost)}</div>`
+    return `<div class="zb ${z.res}" data-zi="${z.i}"><div><b>${esc(z.nazwa)}</b> <small>${modDop(modDef(z.m))}</small><br>Nr ${fmt(z.nr)} · ${gdzie} · <b>k${z.krok}</b> · <b>${fmt(z.zl)} zł</b><div class="mu">zapisany ${kiedy(z.t)}</div>${zakDalej(z, ost)}</div>`
       + `<div class="r">${wyn}<button data-zdel="${z.i}">✕ usuń</button></div></div>`;
   };
-  const P = A.filter(z => z.res === 'pend').sort((a, b) => a.nr - b.nr), R = doneAll.sort((a, b) => b.nr - a.nr || b.t - a.t);
+  const P = A.filter(z => z.res === 'pend').sort((a, b) => a.nr - b.nr), R = done.sort((a, b) => b.nr - a.nr || b.t - a.t);
   // zakłady jednego modelu razem (1.19.0): na wierzchu ostatni (z „Dalej”), wcześniejsze kroki zwinięte pod nim; grupa w „Czekają”, gdy jej ostatni czeka
   const gm = {}; A.forEach(z => (gm[z.mid] = gm[z.mid] || []).push(z));
   const G = Object.values(gm).map(L => L.sort((a, b) => b.nr - a.nr || b.t - a.t));
   const GP = G.filter(L => L[0].res === 'pend').sort((a, b) => a[0].nr - b[0].nr), GR = G.filter(L => L[0].res !== 'pend').sort((a, b) => b[0].nr - a[0].nr || b[0].t - a[0].t);
   const grupa = L => { const W = L.slice(1), Wd = W.filter(z => z.res !== 'pend');
     return `<div class="zg">${row(L[0])}${W.length ? `<details class="zgw"><summary>Wcześniejsze zakłady tego modelu · ${W.length}${Wd.length ? ` · wynik ${zl(sum(Wd))}` : ''}</summary>${W.map(row).join('')}</details>` : ''}</div>`; };
-  return rozBox() + `<div class="zsum"><div><b>${zl(sum(done))}</b>wynik łącznie</div><div><b>${fmt(done.reduce((a, z) => a + z.zl, 0))} zł</b>postawione (rozliczone)</div><div><b>${zl(sum(done.filter(z => z.t >= d0)))}</b>dziś</div></div>`
-    + (doneP.length || A.some(z => z.p) ? `<div class="zsum pr"><div><b>${zl(sum(doneP))}</b>🧪 próbne — wynik</div><div><b>${doneP.length}</b>próbne rozliczone</div><div><b>${doneP.filter(z => z.res === 'win').length} / ${doneP.filter(z => z.res === 'lost').length}</b>WIN / przegrane</div></div>` : '')
+  return `<div class="zsum"><div><b>${zl(sum(done))}</b>wynik łącznie</div><div><b>${fmt(done.reduce((a, z) => a + z.zl, 0))} zł</b>postawione (rozliczone)</div><div><b>${zl(sum(done.filter(z => z.t >= d0)))}</b>dziś</div></div>`
     + (A.length ? '' : '<div class="zpust">Brak zakładów. Zakład zapisujesz w opisie modelu (lista „Modele”), gdy model GRA: „💰 Zapisz zakład”.</div>')
     + (P.length ? `<div class="zsec">⏳ Czekają na wynik · ${P.length} · razem ${fmt(P.reduce((a, z) => a + z.zl, 0))} zł</div>` + GP.map(grupa).join('') : '')
     + (R.length ? `<div class="zsec">Rozliczone · ${R.length} · WIN ${R.filter(z => z.res === 'win').length} · przegrane ${R.filter(z => z.res === 'lost').length}</div>` + GR.map(grupa).join('') : '');
@@ -510,11 +451,10 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
   const zk = zakGet().filter(z => z.mid === M.id), juz = T && T.gra && zk.find(z => z.nr === T.nr), czeka = zk.filter(z => zakRes(z) === 'pend').length;
   const zform = !(T && T.gra) ? '' : juz ? `<div class="zok">💰 Postawiony: Nr ${fmt(juz.nr)} · k${juz.krok} · ${fmt(juz.zl)} zł — czeka na wynik</div>`
     : `<div class="zf"><label>Nr wiersza<input id="zNr-${M.id}" type="number" inputmode="numeric" value="${T.nr}"></label><label>krok<input id="zK-${M.id}" type="number" inputmode="numeric" min="1" value="${T.s}"></label>`
-      + `<label>postawione zł<input id="zZl-${M.id}" type="number" inputmode="numeric" min="1" value="${STAWKI[T.s - 1]}"></label><label class="zpr"><input type="checkbox" id="zP-${M.id}"${obsStat(M) && obsStat(M).g >= 20 ? '' : ' checked'}> 🧪 próbny — bez pieniędzy</label><button data-act="bet" data-id="${M.id}">💰 Zapisz zakład</button></div>`;
+      + `<label>postawione zł<input id="zZl-${M.id}" type="number" inputmode="numeric" min="1" value="${STAWKI[T.s - 1]}"></label><button data-act="bet" data-id="${M.id}">💰 Zapisz zakład</button></div>`;
   return `<div class="mod">${modStat(M)}
     ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go" data-id="${M.id}">Pokaż ▶</button></div>` : ''}${zform}
     ${zk.length ? `<div class="now"><span>Zakłady modelu: <b>${zk.length}</b> · wynik <b>${zl(zk.reduce((a, z) => a + zakVal(z), 0))}</b>${czeka ? ` · czeka ${czeka}` : ''}</span><button data-act="zak">💰 Zakłady ▶</button></div>` : ''}
-    ${obsHtml(M)}
     <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}</div>
     <div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
 }
@@ -710,20 +650,15 @@ function szelest(len = .4) {
   }; }
 // zakładki 📓 Zeszyt / 💰 Zakłady; na liście zakładów: dotknięcie — karta z tym wierszem, ✕ — usunięcie
 $('ztabs').addEventListener('click', e => { const b = e.target.closest('button[data-z]'); if (!b) return; S.tab = b.dataset.z; render(); });
-$('tB').addEventListener('change', e => { if (e.target.id === 'zBud') { lsSet(BUDK, String(Math.max(0, +e.target.value || 0) || '')); render(); } });
 $('tB').addEventListener('click', e => {
   const d = e.target.closest('[data-zdel]'), A = zakGet();
   const zc = e.target.closest('[data-zcont]');   // kolejny krok po przegranym zakładzie
   if (zc) { const i = +zc.dataset.zcont, z = A[i], nr = +$('zcNr-' + i).value, krok = +$('zcK-' + i).value, kw = +$('zcZl-' + i).value;
     if (!z) return; if (!(nr >= 1) || !(krok >= 1 && krok <= 40) || !(kw > 0)) { alert('Podaj Nr wiersza, krok i kwotę w zł.'); return; }
     if (A.some(x => x.mid === z.mid && x.nr === nr) && !confirm(`Na Nr ${fmt(nr)} jest już zakład modelu ${z.nazwa}. Zapisać jeszcze jeden?`)) return;
-    const pr = !!($('zcP-' + i) || {}).checked, nz = { mid: z.mid, nazwa: z.nazwa, m: z.m, nr, krok, zl: kw, t: Date.now(), ...(pr ? { p: 1 } : {}) };
-    if (!pr && !rozsadekOk(nz)) return;
-    A.push(nz);
+    A.push({ mid: z.mid, nazwa: z.nazwa, m: z.m, nr, krok, zl: kw, t: Date.now() });
     if (!lsSet(ZAKK, JSON.stringify(A))) { alert('BŁĄD zapisu pamięci telefonu!'); return; } render(); return; }
   if (e.target.closest('.zc')) return;   // pola formularza — nie przechodź do karty
-  if (e.target.id === 'zRap') { const tx = raport(); (navigator.clipboard ? navigator.clipboard.writeText(tx) : Promise.reject()).then(() => alert('Raport skopiowany — wklej go w rozmowie z Claude.'), () => prompt('Skopiuj raport:', tx)); return; }
-  if (e.target.closest('.rz')) return;
   if (d) { const z = A[+d.dataset.zdel]; if (z && confirm(`Usunąć zakład ${z.nazwa} (Nr ${fmt(z.nr)}, k${z.krok}, ${z.zl} zł)?`)) { A.splice(+d.dataset.zdel, 1); lsSet(ZAKK, JSON.stringify(A)); render(); } return; }
   const r = e.target.closest('.zb[data-zi]'); if (!r) return;
   const z = A[+r.dataset.zi], p = z && S.book[S.t].pos[z.nr]; if (!p) return;
@@ -741,7 +676,6 @@ $('mod').addEventListener('click', e => {
   else if (a === 'sel') { const on = !modWyb().includes(id); modWybSet(id, on); if (!on && S.panel === id) S.panel = ''; }   // dotknięcie: tylko pokaż / ukryj na kartach
   else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; if (mojeModele().some(m => m.id === id)) lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); else lsSet(UKRK, [...lsGet(UKRK, '').split(',').filter(Boolean), id].join(',')); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
   else if (a === 'stat') return modSheet(id);
-  else if (a === 'obs') { const o = obsGet()[id]; if (o && !confirm('Zakończyć obserwację tego modelu? Wynik obserwacji przepadnie.')) return; obsSet(id, o ? 0 : S.codes[t].length); }
   else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
   else if (a === 'bet') return zakZapisz(S.modAll[id]);
   else if (a === 'zak') S.tab = 'b';

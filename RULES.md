@@ -372,9 +372,3 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Grupa jest w „Czekają na wynik”, gdy jej ostatni zakład czeka; inaczej w „Rozliczone”. Liczby w nagłówkach — dalej wszystkie zakłady.
 - RAZEM (od 1.20.0): znaczniki bez kroku (`k`, `w`, `b`, `n` bez liczby) — „✗”, „WIN”, „BUST”, „▶ GRA”.
 - RAZEM (1.21.0): znacznik może mieć gotowy opis z tabeli (`Nr:typ:opis`, np. „✗ K2”, „○ K3”, „HIT ▼ K3”, „▶ K3 16 zł”); typ `o` = bez rozstrzygnięcia (szary, ○).
-
-## Rozsądek (1.22.0) — T50 i T60
-- 🧪 Zakład próbny (bez pieniędzy): pole przy „Zapisz zakład” i „Postaw kolejny krok”; domyślnie zaznaczone, dopóki model nie ma 20 gier w obserwacji; „Dalej” dziedziczy z poprzedniego. Próbne liczone osobno (druga, przerywana belka), nie wchodzą do wyniku, „dziś” ani do ostrzeżeń.
-- 👁 Obserwacja modelu (panel modelu, `zeszyt_v1_obserwacja` / `…60`: id → Nr startu): gry zakończone po tym Nr — gier, WIN, LOST, zł; obok zł na grę w historii.
-- 🧭 Rozsądek (na górze 💰 Zakłady + okienko przy zapisie prawdziwego zakładu): >2 modele z czekającymi zakładami, dzienny limit straty (`zeszyt_v1_budzet`), wejście w środek gry (krok bez zagranego poprzedniego), model nieobserwowany / < 20 gier obserwacji. Zasady gry (7 punktów) rozwijane.
-- 📋 Raport dla Claude: tekst (modele: historia, obserwacja, stan; 40 ostatnich zakładów; limit; ostrzeżenia) do schowka — do wklejenia w rozmowie.
