@@ -176,7 +176,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.22.0';
+const APP_VER = '1.23.0';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -281,7 +281,11 @@ const celOpis = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x)),
   if (d.length) o.push(d.length === 3 ? 'gol 40–50\' (1xx, 2xx, 3xx)' : d.join() === '2,3' ? 'gol 46–50\' (2xx, 3xx)' : d.map(x => ({ 1: '1xx (gol 40–45\')', 2: '2xx (46–50\')', 3: '3xx' })[x]).join(', '));
   if (cel.includes('x1x')) o.push('x1x (50–60\')'); if (cel.includes('xx1')) o.push('xx1 (60–70\')'); return o.join(' lub '); };
 const nazwa = M => `${celTx(M.cel)} ${M.w.join('·')}${M.jedn === 't' ? ' T' : ''}${M.cz === 1 ? '' : M.cz ? ` ×${M.cz}` : ' od razu'}${M.war ? ' +gol' : ''} k${M.limit}`;
-const dop = M => [M.jedn === 't' ? 'tercja' : 'strona', M.cz ? (M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`) : 'od razu', M.war ? 'gdy na pustej inny gol' : '', `do k${M.limit}`].filter(Boolean).join(' · ');
+// PUSTA STRONA (opis od 1.23.0): w wierszach modelu na stronie żaden kod nie trafia celu; pozostałe cyfry dowolne
+const pustaTx60 = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x)), o = [];
+  if (d.length) o.push(d.length === 3 ? 'pierwsza cyfra 0' : d.join() === '2,3' ? 'pierwsza cyfra 0 albo 1' : `pierwsza cyfra inna niż ${d.join(' i ')}`);
+  if (cel.includes('x1x')) o.push('środkowa cyfra 0'); if (cel.includes('xx1')) o.push('ostatnia cyfra 0'); return o.join(' i '); };
+const dop = M => [M.jedn === 't' ? 'tercja' : 'strona', M.cz ? (M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`) + ` (pusta = ${pustaTx60(M.cel)}${M.war ? ', ale z innym golem' : ', reszta dowolna'})` : 'od razu', `do k${M.limit}`].filter(Boolean).join(' · ');
 const same = (a, b) => a.w.join() === b.w.join() && a.cel.join() === b.cel.join() && a.jedn === b.jedn && a.cz === b.cz && a.war === b.war && a.limit === b.limit;
 const wZeszycie = () => { try { const a = JSON.parse(lsGet(MOJEK, '[]')); return Array.isArray(a) ? a : []; } catch (e) { return []; } };
 const odm = n => n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 'wiersze' : 'wierszy';
@@ -460,7 +464,7 @@ function statystyki(M, lost) {
   const ov = document.createElement('div'); ov.className = 'ov';
   const przycisk = () => { const z = wZeszycie().find(z => same(z, M)); return z ? `<a class="pri jest" href="../t60.html?m=${z.id}">✓ w ZESZYCIE T60 — otwórz ▶</a>` : `<button id="stP" class="pri">➕ Przenieś do zeszytu T60${lost ? ' — LOST' : ''}</button>`; };
   ov.innerHTML = `<div class="sheet stt"><h3>Model ${nazwa(M)} — statystyki</h3>
-    <div class="s">Gramy na ${celOpis(M.cel)}; ${M.jedn === 't' ? 'w każdej tercji (10 wierszy)' : 'na każdej stronie (30 wierszy)'} wiersze ${M.w.join(', ')}; ${M.cz ? `gra ${M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`}${M.war ? ' (gdy na pustej był inny gol)' : ''}` : 'gra od razu'}, do ${L}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
+    <div class="s">Gramy na ${celOpis(M.cel)}; ${M.jedn === 't' ? 'w każdej tercji (10 wierszy)' : 'na każdej stronie (30 wierszy)'} wiersze ${M.w.join(', ')}; ${M.cz ? `gra ${M.cz === 1 ? 'po 1 pustej' : `po ${M.cz} pustych`}${M.war ? ' (gdy na pustej był inny gol)' : ''}. Pusta = w wierszach ${M.w.join(', ')} ${pustaTx60(M.cel)}, pozostałe cyfry dowolne` : 'gra od razu'}, do ${L}. kroku. Kurs 3.0, stawki 8, 8, 16, 32…</div>
     <div class="nw${gd && gd.za === 1 && Z.teraz <= L ? ' gra' : ''}">${now}</div>
     <div class="nums"><div><b>${N.g}</b>gier</div><div><b>${N.g - N.bust}</b>WIN</div><div><b>${N.bust}</b>BUST</div>
       <div><b>${N.mx}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(dd)}</b>największy spadek (zł)</div></div>

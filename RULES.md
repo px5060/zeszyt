@@ -376,3 +376,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## 🔎 Znajdź model po wpisaniu (1.22.0) — T50 i T60
 - Pole nad listą „Modele”: wpisz model i „🔎 Pokaż” (albo Enter). T50: 3 wiersze 1–28 w dowolnej kolejności, `K10` = gra do kroku, `+bok`, `×2` / `po 2` = po 2 pustych, `od razu`, `+XX`/`X+X`/`XX+` (albo `1xx`/`x1x`/`xx1`), albo kod `1-3.8.10-1--10`. T60: 1–6 wierszy 1–30, cel `2/3xx` (domyślnie), `1xx`, `123xx`, `x1x`, `xx1`, `K`, `×2`, `od razu`, albo kod `x1x-3.6.21-1-9`.
 - Model z listy — zaznaczony, rozwinięty opis, karta jego bieżącej (albo ostatniej) gry. Nowy — dopisany do „Modele” (można usunąć 🗑) i pokazany. Pod polem: nazwa, gier, LOST, stan.
+
+## Opis „pustej” w modelu (1.23.0)
+- T50: pusta trójka = w 3 wierszach modelu nie ma + w kolumnie gry, reszta dowolna; +bok = do tego co najmniej jeden + z boku (inaczej gry nie ma). Na kafelku: „po 1 pustej trójce (pusta = bez + na środku, reszta dowolna / ale z + z boku)”; w opisie pełne zdanie.
+- T60: pusta strona = w wierszach modelu żaden kod nie trafia celu (x1x: środkowa 0, xx1: ostatnia 0, 2/3xx: pierwsza 0 albo 1, 1xx: pierwsza inna niż 1), reszta dowolna. To samo w SZUKAJ W Z T60.
+- `silnik.js?v=1.23.0`, `silnik60.js?v=1.23.0`.
