@@ -46,6 +46,10 @@ const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const CEL = ['+XX', 'X+X', 'XX+'], CELTX = ['+ na początku', '+ na środku', '+ na końcu'];
 const pustych = n => n > 1 ? `${n} pustych trójkach` : '1 pustej trójce';
 const bokTx = poz => poz === 1 ? '+ z boku' : '+ gdzie indziej';
+// PUSTA TRÓJKA (opis od 1.23.0): w 3 wierszach modelu w połowie karty nie ma + w kolumnie gry; pozostałe kolumny dowolne (nie muszą być same −).
+// +bok: do tego w pustej trójce musi być co najmniej jeden + w innej kolumnie — inaczej gry nie ma, czekamy dalej.
+const MIEJSCE = ['na początku', 'na środku', 'na końcu'];
+const pustaTx = M => `pusta = bez + ${MIEJSCE[M.poz]}${M.war ? `, ale z ${bokTx(M.poz)}` : ', reszta dowolna'}`;
 // NAZWA MODELU — jednoznaczna, ta sama w SZUKAJ W ZESZYCIE i w ZESZYCIE (kiedyś: szukanie po nazwie):
 // [cel, gdy nie X+X] wiersze [+bok = warunek „+ z boku”] [×2 = start po 2 pustych trójkach] [k8 = gra do kroku, gdy nie 9],
 // np. „16·18·27”, „16·18·27 +bok”, „XX+ 5·13·28 +bok”, „20·23·24 ×2”, „1·6·17 k8”.
@@ -55,8 +59,8 @@ function modDef(m) {   // model z wartościami domyślnymi i nazwą
   M.nazwa = (M.poz === 1 ? '' : CEL[M.poz] + ' ') + M.w.join('·') + (M.war ? ' +bok' : '') + (M.czekaj !== 1 ? ` ×${M.czekaj}` : '') + (M.limit !== 9 ? ` k${M.limit}` : '');
   return M;
 }
-const modDop = M => [M.poz === 1 ? '' : CELTX[M.poz], M.war ? bokTx(M.poz) : '', M.czekaj ? `po ${pustych(M.czekaj)}` : 'od razu', `do k${M.limit}`].filter(Boolean).join(' · ');
-const modOpis = M => `${CELTX[M.poz]}; w każdej połowie wiersze ${M.w.join(', ')}; ${M.czekaj ? `gra po ${pustych(M.czekaj)}${M.war ? ` (tylko gdy w pustej trójce jest ${bokTx(M.poz)})` : ''}` : 'gra od razu (bez pustej trójki)'}, do ${M.limit}. kroku`;
+const modDop = M => [M.poz === 1 ? '' : CELTX[M.poz], M.czekaj ? `po ${pustych(M.czekaj)} (${pustaTx(M)})` : 'od razu', `do k${M.limit}`].filter(Boolean).join(' · ');
+const modOpis = M => `${CELTX[M.poz]}; w każdej połowie wiersze ${M.w.join(', ')}; ${M.czekaj ? `gra po ${pustych(M.czekaj)}` : 'gra od razu (bez pustej trójki)'}, do ${M.limit}. kroku${M.czekaj ? `. Pusta trójka = w wierszach ${M.w.join(', ')} nie ma + ${MIEJSCE[M.poz]}; ${M.war ? `musi być za to co najmniej jeden + ${M.poz === 1 ? 'z boku (na początku albo na końcu)' : 'w innej kolumnie'} — bez niego gry nie ma` : 'w pozostałych kolumnach może być cokolwiek (nie muszą być same −)'}` : ''}`;
 const parseModele = str => { try { const a = JSON.parse(str || '[]'); return Array.isArray(a) ? a.filter(m => m && m.id && Array.isArray(m.w) && m.w.length === 3) : []; } catch (e) { return []; } };
 const sameModel = (a, b) => a.w.join() === b.w.join() && a.poz === b.poz && a.czekaj === b.czekaj && a.war === b.war && a.limit === b.limit;
 // model po LOST-cie: ostatnia skończona gra przegrana (dłuższa niż limit) albo gra w toku już za limitem — od LOST-u jeszcze bez WIN

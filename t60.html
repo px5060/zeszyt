@@ -77,7 +77,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 #leg .lg .x2l{padding:0 3px;border-radius:3px;background:#1d2433;color:#fff;font-size:11px}:where(#leg .lg) i{display:inline-block;width:26px;height:13px;border-radius:3px;background:var(--paper)}
 .kd.msz{outline:1.5px dotted #8b93a7;outline-offset:-1px}
 .paper .anno{position:absolute;left:calc(var(--sq)*.7);right:calc(var(--sq)*1.7);top:calc(var(--sq)*28.2);padding:2px 6px;border:1.5px dashed #9aa3b5;border-radius:6px;background:#fffbe8;color:var(--ink2);font:600 calc(var(--sq)*.5)/1.3 system-ui,sans-serif}
-/* lista modeli nad kartą */
+/* lista modeli pod kartą */
 .mods{background:var(--pan);border:1px solid #1f8a4c;border-radius:10px;margin-bottom:8px;overflow:hidden}
 .mods .mh{display:flex;align-items:center;gap:8px;padding:9px 10px;cursor:pointer;font-weight:800;font-size:15px}
 .mods .mh .ar{width:14px;color:#2ea85a}.mods .mh small{color:var(--mu);font-weight:600}.mods .mh .stan{font-size:11.5px}
@@ -250,19 +250,20 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
     <button id="undoB" class="und" title="cofnij ostatni kod">↩</button>
   </div>
   <div class="info" id="info"></div>
-  <div class="szm"><input id="szIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="znajdź model, np. x1x 3-6-21 K9"><button id="szB">🔎 Pokaż</button></div><div id="szInfo" class="szi"></div>
-  <div id="mod"></div>
   <div id="card" class="stage"></div>
   <div id="leg"></div>
-  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. Lista „Modele” nad kartą — dotknij modelu, pokaże się na kartach (można kilka); przytrzymaj — zakład, Statystyki, Prześledź; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj. Gdy model GRA — „💰 Zapisz zakład” w jego opisie (przytrzymaj model); wszystkie w „💰 Zakłady”.</div>
+  <!-- modele pod zeszytem (od 1.23.0): najpierw karta z kodami, niżej wyszukiwarka i lista modeli -->
+  <div class="szm"><input id="szIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="znajdź model, np. x1x 3-6-21 K9"><button id="szB">🔎 Pokaż</button></div><div id="szInfo" class="szi"></div>
+  <div id="mod"></div>
+  <div class="hint">Przeciągnij kartę palcem w lewo — następna, w prawo — poprzednia. Dotknij wiersza — wpiszesz mecz (Enter = następny wiersz). Wiersz ze strzałką ▸ albo „＋ Dopisz kod” — nowy kod − / +. Lista „Modele” pod kartą — dotknij modelu, pokaże się na kartach (można kilka); przytrzymaj — zakład, Statystyki, Prześledź; „Zwiń” — oznaczenia znikają. Kwadracik żółty = czekaj, miga = graj. Gdy model GRA — „💰 Zapisz zakład” w jego opisie (przytrzymaj model); wszystkie w „💰 Zakłady”.</div>
   </div>
   <div id="tB" hidden></div>
 </main>
 
-<script src="silnik60.js?v=1.11.0"></script>
+<script src="silnik60.js?v=1.23.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.22.0';
+const APP_VER = '1.24.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -347,7 +348,7 @@ const lastCard = t => S.codes[t].length ? S.book[t].pos[S.codes[t].length].k : 0
 const mark = d => d;   // T60: cyfry kodu jak w tabeli (1. cyfra 0–3: gol 40–45' / 46–50' / oba; potem 50–60', 60–70'); 0 — szare (1.11.1: „0” zamiast „−”)
 const nastCyfra = (i, d) => i ? d ^ 1 : (d + 1) % 4, KTX = '1. cyfra 0 → 1 → 2 → 3, 2. i 3. cyfra 0 / 1.';   // poprawka kodu T60
 
-// ===== MODELE — układy podświetlane na kartach zeszytu (rozwijana lista „Modele” nad kartą) =====
+// ===== MODELE — układy podświetlane na kartach zeszytu (rozwijana lista „Modele” pod kartą) =====
 // W każdej połowie liczą się tylko wiersze modelu (3 kroki na połowę), WIN = + na środku (poz 1). Połowa bez + w tych wierszach
 // = pusta trójka → gra od następnej połowy, krok za krokiem, aż do WIN; po WIN nowy cykl od następnej połowy.
 // Warunek „boki”: gramy tylko, gdy w pustej trójce jest kod z + na początku albo na końcu; inaczej czekamy bez gry na + na środku.
@@ -502,6 +503,7 @@ function modZTekstu(tx) {
 }
 const modZapis = (D, id) => ({ id, w: D.w, cel: D.cel, jedn: 's', cz: D.cz, war: '', limit: D.limit });
 const ID0 = 'v';
+const kartaWidok = () => { const el = document.querySelector('.cnav'), hd = document.querySelector('header'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + scrollY - (hd ? hd.offsetHeight : 0) - 6, behavior: 'smooth' }); };   // modele są pod kartą — pokaż zeszyt
 function znajdzModel() {
   const tx = $('szIn').value.trim(), info = $('szInfo'); if (!tx) return;
   const D = modZTekstu(tx); info.className = 'szi';
@@ -511,10 +513,10 @@ function znajdzModel() {
   modWybSet(M.id, true); otwDla(M.id); S.panel = M.id; S.tab = 'z'; render();
   const R = S.modAll[M.id], T = R && R.teraz, k = T ? T.k : R && R.gry.length ? R.gry[R.gry.length - 1].sk : null;
   if (k != null && k !== S.card[S.t]) { szelest(); go(k); }
+  kartaWidok();
   info.innerHTML = `${nowy ? '➕ Dodany do „Modele”' : '✓ Jest na liście'}: <b>${esc(R ? R.nazwa : D.nazwa)}</b>${R ? ` · ${R.gry.length} gier · LOST ${R.gry.filter(g => g.s > R.limit).length}` : ''}${R && R.teraz ? ' · ' + modTeraz(R, true) : ''}`;
-  const el = document.querySelector('.mi.pan'); if (el) el.scrollIntoView({ block: 'nearest' });
 }
-function modLista(l) {   // lista „Modele” / „Modele LOST” nad kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
+function modLista(l) {   // lista „Modele” / „Modele LOST” pod kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
   const otw = listaOtw(l), sel = modWyb(), ML = modeleWsz().filter(M => (M.lista === 'lost' ? 'lost' : '') === l), R = id => S.modAll[id];
   let h = `<div class="mods${l ? ' ml' : ''}"><div class="mh" data-act="tog" data-l="${l}"><span class="ar">${otw ? '▾' : '▸'}</span>${l ? 'Modele LOST' : 'Modele'} <small>(${ML.length})</small>`
     + `<span class="zw">${otw ? 'Zwiń' : 'Rozwiń'}</span></div>`;   // bez znaczka GRAJ w nagłówku — GRAJ świeci tylko przy modelu na liście
@@ -721,7 +723,7 @@ $('tB').addEventListener('click', e => {
   if (modeleWsz().some(M => M.id === z.mid)) { modWybSet(z.mid, true); otwDla(z.mid); }
   S.tab = 'z'; if (p.k !== S.card[S.t]) { szelest(); go(p.k); } else render();
 });
-// lista modeli nad kartą: zwiń / rozwiń, wybór modelu, statystyki, Prześledź, dodawanie i usuwanie własnych modeli
+// lista modeli pod kartą: zwiń / rozwiń, wybór modelu, statystyki, Prześledź, dodawanie i usuwanie własnych modeli
 // 🗑: własny model (z SZUKAJ: T50 id „u…”, T60 id „v…”) — usuń z listy; wbudowany — ukryj (1.11.7)
 $('mod').addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
@@ -735,7 +737,7 @@ $('mod').addEventListener('click', e => {
   else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
   else if (a === 'bet') return zakZapisz(S.modAll[id]);
   else if (a === 'zak') S.tab = 'b';
-  else if (a === 'go' || a === 'last') { const M = S.modAll[id], k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } return; }
+  else if (a === 'go' || a === 'last') { const M = S.modAll[id], k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } kartaWidok(); return; }
   render();
 });
 // przytrzymanie modelu (0,5 s): otwiera / zamyka jego opis — zakład, 📊 Statystyki, 🔍 Prześledź (jeden opis naraz; model idzie też na karty)

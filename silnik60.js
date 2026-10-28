@@ -31,6 +31,11 @@ const MODELE = [];   // wbudowanych brak — modele przenosi się z SZUKAJ W ZES
 const KURS = 3, STAWKI = [8, 8]; while (STAWKI.length < 40) STAWKI.push(STAWKI[STAWKI.length - 1] * 2);
 const sumSt = s => STAWKI.slice(0, s).reduce((a, b) => a + b, 0);
 const pustych = n => n > 1 ? `${n} pustych` : '1 pustej';
+// PUSTA STRONA (opis od 1.23.0): w wierszach modelu na stronie żaden kod nie trafia celu; pozostałe cyfry dowolne
+const pustaTx60 = cel => { const d = ['1', '2', '3'].filter(x => cel.includes(x)), o = [];
+  if (d.length) o.push(d.length === 3 ? 'pierwsza cyfra 0' : d.join() === '2,3' ? 'pierwsza cyfra 0 albo 1' : `pierwsza cyfra inna niż ${d.join(' i ')}`);
+  if (cel.includes('x1x')) o.push('środkowa cyfra 0'); if (cel.includes('xx1')) o.push('ostatnia cyfra 0'); return o.join(' i '); };
+
 // nazwa jak w SZUKAJ T60: [cel] wiersze [×n = po n pustych] kL, np. „2/3xx 11·23·29 ×3 k9”, „xx1 23·24 k9”
 function modDef(m) {
   const M = { cel: ['2', '3'], cz: 1, war: '', limit: 9, jedn: 's', ...m };
@@ -38,8 +43,8 @@ function modDef(m) {
   M.nazwa = `${celTx(M.cel)} ${M.w.join('·')}${M.cz === 1 ? '' : M.cz ? ` ×${M.cz}` : ' od razu'} k${M.limit}`;
   return M;
 }
-const modDop = M => [celOpis(M.cel), M.cz ? `po ${pustych(M.cz)}` : 'od razu', `do k${M.limit}`].join(' · ');
-const modOpis = M => `gramy na ${celOpis(M.cel)}; na każdej stronie (30 wierszy) wiersze ${M.w.join(', ')}; ${M.cz ? `gra po ${pustych(M.cz)} stronie/ach` : 'gra od razu'}, do ${M.limit}. kroku`;
+const modDop = M => [celOpis(M.cel), M.cz ? `po ${pustych(M.cz)} (pusta = ${pustaTx60(M.cel)}, reszta dowolna)` : 'od razu', `do k${M.limit}`].join(' · ');
+const modOpis = M => `gramy na ${celOpis(M.cel)}; na każdej stronie (30 wierszy) wiersze ${M.w.join(', ')}; ${M.cz ? `gra po ${pustych(M.cz)} stronie/ach` : 'gra od razu'}, do ${M.limit}. kroku${M.cz ? `. Pusta strona = w wierszach ${M.w.join(', ')} ${pustaTx60(M.cel)}; pozostałe cyfry mogą być dowolne (nie muszą być same 0)` : ''}`;
 const parseModele = str => { try { const a = JSON.parse(str || '[]'); return Array.isArray(a) ? a.filter(m => m && m.id && Array.isArray(m.w) && m.w.length >= 1 && Array.isArray(m.cel) && (m.jedn || 's') === 's') : []; } catch (e) { return []; } };
 const sameModel = (a, b) => a.w.join() === b.w.join() && a.cel.join() === b.cel.join() && a.cz === b.cz && a.limit === b.limit;
 const modLost = M => !!((M.teraz && M.teraz.gra && M.teraz.s > M.limit) || (M.gry.length && M.gry[M.gry.length - 1].s > M.limit));
