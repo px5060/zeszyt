@@ -381,3 +381,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - T50: pusta trójka = w 3 wierszach modelu nie ma + w kolumnie gry, reszta dowolna; +bok = do tego co najmniej jeden + z boku (inaczej gry nie ma). Na kafelku: „po 1 pustej trójce (pusta = bez + na środku, reszta dowolna / ale z + z boku)”; w opisie pełne zdanie.
 - T60: pusta strona = w wierszach modelu żaden kod nie trafia celu (x1x: środkowa 0, xx1: ostatnia 0, 2/3xx: pierwsza 0 albo 1, 1xx: pierwsza inna niż 1), reszta dowolna. To samo w SZUKAJ W Z T60.
 - `silnik.js?v=1.23.0`, `silnik60.js?v=1.23.0`.
+
+## Zeszyt na górze, modele pod kartą (1.24.0) — ZESZYT T50 i T60
+- Kolejność: nawigacja karty, dopisz kod, info, KARTA, legenda — niżej wyszukiwarka „🔎 Pokaż” i listy „Modele” / „Modele LOST”. SZUKAJ W Z bez zmian.
+- „🔎 Pokaż”, „Pokaż ▶” i „Idź ▶” przy modelu przewijają do karty (pod przyklejonym paskiem).
