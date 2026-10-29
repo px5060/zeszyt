@@ -263,7 +263,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.23.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.24.0';
+const APP_VER = '1.25.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -940,7 +940,10 @@ window.addEventListener('focus', refresh);
       if (ty !== 's' && ty !== 't' || a.c === 'p') a.c = z[0]; a.ls.push(l); a.kto.push(`Nr ${nr}: ${l}`); if (!cel || cel.ty !== 'n') cel = { ty, k: o.k }; }   // karta zakładu do gry, inaczej ostatniego zdarzenia
     for (const a of Object.values(zn)) a.l = a.ls.join(' / ');
     S.zn = zn; render(); if (cel && cel.k !== S.card[S.t]) go(cel.k); }
-  if (PODGLAD) { const T = S.modAll.pg && S.modAll.pg.teraz; if (T && T.k != null && T.k !== S.card[S.t]) go(T.k); }   // karta bieżącej gry modelu
+  const KARTA = +new URLSearchParams(location.search).get('karta');   // podgląd z listy w SZUKAJ W Z: konkretna gra — wszystkie gry modelu zaznaczone
+  if (PODGLAD && KARTA > 0) { PAM[PRZK] = '1'; render(); go(KARTA); }
+  else if (PODGLAD) { const T = S.modAll.pg && S.modAll.pg.teraz; if (T && T.k != null && T.k !== S.card[S.t]) go(T.k); }   // karta bieżącej gry modelu
+  if (PODGLAD) window.addEventListener('message', e => { const k = e.data && +e.data.idzKarta; if (!(k > 0)) return; if (e.data.wszystko) PAM[PRZK] = '1'; render(); if (k !== S.card[S.t]) go(k); });
 })();
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) navigator.serviceWorker.register('zeszyt-sw.js').catch(() => {});
 </script>
