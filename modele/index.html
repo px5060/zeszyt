@@ -86,6 +86,14 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 /* ostatnie gry jak w MOJE: same kwadraciki — zielony WIN, czerwony LOST; najnowsza z obwódką i ▲ */
 .stt .ost.kw{gap:4px;margin-bottom:18px}.stt .ost.kw i{width:26px;height:26px;border-radius:4px;position:relative;display:block;color:#fff;font:800 13px/26px system-ui,sans-serif;font-style:normal;text-align:center}
 .stt .ost.kw i.w{background:#2ea85a}.stt .ost.kw i.l{background:#e0483e}
+/* kwadraciki i listy (1.25.0): 2 dotknięcia → co było po takim wyniku; wiersz listy → karta w podglądzie */
+.stt .ost.kw i{cursor:pointer;transition:transform .15s}.stt .ost.kw i.big{transform:scale(1.5);z-index:3;box-shadow:0 3px 10px rgba(0,0,0,.5)}
+.stt .po{background:var(--card);border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font-size:13px;margin:0 0 10px;line-height:1.5}
+.stt .po .roz{display:flex;flex-wrap:wrap;gap:6px 12px;margin:6px 0}.stt .po .roz span{display:inline-flex;align-items:center;gap:4px;font-weight:800}
+.stt .po i,.stt .po .sqs i{display:inline-block;min-width:22px;height:22px;padding:0 3px;border-radius:4px;color:#fff;font:800 12px/22px system-ui,sans-serif;font-style:normal;text-align:center}
+.stt .po i.w{background:#2ea85a}.stt .po i.l{background:#e0483e}.stt .po .sqs{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}.stt .po .s3{color:var(--mu);font-size:12px}
+.stt .po .ida{margin-top:8px;background:var(--pan);border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font-weight:700}
+.stt tr.lk{cursor:pointer}.stt tr.lk td:first-child::after{content:' ▼';color:var(--mu);font-size:10px}.stt .ost span.lk{cursor:pointer}.stt .ost span.lk::after{content:' ▼';color:var(--mu);font-size:10px}
 .stt .ost.kw i.now{box-shadow:0 0 0 2px var(--pan),0 0 0 4px var(--tx)}.stt .ost.kw i.now::after{content:'▲';position:absolute;left:50%;top:30px;line-height:1;transform:translateX(-50%);font-size:10px;color:var(--tx);font-style:normal}
 
 .stt h4{margin:4px 0 6px;font-size:13px;color:var(--mu);font-weight:700}
@@ -174,7 +182,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.23.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.24.0';
+const APP_VER = '1.25.0';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -367,12 +375,40 @@ function przenies(M, lost) {   // model trafia na listę modeli w ZESZYCIE (z za
   if (!lsSet(MOJEK, JSON.stringify([...parseModele(lsGet(MOJEK, '[]')), { id, w: M.w, poz: M.poz, czekaj: M.czekaj, war: M.war, limit: M.limit, ...(lost ? { lista: 'lost' } : {}) }]))) { alert('BŁĄD zapisu pamięci telefonu!'); return false; }
   lsSet(MODK, [...lsGet(MODK, '').split(',').filter(Boolean), id].join(',')); lsSet(lost ? 'zeszyt_v1_modele_lost_otw' : OTWK, '1'); return true;
 }
+// ===== kwadraciki i listy (1.25.0): kwadracik — 1. dotknięcie powiększa, 2. pokazuje, co było po takim wyniku (ile razy WIN 1, 2, 3… / LOST)
+// i „Pokaż tę grę na zeszycie”; wiersz listy (LOST / najdłuższe gry) — karta tej gry w podglądzie zeszytu (zaznaczone wszystkie gry modelu)
+const wynK = (s, L) => s > L ? 'L' : s, wynTx = v => v === 'L' ? 'LOST' : `WIN ${v}`, kwI = (s, L) => `<i class="${s > L ? 'l' : 'w'}">${s}</i>`;
+function poHtml(S, L, v) {   // S = długości gier po kolei
+  const nx = [], cnt = {}, ile = S.filter(s => wynK(s, L) === v).length;
+  S.forEach((s, i) => { if (wynK(s, L) === v && i + 1 < S.length) nx.push(S[i + 1]); });
+  if (!nx.length) return `<b>Po ${wynTx(v)}</b>: to była ostatnia gra — następnej jeszcze nie było.`;
+  nx.forEach(s => { const k = wynK(s, L); cnt[k] = (cnt[k] || 0) + 1; });
+  const roz = Object.entries(cnt).sort((a, b) => b[1] - a[1] || (a[0] === 'L') - (b[0] === 'L') || a[0] - b[0]);
+  return `<b>Po ${wynTx(v)}</b> (${ile}× w historii${ile > nx.length ? ', ostatni jeszcze bez następnej' : ''}) następna gra — najczęściej:`
+    + `<div class="roz">${roz.map(([k, c]) => `<span><i class="${k === 'L' ? 'l' : 'w'}">${k === 'L' ? 'L' : k}</i>× ${c}</span>`).join('')}</div>`
+    + `<div class="s3">kolejno (ostatnie, od najstarszej):</div><div class="sqs">${nx.slice(-15).map(s => kwI(s, L)).join('')}</div>`;
+}
+function pgKarta(ov, k) {   // podgląd zeszytu w statystykach → karta k, wszystkie gry modelu zaznaczone
+  const f = ov.querySelector('iframe.pgz'); if (!f || !(k > 0)) return;
+  if (f.dataset.ok && f.contentWindow) f.contentWindow.postMessage({ idzKarta: k, wszystko: 1 }, '*');
+  else { f.loading = 'eager'; f.src = f.src.replace(/&karta=\d+/, '') + '&karta=' + k; }
+  f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function kwKlik(e, ov, G, L, cardOf) {
+  const q = e.target.closest('.ost.kw i[data-i]');
+  if (q) { const g = G[+q.dataset.i], v = wynK(g.s, L), box = ov.querySelector('.poW'); if (!g || !box) return true;
+    if (!q.classList.contains('big')) { ov.querySelectorAll('.ost.kw .big').forEach(x => x.classList.remove('big')); q.classList.add('big');
+      box.innerHTML = `<b>${wynTx(v)}</b> — dotknij jeszcze raz: jak układały się następne gry po ${wynTx(v)}.`; return true; }
+    box.innerHTML = poHtml(G.map(x => x.s), L, v) + `<br><button class="ida" data-k="${cardOf(g)}">Pokaż tę grę na zeszycie ▼</button>`; return true; }
+  const b = e.target.closest('[data-k]'); if (b) { pgKarta(ov, +b.dataset.k); return true; }
+  return false;
+}
 function lostSek(M) {   // LOST-y modelu: kiedy, odstęp od poprzedniego, co było w następnej grze
   const G = M.gry, L = M.limit, D = lostDane(G.map(g => g.s), L, M.teraz && M.teraz.gra ? M.teraz.s : 0); if (!D.bust) return '<h4>LOST</h4><div class="s">Ten model nie miał LOST-u.</div>';
   const pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   let prev = -1; const rows = [];
   G.forEach((g, j) => { if (g.s <= L) return; const nx = G[j + 1];
-    rows.push(`<tr><td>${j + 1}.</td><td>${g.sk === g.k ? g.k : `${g.sk}–${g.k}`}${pn(g)}</td><td>k${g.s}</td><td>${prev < 0 ? '—' : j - prev}</td><td>${!nx ? (M.teraz && M.teraz.gra ? `trwa (krok ${M.teraz.s})` : 'czeka') : nx.s > L ? '<b class="lo">LOST</b>' : `WIN ${nx.s}`}</td></tr>`); prev = j; });
+    rows.push(`<tr class="lk" data-k="${g.sk}"><td>${j + 1}.</td><td>${g.sk === g.k ? g.k : `${g.sk}–${g.k}`}${pn(g)}</td><td>k${g.s}</td><td>${prev < 0 ? '—' : j - prev}</td><td>${!nx ? (M.teraz && M.teraz.gra ? `trwa (krok ${M.teraz.s})` : 'czeka') : nx.s > L ? '<b class="lo">LOST</b>' : `WIN ${nx.s}`}</td></tr>`); prev = j; });
   return `<h4>LOST (przegrane gry)</h4><div class="s">LOST <b>${D.bust}</b> z ${D.n} gier${D.gaps.length ? ` · co ~${D.gapAvg.toFixed(0)} gier (najkrócej ${D.gapMin})` : ''} · po LOST: WIN <b>${D.winPo}</b>, LOST <b>${D.rep}</b> · sprawdzenie (ostatnie 35% gier): ${D.spr.g} gier, LOST ${D.spr.bust}, LOST po LOST ${D.spr.rep}</div>
     <table><tr><th>gra</th><th>karty</th><th>kroki</th><th>odstęp</th><th>następna gra</th></tr>${rows.slice(-10).reverse().join('')}</table>`;
 }
@@ -395,13 +431,14 @@ function statystyki(M0, lost) {   // lost: otwarte z zakładki LOST — przenies
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
     <h4>WIN w połowie gry</h4><div class="s">${Object.keys(N.pol).sort((a, b) => a - b).map(x => `${x}. połowa — <b>${N.pol[x]}</b>`).join(' · ')}</div>
     ${lostSek(M)}
-    <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<i class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, karta ${g.k}${pn(g)} w.${g.r}">${g.s}</i>`).join('')}</div>
+    <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${N.G.slice(-20).map((g, i, A) => `<i data-i="${N.G.length - A.length + i}" class="${g.s > M.limit ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > M.limit ? 'LOST' : 'WIN'} — krok ${g.s}, karta ${g.k}${pn(g)} w.${g.r}">${g.s}</i>`).join('')}</div>
+    <div class="po poW">Dotknij kwadracika — powiększy się; dotknij go jeszcze raz — zobaczysz, co było po takim wyniku (ile razy WIN 1, 2, 3… i LOST). Dotknij wiersza listy LOST — pokaże tę grę na zeszycie.</div>
     <h4>Na zeszycie — kolejne kroki gry</h4><div class="s">Podgląd: model <b>nie jest</b> dodany do zeszytu. ◀ ▶ — inne karty.</div>
     <iframe class="pgz" src="../?podglad=${modKod(M)}" loading="lazy" title="podgląd na zeszycie"></iframe>
     <div class="bb"><span id="stPp">${przycisk()}</span><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
-  ov.onclick = e => { if (e.target === ov) close(); };
+  ov.onclick = e => { if (e.target === ov) return close(); kwKlik(e, ov, N.G, M.limit, g => g.sk); };
   $('stX').onclick = close;
   if ($('stP')) $('stP').onclick = () => { if (przenies(M0, lost)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); if (W.lost) pokazLost(); } };
 }
@@ -410,7 +447,7 @@ $('listaL').addEventListener('click', e => { const d = e.target.closest('.md[dat
 $('goL').onclick = szukajLost;
 $('goB').onclick = szukaj;
 // podgląd na zeszycie (od 1.14.0): ramka ../?podglad=<kod> (ZESZYT bez zapisu) — wysokość z wiadomości ramki
-window.addEventListener('message', e => { const h = e.data && e.data.zeszytH; if (h) document.querySelectorAll('iframe.pgz').forEach(f => { if (f.contentWindow === e.source) f.style.height = Math.max(200, h) + 'px'; }); });
+window.addEventListener('message', e => { const h = e.data && e.data.zeszytH; if (h) document.querySelectorAll('iframe.pgz').forEach(f => { if (f.contentWindow === e.source) { f.style.height = Math.max(200, h) + 'px'; f.dataset.ok = '1'; } }); });
 
 
 // ===== DOPISZ KOD — − = 0, + = 1 → wspólna lista kodów (t50razem_v1_added), ten sam zapis co w ZESZYCIE / RAZEM / MOJE:

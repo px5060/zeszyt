@@ -385,3 +385,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## Zeszyt na górze, modele pod kartą (1.24.0) — ZESZYT T50 i T60
 - Kolejność: nawigacja karty, dopisz kod, info, KARTA, legenda — niżej wyszukiwarka „🔎 Pokaż” i listy „Modele” / „Modele LOST”. SZUKAJ W Z bez zmian.
 - „🔎 Pokaż”, „Pokaż ▶” i „Idź ▶” przy modelu przewijają do karty (pod przyklejonym paskiem).
+
+## SZUKAJ W Z: kwadraciki i listy (1.25.0)
+- Kwadraciki „Ostatnie gry” (T50 i T60): 1. dotknięcie powiększa, 2. pokazuje, co było po takim wyniku (ile razy WIN 1, 2, 3… i LOST) + „Pokaż tę grę na zeszycie ▼”.
+- Wiersz listy LOST (T50) i „Najdłuższe gry” (T60): podgląd zeszytu w statystykach przechodzi na kartę tej gry, ze wszystkimi grami modelu zaznaczonymi (Prześledź). ZESZYT w podglądzie: `&karta=K` i wiadomość `{idzKarta, wszystko}`.
