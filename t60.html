@@ -91,6 +91,9 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .mods .mi.lost{border:3px solid transparent;border-image:repeating-linear-gradient(-45deg,#a8423a 0 8px,#e8e2e2 8px 16px) 3}.mods .mi .lo{color:#e0483e;font-weight:800}
 .mods .mi .del{flex:none;text-decoration:none;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:4px 7px;font-size:14px}
 .mods .mod{margin:0;border:0;border-top:1px dashed var(--bd);border-radius:0}
+.mods .mi .clt{font-size:11px;font-weight:800;padding:1px 5px;border-radius:7px;border:1px solid currentColor;white-space:nowrap;margin-left:5px;vertical-align:1px}
+.ocz{margin:8px 0;padding:8px 10px;border:1px solid var(--bd);border-radius:10px;background:var(--card)}.ocz small{color:var(--mu)}.ocz .ocq{color:var(--mu);font-size:12.5px;margin-top:3px}
+.ocz summary{cursor:pointer;font-weight:700;margin-top:5px}.ocz .ocs{margin-top:6px}.ocz ul{margin:2px 0 0 16px;padding:0}.ocz li{font-size:12.5px}
 .mods .mfoot span{flex:1 1 100%}.mods .mfoot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid var(--bd);color:var(--mu);font-size:12px}
 .mods .mfoot a{text-decoration:none;margin-left:auto;flex:none;background:#1f8a4c;border:1px solid #1f8a4c;color:#fff;border-radius:8px;padding:7px 11px;font-weight:800;font-size:13.5px}
 .ztabs{display:flex;gap:6px;margin:0 0 8px}.ztabs button{flex:1;background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:10px;padding:9px;font-size:14.5px;font-weight:800}
@@ -263,7 +266,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.23.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.25.0';
+const APP_VER = '1.26.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -472,6 +475,28 @@ function zakTab() {   // zakładka 💰 Zakłady: wynik, czekające na wynik, ro
     + (P.length ? `<div class="zsec">⏳ Czekają na wynik · ${P.length} · razem ${fmt(P.reduce((a, z) => a + z.zl, 0))} zł</div>` + GP.map(grupa).join('') : '')
     + (R.length ? `<div class="zsec">Rozliczone · ${R.length} · WIN ${R.filter(z => z.res === 'win').length} · przegrane ${R.filter(z => z.res === 'lost').length}</div>` + GR.map(grupa).join('') : '');
 }
+// ===== 🔍 OCENA CLAUDE przy modelu (1.26.0) — tylko do odczytu. Oceny (oceny.json z prywatnego repo kodów) pobiera appka MOJE do moje_v1_ghoc
+// (ta sama strona px5060.github.io — wspólna pamięć telefonu); decyzje (zostaw / usuń z MOJE, dodaj) tylko w MOJE → 🔍 OCENY, żeby się nie dublowały.
+// Id oceny jak w ocena.py (zid): Z|t60|wiersze rosnąco z „.”||cz||cel (2/3xx, 1xx, 1-3xx, x1x, xx1)|limit
+const OCW = { 'GRAĆ': '#2ea85a', 'OBSERWUJ': '#c99a1e', 'NIE GRAĆ': '#e0483e' }, OCDT = { zostaw: 'zostaje', dodane: 'dodany' };
+const OCCEL = { '2,3': '2/3xx', '1': '1xx', '1,2,3': '1-3xx', 'x1x': 'x1x', 'xx1': 'xx1' };
+const ocId = M => `Z|t60|${[...M.w].sort((a, b) => a - b).join('.')}||${M.cz}||${OCCEL[(M.cel || []).join(',')] || '?'}|${M.limit}`;
+let _ocR = null, _ocM = null;
+function ocModelu(M) {   // najnowsza ocena tego modelu albo null
+  const raw = lsGet('moje_v1_ghoc', '');
+  if (raw !== _ocR) { _ocR = raw; _ocM = new Map(); let O = []; try { const x = JSON.parse(raw || '{}'); O = x && Array.isArray(x.O) ? x.O : []; } catch (e) {}
+    for (const o of O) if (o && o.gdzie === 'ZESZYT' && o.tabela === 't60' && typeof o.id === 'string' && OCW[o.werdykt] && Array.isArray(o.sekcje)) {
+      const p = _ocM.get(o.id); if (!p || String(o.data || '') >= String(p.data || '')) _ocM.set(o.id, o); } }
+  return _ocM.get(ocId(M)) || null;
+}
+const ocTag = M => { const o = ocModelu(M); return o ? `<span class="clt" style="color:${OCW[o.werdykt]}" title="ocena Claude — decyzja w MOJE → OCENY">🔍 ${esc(o.werdykt)}</span>` : ''; };
+function ocPanel(M) {   // w opisie modelu: werdykt, krótko i „Cała ocena” (sekcje) — bez przycisków
+  const o = ocModelu(M); if (!o) return '';
+  let d = null; try { d = (JSON.parse(lsGet('moje_v1_ocdec', '{}')) || {})[`${o.id}|${o.data}`]; } catch (e) {}
+  return `<div class="ocz"><b style="color:${OCW[o.werdykt]}">🔍 Ocena Claude: ${esc(o.werdykt)}</b> <small>${esc(String(o.data || '').slice(0, 10))}</small>${o.krotko ? `<div class="ocq">${esc(o.krotko)}</div>` : ''}`
+    + `<details><summary>Cała ocena</summary>${o.sekcje.map(sk => `<div class="ocs"><b>${esc(String(sk.tytul || ''))}</b><ul>${(Array.isArray(sk.wiersze) ? sk.wiersze : []).map(w => `<li>${esc(String(w))}</li>`).join('')}</ul></div>`).join('')}</details>`
+    + `<div class="ocq">${d && OCDT[d.d] ? `Twoja decyzja w MOJE → OCENY: <b>${OCDT[d.d]}</b>.` : 'Decyzja (zostaw / usuń) — w appce MOJE → 🔍 OCENY.'}</div></div>`;
+}
 function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
   const T = M.teraz, all = lsGet(PRZK, '0') === '1', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`;
   const co = all ? `Na kartach: <b>wszystkie gry</b> (${M.gry.length}) — przewracaj karty.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
@@ -484,7 +509,7 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
     ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go" data-id="${M.id}">Pokaż ▶</button></div>` : ''}${zform}
     ${zk.length ? `<div class="now"><span>Zakłady modelu: <b>${zk.length}</b> · wynik <b>${zl(zk.reduce((a, z) => a + zakVal(z), 0))}</b>${czeka ? ` · czeka ${czeka}` : ''}</span><button data-act="zak">💰 Zakłady ▶</button></div>` : ''}
     <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}</div>
-    <div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
+    ${ocPanel(M)}<div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
 }
 // ===== 🔎 ZNAJDŹ MODEL po wpisaniu (1.22.0): „x1x 3-6-21 K9”, „2/3xx 11 23 29 k9”, „xx1 23-24”, „×2”, „od razu”, albo kod „x1x-3.6.21-1-9” =====
 // wiersze strony 1–30 (1 do 6, dowolna kolejność); cel: 2/3xx (domyślnie), 1xx, 123xx, x1x, xx1; K = gra do kroku (domyślnie 9); ×2 = po 2 pustych (domyślnie 1).
@@ -524,7 +549,7 @@ function modLista(l) {   // lista „Modele” / „Modele LOST” pod kartą: z
     for (const M of ML) {
       const on = sel.includes(M.id), T = R(M.id).teraz;
       const lo = modLost(R(M.id));   // po LOST-cie (od LOST-u bez WIN) — biało-czerwona ramka jak w MOJE
-      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}${S.panel === M.id ? ' pan' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${modGraj(R(M.id)) ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b><small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
+      h += `<div class="mi${on ? ' sel' : ''}${lo ? ' lost' : ''}${S.panel === M.id ? ' pan' : ''}" data-act="sel" data-id="${M.id}"><i class="sq${modGraj(R(M.id)) ? ' g' : ''}"></i><span class="mn"><b>${M.nazwa}</b>${ocTag(M)}<small>${lo ? '<span class="lo">po LOST · </span>' : ''}${modDop(M)}</small></span>`
         + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/t60.html?m=${modKod(M)}${l ? '&l=1' : ''}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a><button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button></div>`;
       if (S.panel === M.id) h += modPanel(R(M.id));   // opis z zakładem, Statystykami i Prześledź — po przytrzymaniu modelu
     }
