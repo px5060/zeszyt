@@ -389,3 +389,12 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## SZUKAJ W Z: kwadraciki i listy (1.25.0)
 - Kwadraciki „Ostatnie gry” (T50 i T60): 1. dotknięcie powiększa, 2. pokazuje, co było po takim wyniku (ile razy WIN 1, 2, 3… i LOST) + „Pokaż tę grę na zeszycie ▼”.
 - Wiersz listy LOST (T50) i „Najdłuższe gry” (T60): podgląd zeszytu w statystykach przechodzi na kartę tej gry, ze wszystkimi grami modelu zaznaczonymi (Prześledź). ZESZYT w podglądzie: `&karta=K` i wiadomość `{idzKarta, wszystko}`.
+
+## 🔍 Ocena Claude przy modelu (1.26.0) — ZESZYT T50 i T60
+- Przy modelu na liście „Modele” / „Modele LOST” znaczek **🔍 GRAĆ / OBSERWUJ / NIE GRAĆ** (zielony / żółty / czerwony), gdy Claude ocenił ten model (ocena.py w all50/analiza).
+  W opisie modelu (przytrzymanie): werdykt, data, jedno zdanie, rozwijana **„Cała ocena”** (sekcje jak w MOJE → 🔍 OCENY) i Twoja decyzja, jeśli już była.
+- **Tylko do odczytu — bez przycisków.** Decyzje (zostaw / usuń z MOJE, dodaj propozycję) tylko w MOJE → 🔍 OCENY, w jednym miejscu, żeby się nie dublowały.
+- Oceny pobiera appka MOJE (`oceny.json` z prywatnego repo kodów) do pamięci telefonu `moje_v1_ghoc`; ZESZYT tylko ją czyta (ten sam adres px5060.github.io).
+  Nową ocenę widać w ZESZYCIE po otwarciu MOJE (MOJE ją pobiera). Decyzje — `moje_v1_ocdec`.
+- Dopasowanie po id jak w ocena.py: T50 `Z|t50|wiersze.rosnąco|poz|czekaj|war||limit`, T60 `Z|t60|wiersze.rosnąco||cz||cel|limit`
+  (cel: 2/3xx, 1xx, 1-3xx, x1x, xx1). Kilka ocen jednego modelu — pokazana najnowsza.
