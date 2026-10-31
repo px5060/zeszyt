@@ -260,7 +260,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik.js?v=1.23.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.26.0';
+const APP_VER = '1.27.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // Na razie tylko TRÓJKA (T50). PIKOFF (T60) ma w zeszycie inny układ — dojdzie później.
 const TABS = {
@@ -345,7 +345,10 @@ const modOtw = () => lsGet(OTWK, lsGet(MODK, '') ? '1' : '0') === '1';
 // osobna rozwijana lista „Modele LOST” (od 1.9.9): modele przeniesione z zakładki 🔻 LOST w SZUKAJ W ZESZYCIE (lista: 'lost' w zeszyt_v1_modele)
 const OTWLK = 'zeszyt_v1_modele_lost_otw';
 const listaOtw = l => l === 'lost' ? lsGet(OTWLK, '0') === '1' : modOtw();
-const otwDla = id => { const M = modeleWsz().find(m => m.id === id); lsSet(M && M.lista === 'lost' ? OTWLK : OTWK, '1'); };
+// lista modelu (1.27.0): „Modele LOST” = przeniesione z zakładki LOST w SZUKAJ W Z (lista: 'lost') ORAZ każdy model po LOST-cie (od LOST-u bez WIN);
+// po pierwszym WIN model wraca sam na listę „Modele”
+const listaM = M => { const R = S.modAll && S.modAll[M.id]; return M.lista === 'lost' || (R && modLost(R)) ? 'lost' : ''; };
+const otwDla = id => { const M = modeleWsz().find(m => m.id === id); lsSet(M && listaM(M) ? OTWLK : OTWK, '1'); };
 const modWyb = () => lsGet(MODK, '').split(',').filter(Boolean);   // wybrane modele (id po przecinku)
 const modWybSet = (id, on) => { const a = modWyb(); if (on !== a.includes(id)) lsSet(MODK, (on ? [...a, id] : a.filter(x => x !== id)).join(',')); };
 function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
@@ -521,7 +524,7 @@ function znajdzModel() {
   info.innerHTML = `${nowy ? '➕ Dodany do „Modele”' : '✓ Jest na liście'}: <b>${esc(R ? R.nazwa : D.nazwa)}</b>${R ? ` · ${R.gry.length} gier · LOST ${R.gry.filter(g => g.s > R.limit).length}` : ''}${R && R.teraz ? ' · ' + modTeraz(R, true) : ''}`;
 }
 function modLista(l) {   // lista „Modele” / „Modele LOST” pod kartą: zwinięta — bez oznaczeń na kartach; dotknięcie modelu — pokazuje go na kartach
-  const otw = listaOtw(l), sel = modWyb(), ML = modeleWsz().filter(M => (M.lista === 'lost' ? 'lost' : '') === l), R = id => S.modAll[id];
+  const otw = listaOtw(l), sel = modWyb(), ML = modeleWsz().filter(M => listaM(M) === l), R = id => S.modAll[id];
   let h = `<div class="mods${l ? ' ml' : ''}"><div class="mh" data-act="tog" data-l="${l}"><span class="ar">${otw ? '▾' : '▸'}</span>${l ? 'Modele LOST' : 'Modele'} <small>(${ML.length})</small>`
     + `<span class="zw">${otw ? 'Zwiń' : 'Rozwiń'}</span></div>`;   // bez znaczka GRAJ w nagłówku — GRAJ świeci tylko przy modelu na liście
   if (otw) {
@@ -532,7 +535,7 @@ function modLista(l) {   // lista „Modele” / „Modele LOST” pod kartą: z
         + `<span class="ms">${modTeraz(R(M.id), true)}</span><a class="del" data-act="szuk" href="modele/?m=${modKod(M)}${l ? '&l=1' : ''}" title="ten model w SZUKAJ W ZESZYCIE">🔎</a><button class="del" data-act="del" data-id="${M.id}" title="usuń model">🗑</button></div>`;
       if (S.panel === M.id) h += modPanel(R(M.id));   // opis z zakładem, Statystykami i Prześledź — po przytrzymaniu modelu
     }
-    if (l && !ML.length) h += '<div class="mfoot"><span>Brak modeli LOST. Przenosisz je z SZUKAJ W ZESZYCIE → 🔻 LOST → model → „➕ Przenieś do zeszytu”.</span></div>';
+    if (l && !ML.length) h += '<div class="mfoot"><span>Brak modeli LOST. Trafia tu sam każdy model po LOST-cie (do pierwszego WIN) i modele przeniesione z SZUKAJ W ZESZYCIE → 🔻 LOST.</span></div>';
     else h += `<div class="mfoot"><span>Dotknij modelu — pokaże się na kartach (jeszcze raz — zniknie; można kilka naraz). <b>Przytrzymaj</b> — zakład, 📊 Statystyki, 🔍 Prześledź.</span><a href="modele/${l ? '?t=l' : ''}">🔎 Dodaj model — SZUKAJ W ZESZYCIE${l ? ' (LOST)' : ''} ▶</a></div>`   // modele dodaje się tylko z wyszukiwarki;
   }
   return h + '</div>';
@@ -553,7 +556,7 @@ function poHtml(G, L, v) {   // rozkład następnych gier (od najczęstszej) + o
 }
 function modSheet(id) {   // STATYSTYKI modelu (📊 przy modelu)
   const t = S.t, M = S.modAll[id]; if (!M) return;
-  const N = modNum(M), T = M.teraz, on = modWyb().includes(id) && listaOtw(M.lista === 'lost' ? 'lost' : ''), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
+  const N = modNum(M), T = M.teraz, on = modWyb().includes(id) && listaOtw(listaM(M)), pn = g => partsOf(g.k).length > 2 ? `cz.${g.p + 1}` : g.p ? 'P' : 'L';
   const now = !T ? 'Brak danych.' : T.gra
     ? `<b class="big">${T.s > M.limit ? '⏸ po BUST' : modGraj(M) ? '▶ GRAJ' : T.s === 1 ? '⏳ OD 1. KROKU' : '⏳ CZEKAJ na grę'} — krok ${T.s}, ${zaIle(zaW(T))}</b><br>${modGdzie(T)}<br>Stawka <b>${fmt(STAWKI[T.s - 1])} zł</b>${T.s > 1 ? ` · w tej grze już postawione ${fmt(sumSt(T.s - 1))} zł` : ''} · WIN da ${zl(N.zysk(T.s))}`
     : T.bez ? `<b class="big">⏸ CZEKAJ</b> — pusta trójka bez ${bokTx(M.poz)}, tej gry nie gramy; czekamy na ${CELTX[M.poz]}.<br>${modGdzie(T)}`
@@ -665,7 +668,7 @@ function render() {
   // modele liczone zawsze (lista pokazuje CZEKAJ / GRAJ); oznaczenia na kartach tylko wybranego modelu przy rozwiniętej liście
   const ML = modeleWsz(), mkey = `${n}:${c[n - 1]}:${lsGet(MOJEK, '[]')}`;
   if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(c, S.book[t], M)); S.modKey = mkey; }
-  S.mods = modWyb().map(id => S.modAll[id]).filter(M => M && listaOtw(M.lista === 'lost' ? 'lost' : ''));
+  S.mods = modWyb().map(id => S.modAll[id]).filter(M => M && listaOtw(listaM(M)));
   S.modMk = modMkWsz(S.mods, lsGet(PRZK, '0') === '1');
   $('mod').innerHTML = modLista('') + modLista('lost');
   { const z = znaczki(); znaczkiPokaz('t50', z); if (window !== window.top) parent.postMessage({ znaczki: { t: 't50', ...z } }, '*'); }
