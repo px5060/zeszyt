@@ -398,3 +398,6 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   Nową ocenę widać w ZESZYCIE po otwarciu MOJE (MOJE ją pobiera). Decyzje — `moje_v1_ocdec`.
 - Dopasowanie po id jak w ocena.py: T50 `Z|t50|wiersze.rosnąco|poz|czekaj|war||limit`, T60 `Z|t60|wiersze.rosnąco||cz||cel|limit`
   (cel: 2/3xx, 1xx, 1-3xx, x1x, xx1). Kilka ocen jednego modelu — pokazana najnowsza.
+
+## „Modele LOST” = modele po LOST-cie (1.27.0)
+- Lista „Modele LOST” w ZESZYCIE T50 / T60: modele przeniesione z SZUKAJ W Z → 🔻 LOST (`lista: lost`) **oraz każdy model po LOST-cie** (od LOST-u bez WIN, `modLost`). Po pierwszym WIN model wraca sam na „Modele”. Funkcja `listaM(M)`.
