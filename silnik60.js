@@ -59,7 +59,7 @@ function modZKodu(k) {
 function liczModel(c, B, M) {   // pełne liczenie (z kluczami wierszy do kolorów na kartach) — ta sama budowa wyniku co w silnik.js
   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp, pus: [klucze], pol: [{rs: [{key, s: [kroki], hit}]}]}], teraz, otw (gra w toku)}
   const n = c.length, mx = Math.max(...M.w), gry = [];
-  let gra = null, nobs = 0, pus = [], teraz = null;
+  let gra = null, nobs = 0, pus = [], teraz = null; const puste = [];   // puste: każda pusta trójka poza grą {k, p, keys, l} (1.29.0)
   scan: for (let k = 1; k < B.cards.length; k++) for (let p = 0; p < B.cards[k].parts.length; p++) {
     if (partsOf(k)[p] < mx) continue;
     if (!gra && !M.cz) gra = { sk: k, sp: p, pus: [], pol: [], st: 0, h: 0 };   // gra od razu
@@ -79,11 +79,12 @@ function liczModel(c, B, M) {   // pełne liczenie (z kluczami wierszy do kolor�
     }
     if (hit) { nobs = 0; pus = []; continue; }
     pus.push(...keys);
-    if (++nobs === M.cz) { gra = { sk: k, sp: p, pus, pol: [], st: 0, h: 0 }; pus = []; nobs = 0; }
+    if (++nobs === M.cz) { gra = { sk: k, sp: p, pus, pol: [], st: 0, h: 0 }; pus = []; nobs = 0; puste.push({ k, p, keys, l: 'start' }); }
+    else puste.push({ k, p, keys, l: `pusta ${nobs}/${M.cz}` });   // przy ×2: pierwsza pusta strona (czeka na drugą)
   }
   const otw = gra;
   if (teraz) { teraz.gra = !!otw; teraz.bez = false; teraz.s = otw ? otw.st + 1 : 1; }
-  return { ...M, mx, gry, teraz, otw };
+  return { ...M, mx, gry, teraz, otw, puste };
 }
 function modNum(M) {   // liczby modelu: gry, WIN, BUST, najdłużej, bilans, największy spadek, WIN wg kroku i strony gry
   const G = M.gry, L = M.limit, zysk = s => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
