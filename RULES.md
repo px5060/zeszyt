@@ -401,3 +401,6 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 
 ## „Modele LOST” = modele po LOST-cie (1.27.0)
 - Lista „Modele LOST” w ZESZYCIE T50 / T60: modele przeniesione z SZUKAJ W Z → 🔻 LOST (`lista: lost`) **oraz każdy model po LOST-cie** (od LOST-u bez WIN, `modLost`). Po pierwszym WIN model wraca sam na „Modele”. Funkcja `listaM(M)`.
+
+## Gry modelu na kartach: bieżąca / ostatnie 3 / wszystkie (1.28.0)
+- Przycisk w opisie modelu „🔍 Na kartach: … ▸” przełącza po kolei: bieżąca gra (przy CZEKAJ ostatnia) → ostatnie 3 gry (+ bieżąca, przycisk „Od pierwszej ▶”) → wszystkie gry (dawne Prześledź) → bieżąca. `zeszyt_v1_przesledz`: 0 / 3 / 1.
