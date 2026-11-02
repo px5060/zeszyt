@@ -266,7 +266,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.23.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.27.0';
+const APP_VER = '1.28.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -373,7 +373,10 @@ const listaM = M => { const R = S.modAll && S.modAll[M.id]; return M.lista === '
 const otwDla = id => { const M = modeleWsz().find(m => m.id === id); lsSet(M && listaM(M) ? OTWLK : OTWK, '1'); };
 const modWyb = () => lsGet(MODK, '').split(',').filter(Boolean);   // wybrane modele (id po przecinku)
 const modWybSet = (id, on) => { const a = modWyb(); if (on !== a.includes(id)) lsSet(MODK, (on ? [...a, id] : a.filter(x => x !== id)).join(',')); };
-function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
+// gry na kartach (1.28.0): tryb '0' = bieżąca (przy CZEKAJ ostatnia), '3' = ostatnie 3 gry (+ bieżąca), '1' = wszystkie (Prześledź)
+const PRZT = { 0: 'bieżąca gra', 3: 'ostatnie 3 gry', 1: 'wszystkie gry' }, przTryb = () => { const v = lsGet(PRZK, '0'); return v === '1' || v === '3' ? v : '0'; };
+function modMk(M, tryb) {
+  const all = tryb === '1' || tryb === '3';   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
   // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
   const mk = {}, T = M.teraz, L = M.limit, B = S.book[S.t];
   const wiersz = o => {   // bieżąca gra — kroki do limitu; Prześledź — także kroki po limicie (szare), aż do trafienia kończącego przegraną grę („LOST 14”)
@@ -383,7 +386,7 @@ function modMk(M, all) {   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}
       : s[0] > L ? { c: 'z', l: o.hit ? `LOST ${last}` : s.join('·') } : { c: 'k', l: s.join('·') };
   };
   const gra = g => { g.pus.forEach((key, i, A) => mk[key] = { c: 'p', l: i === A.length - 1 ? 'start' : '' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };   // „start” przy 3. (ostatnim) pustym wierszu — to on uruchamia grę
-  if (all) M.gry.forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
+  if (tryb === '1') M.gry.forEach(gra); else if (tryb === '3') M.gry.slice(-3).forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
   if (T && T.gra) {   // gra w toku: migający następny krok, dalej kolejne kroki aż do limitu (ta połowa i następne)
     gra(M.otw); T.rs.forEach(wiersz);
     let s = T.s, k = T.k, p = T.p, i = M.w.indexOf(T.r);
@@ -501,8 +504,8 @@ function ocPanel(M) {   // w opisie modelu: werdykt, krótko i „Cała ocena”
     + `<div class="ocq">${d && OCDT[d.d] ? `Twoja decyzja w MOJE → OCENY: <b>${OCDT[d.d]}</b>.` : 'Decyzja (zostaw / usuń) — w appce MOJE → 🔍 OCENY.'}</div></div>`;
 }
 function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
-  const T = M.teraz, all = lsGet(PRZK, '0') === '1', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`;
-  const co = all ? `Na kartach: <b>wszystkie gry</b> (${M.gry.length}) — przewracaj karty.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
+  const T = M.teraz, tr = przTryb(), all = tr !== '0', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`, g3 = M.gry.slice(-3);
+  const co = tr === '1' ? `Na kartach: <b>wszystkie gry</b> (${M.gry.length}) — przewracaj karty.` : tr === '3' ? `Na kartach: <b>ostatnie ${g3.length} gry</b>${T && T.gra ? ' i bieżąca' : ''} — od karty ${g3.length ? g3[0].sk : '—'}.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
     : g ? `Na kartach: <b>ostatnia gra</b> — karty ${kk(g)}, WIN ${g.s}.` : 'Na kartach: wiersze modelu (jeszcze bez gier).';
   const zk = zakGet().filter(z => z.mid === M.id), juz = T && T.gra && zk.find(z => z.nr === T.nr), czeka = zk.filter(z => zakRes(z) === 'pend').length;
   const zform = !(T && T.gra) ? '' : juz ? `<div class="zok">💰 Postawiony: Nr ${fmt(juz.nr)} · k${juz.krok} · ${fmt(juz.zl)} zł — czeka na wynik</div>`
@@ -511,8 +514,8 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
   return `<div class="mod">${modStat(M)}
     ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go" data-id="${M.id}">Pokaż ▶</button></div>` : ''}${zform}
     ${zk.length ? `<div class="now"><span>Zakłady modelu: <b>${zk.length}</b> · wynik <b>${zl(zk.reduce((a, z) => a + zakVal(z), 0))}</b>${czeka ? ` · czeka ${czeka}` : ''}</span><button data-act="zak">💰 Zakłady ▶</button></div>` : ''}
-    <div class="now"><span>${co}</span>${!all && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}</div>
-    ${ocPanel(M)}<div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Prześledź${all ? ': WŁ' : ''}</button></div></div>`;
+    <div class="now"><span>${co}</span>${tr !== '1' && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}${tr === '3' && g3.length ? `<button data-act="go3" data-id="${M.id}">Od pierwszej ▶</button>` : ''}</div>
+    ${ocPanel(M)}<div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Na kartach: ${PRZT[tr]} ▸</button></div></div>`;
 }
 // ===== 🔎 ZNAJDŹ MODEL po wpisaniu (1.22.0): „x1x 3-6-21 K9”, „2/3xx 11 23 29 k9”, „xx1 23-24”, „×2”, „od razu”, albo kod „x1x-3.6.21-1-9” =====
 // wiersze strony 1–30 (1 do 6, dowolna kolejność); cel: 2/3xx (domyślnie), 1xx, 123xx, x1x, xx1; K = gra do kroku (domyślnie 9); ×2 = po 2 pustych (domyślnie 1).
@@ -690,10 +693,10 @@ function render() {
   const ML = modeleWsz(), mkey = `${n}:${c[n - 1]}:${lsGet(MOJEK, '[]')}`;
   if (S.modKey !== mkey) { S.modAll = {}; ML.forEach(M => S.modAll[M.id] = liczModel(c, S.book[t], M)); S.modKey = mkey; }
   S.mods = modWyb().map(id => S.modAll[id]).filter(M => M && listaOtw(listaM(M)));
-  S.modMk = modMkWsz(S.mods, lsGet(PRZK, '0') === '1');
+  S.modMk = modMkWsz(S.mods, przTryb());
   $('mod').innerHTML = modLista('') + modLista('lost');
   { const z = znaczki(); znaczkiPokaz('t60', z); if (window !== window.top) parent.postMessage({ znaczki: { t: 't60', ...z } }, '*'); }
-  $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(lsGet(PRZK, '0') === '1')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
+  $('leg').innerHTML = S.mods.length ? `<div class="lg">${modLeg(przTryb() !== '0')}${S.mods.length > 1 ? '<span><b class="x2l">×2</b>wiersz 2 modeli</span>' : ''}</div>` : '';
   if (S.zn) $('leg').innerHTML = `<div class="lg">${[['mp', 'STEP / TRIGGER / HIT'], ['mk', 'krok bez trafienia ✗'], ['mz', 'bez rozstrzygnięcia ○'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'zakład do gry']].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('')}</div>`;
   S.zakNr = new Set(zakGet().filter(z => S.mods.some(M => M.id === z.mid)).map(z => z.nr));
   const zp = zakGet().filter(z => zakRes(z) === 'pend').length; $('zbad').textContent = zp ? zp : '';
@@ -762,9 +765,10 @@ $('mod').addEventListener('click', e => {
   else if (a === 'sel') { const on = !modWyb().includes(id); modWybSet(id, on); if (!on && S.panel === id) S.panel = ''; }   // dotknięcie: tylko pokaż / ukryj na kartach
   else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; if (mojeModele().some(m => m.id === id)) lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); else lsSet(UKRK, [...lsGet(UKRK, '').split(',').filter(Boolean), id].join(',')); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
   else if (a === 'stat') return modSheet(id);
-  else if (a === 'prz') lsSet(PRZK, lsGet(PRZK, '0') === '1' ? '0' : '1');
+  else if (a === 'prz') lsSet(PRZK, { 0: '3', 3: '1', 1: '0' }[przTryb()]);   // bieżąca → ostatnie 3 → wszystkie → bieżąca
   else if (a === 'bet') return zakZapisz(S.modAll[id]);
   else if (a === 'zak') S.tab = 'b';
+  else if (a === 'go3') { const M = S.modAll[id], g = M.gry.slice(-3)[0]; if (g && g.sk !== S.card[t]) { szelest(); go(g.sk); } kartaWidok(); return; }
   else if (a === 'go' || a === 'last') { const M = S.modAll[id], k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } kartaWidok(); return; }
   render();
 });
