@@ -263,10 +263,10 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
   <div id="tB" hidden></div>
 </main>
 
-<script src="silnik60.js?v=1.23.0"></script>
+<script src="silnik60.js?v=1.29.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.28.0';
+const APP_VER = '1.29.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -374,7 +374,7 @@ const otwDla = id => { const M = modeleWsz().find(m => m.id === id); lsSet(M && 
 const modWyb = () => lsGet(MODK, '').split(',').filter(Boolean);   // wybrane modele (id po przecinku)
 const modWybSet = (id, on) => { const a = modWyb(); if (on !== a.includes(id)) lsSet(MODK, (on ? [...a, id] : a.filter(x => x !== id)).join(',')); };
 // gry na kartach (1.28.0): tryb '0' = bieżąca (przy CZEKAJ ostatnia), '3' = ostatnie 3 gry (+ bieżąca), '1' = wszystkie (Prześledź)
-const PRZT = { 0: 'bieżąca gra', 3: 'ostatnie 3 gry', 1: 'wszystkie gry' }, przTryb = () => { const v = lsGet(PRZK, '0'); return v === '1' || v === '3' ? v : '0'; };
+const PRZT = { 0: 'bieżąca', 3: 'trzy ostatnie', 1: 'od pierwszej' }, przTryb = () => { const v = lsGet(PRZK, '0'); return v === '1' || v === '3' ? v : '0'; };
 function modMk(M, tryb) {
   const all = tryb === '1' || tryb === '3';   // kolory na kartach → 'k.p.r' → {c, l (znaczek)}: Prześledź = wszystkie gry; inaczej tylko bieżąca (w toku, przy CZEKAJ ostatnia)
   // start (pusta trójka) fioletowy; każdy rozegrany wiersz z numerem kroku: czerwony bez trafienia, zielony WIN; wiersze po WIN — bez koloru
@@ -385,7 +385,12 @@ function modMk(M, tryb) {
     mk[o.key] = o.hit && last <= L ? { c: 'w', l: `WIN ${last}` } : s.includes(L) ? { c: 'b', l: `BUST ${L}` }
       : s[0] > L ? { c: 'z', l: o.hit ? `LOST ${last}` : s.join('·') } : { c: 'k', l: s.join('·') };
   };
-  const gra = g => { g.pus.forEach((key, i, A) => mk[key] = { c: 'p', l: i === A.length - 1 ? 'start' : '' }); g.pol.forEach(h => h.rs.forEach(wiersz)); };   // „start” przy 3. (ostatnim) pustym wierszu — to on uruchamia grę
+  const gra = g => { g.pus.forEach((key, i, A) => mk[key] || (mk[key] = { c: 'p', l: i === A.length - 1 ? 'start' : '' })); g.pol.forEach(h => h.rs.forEach(wiersz)); };   // „start” przy 3. (ostatnim) pustym wierszu — to on uruchamia grę
+  // 1.29.0: KAŻDA pusta trójka od pierwszej pokazanej gry do teraz (także te bez gry) — fioletowa, napis przy ostatnim wierszu:
+  // START = trigger (od następnej połowy kroki), PUSTA 1/2 = pierwsza z dwóch przy ×2, BEZ +BOK / BEZ GRY = warunek +bok niespełniony
+  const od = tryb === '1' ? null : tryb === '3' ? M.gry.slice(-3)[0] : T && T.gra ? M.otw : M.gry[M.gry.length - 1];
+  const poz = (k, p) => k * 10 + p, od0 = od ? (od.pus[0] || `${od.sk}.${od.sp}`).split('.').map(Number) : null, start = od0 ? poz(od0[0], od0[1]) : -1;
+  (M.puste || []).forEach(e => { if (poz(e.k, e.p) >= start) e.keys.forEach((key, i, A) => mk[key] = { c: 'p', l: i === A.length - 1 ? e.l : '' }); });
   if (tryb === '1') M.gry.forEach(gra); else if (tryb === '3') M.gry.slice(-3).forEach(gra); else if (!(T && T.gra) && M.gry.length) gra(M.gry[M.gry.length - 1]);
   if (T && T.gra) {   // gra w toku: migający następny krok, dalej kolejne kroki aż do limitu (ta połowa i następne)
     gra(M.otw); T.rs.forEach(wiersz);
@@ -428,7 +433,7 @@ const modTeraz = (M, krot) => { const T = M.teraz; if (!T) return '';
   if (T.gra && !modGraj(M)) return `<span class="stan ${T.s === 1 ? 'od1' : 'cz'}">${T.s === 1 ? 'OD 1. KROKU' : 'CZEKAJ na grę'}</span> krok <b>${T.s}</b> ${krot ? (zaW(T) === 1 ? '' : `za ${zaW(T)} w.`) : `${zaIle(zaW(T))}: ${modGdzie(T)}`}`;
   return T.gra ? `<span class="stan gra">GRAJ</span> krok <b>${T.s}</b> (${fmt(STAWKI[T.s - 1])} zł)${krot ? '' : ` — następny wiersz: ${modGdzie(T)}`}`
   : `<span class="stan">CZEKAJ</span>${krot ? '' : ` na pustą stronę — ${modGdzie(T)}`}`; };
-const modLeg = all => [['mf', 'wiersz modelu'], ['mp', 'start (pusta trójka)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok'], ['mpl', 'dalsze kroki do limitu'], ...(all ? [['mz', 'po limicie (przegrana gra)']] : [])].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
+const modLeg = all => [['mf', 'wiersz modelu'], ['mp', 'pusta trójka (START = trigger)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok'], ['mpl', 'dalsze kroki do limitu'], ...(all ? [['mz', 'po limicie (przegrana gra)']] : [])].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
 // ===== ZAKŁADY — postawione zakłady na krokach modeli (zeszyt_v1_zaklady), jak „MOJE ZAKŁADY” w MOJE / SZUKAJ:
 // Nr wiersza · krok · postawione zł; wynik z kodu w tym wierszu: + w miejscu gry = WIN (+2 × stawka, kurs 3.0), inaczej przegrany (−stawka).
 const ZAKK = 'zeszyt_v1_zaklady60';
@@ -505,7 +510,7 @@ function ocPanel(M) {   // w opisie modelu: werdykt, krótko i „Cała ocena”
 }
 function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, co się dzieje, co jest na kartach, legenda, Statystyki i Prześledź
   const T = M.teraz, tr = przTryb(), all = tr !== '0', g = M.gry[M.gry.length - 1], kk = g => g.sk === g.k ? `${g.k}` : `${g.sk}–${g.k}`, g3 = M.gry.slice(-3);
-  const co = tr === '1' ? `Na kartach: <b>wszystkie gry</b> (${M.gry.length}) — przewracaj karty.` : tr === '3' ? `Na kartach: <b>ostatnie ${g3.length} gry</b>${T && T.gra ? ' i bieżąca' : ''} — od karty ${g3.length ? g3[0].sk : '—'}.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
+  const co = tr === '1' ? `Na kartach: <b>od pierwszej gry</b> (${M.gry.length} gier${M.gry.length ? `, od karty ${M.gry[0].sk}` : ''}) — przewracaj karty.` : tr === '3' ? `Na kartach: <b>ostatnie ${g3.length} gry</b>${T && T.gra ? ' i bieżąca' : ''} — od karty ${g3.length ? g3[0].sk : '—'}.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
     : g ? `Na kartach: <b>ostatnia gra</b> — karty ${kk(g)}, WIN ${g.s}.` : 'Na kartach: wiersze modelu (jeszcze bez gier).';
   const zk = zakGet().filter(z => z.mid === M.id), juz = T && T.gra && zk.find(z => z.nr === T.nr), czeka = zk.filter(z => zakRes(z) === 'pend').length;
   const zform = !(T && T.gra) ? '' : juz ? `<div class="zok">💰 Postawiony: Nr ${fmt(juz.nr)} · k${juz.krok} · ${fmt(juz.zl)} zł — czeka na wynik</div>`
@@ -514,7 +519,7 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
   return `<div class="mod">${modStat(M)}
     ${T ? `<div class="now"><span>${modTeraz(M)}</span><button data-act="go" data-id="${M.id}">Pokaż ▶</button></div>` : ''}${zform}
     ${zk.length ? `<div class="now"><span>Zakłady modelu: <b>${zk.length}</b> · wynik <b>${zl(zk.reduce((a, z) => a + zakVal(z), 0))}</b>${czeka ? ` · czeka ${czeka}` : ''}</span><button data-act="zak">💰 Zakłady ▶</button></div>` : ''}
-    <div class="now"><span>${co}</span>${tr !== '1' && !(T && T.gra) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}${tr === '3' && g3.length ? `<button data-act="go3" data-id="${M.id}">Od pierwszej ▶</button>` : ''}</div>
+    <div class="now"><span>${co}</span>${(tr !== '0' || !(T && T.gra)) && g ? `<button data-act="last" data-id="${M.id}">Idź ▶</button>` : ''}</div>
     ${ocPanel(M)}<div class="bb2"><button class="sec" data-act="stat" data-id="${M.id}">📊 Statystyki</button><button data-act="prz" class="${all ? '' : 'sec'}">🔍 Na kartach: ${PRZT[tr]} ▸</button></div></div>`;
 }
 // ===== 🔎 ZNAJDŹ MODEL po wpisaniu (1.22.0): „x1x 3-6-21 K9”, „2/3xx 11 23 29 k9”, „xx1 23-24”, „×2”, „od razu”, albo kod „x1x-3.6.21-1-9” =====
@@ -765,11 +770,10 @@ $('mod').addEventListener('click', e => {
   else if (a === 'sel') { const on = !modWyb().includes(id); modWybSet(id, on); if (!on && S.panel === id) S.panel = ''; }   // dotknięcie: tylko pokaż / ukryj na kartach
   else if (a === 'del') { const M = modeleWsz().find(M => M.id === id); if (!M || !confirm(`Usunąć model ${M.nazwa}?`)) return; if (mojeModele().some(m => m.id === id)) lsSet(MOJEK, JSON.stringify(mojeModele().filter(m => m.id !== id))); else lsSet(UKRK, [...lsGet(UKRK, '').split(',').filter(Boolean), id].join(',')); modWybSet(id, false); if (S.panel === id) S.panel = ''; }
   else if (a === 'stat') return modSheet(id);
-  else if (a === 'prz') lsSet(PRZK, { 0: '3', 3: '1', 1: '0' }[przTryb()]);   // bieżąca → ostatnie 3 → wszystkie → bieżąca
+  else if (a === 'prz') lsSet(PRZK, { 0: '3', 3: '1', 1: '0' }[przTryb()]);   // bieżąca → trzy ostatnie → od pierwszej → bieżąca
   else if (a === 'bet') return zakZapisz(S.modAll[id]);
   else if (a === 'zak') S.tab = 'b';
-  else if (a === 'go3') { const M = S.modAll[id], g = M.gry.slice(-3)[0]; if (g && g.sk !== S.card[t]) { szelest(); go(g.sk); } kartaWidok(); return; }
-  else if (a === 'go' || a === 'last') { const M = S.modAll[id], k = a === 'go' ? M.teraz.k : M.gry[M.gry.length - 1].sk; if (k !== S.card[t]) { szelest(); go(k); } kartaWidok(); return; }
+  else if (a === 'go' || a === 'last') { const M = S.modAll[id], tr = przTryb(), k = a === 'go' ? M.teraz.k : (tr === '1' ? M.gry[0] : tr === '3' ? M.gry.slice(-3)[0] : M.gry[M.gry.length - 1]).sk; if (k !== S.card[t]) { szelest(); go(k); } kartaWidok(); return; }   // Idź: początek tego, co na kartach
   render();
 });
 // przytrzymanie modelu (0,5 s): otwiera / zamyka jego opis — zakład, 📊 Statystyki, 🔍 Prześledź (jeden opis naraz; model idzie też na karty)
@@ -955,10 +959,10 @@ window.addEventListener('focus', refresh);
 (async () => {
   $('ver').textContent = APP_VER;
   $('info').textContent = 'Wczytuję kody…';
-  if (PODGLAD) {   // podgląd: tylko ten model (bieżąca gra i kolejne kroki), bez dźwięku; wysokość strony → ramka w SZUKAJ W Z
+  if (PODGLAD) {   // podgląd: tylko ten model, na kartach od pierwszej gry (każda pusta trójka i trigger, 1.29.0), bez dźwięku; wysokość strony → ramka w SZUKAJ W Z
     const M = modZKodu(PODGLAD); document.body.classList.add('podglad');
     if (M) { PAM[MOJEK] = JSON.stringify([...mojeModele(), { ...M, id: 'pg', lista: '' }]); PAM[MODK] = 'pg'; PAM[OTWK] = '1'; } else PAM[MODK] = '';
-    PAM[PRZK] = '0'; PAM[SNDK] = '0';
+    PAM[PRZK] = '1'; PAM[SNDK] = '0';
     if (window.ResizeObserver) new ResizeObserver(() => parent.postMessage({ zeszytH: document.documentElement.scrollHeight }, '*')).observe(document.body);
   } else { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
     if (m) { modWybSet(m, true); otwDla(m); history.replaceState(null, '', location.pathname); } }

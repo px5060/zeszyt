@@ -76,7 +76,7 @@ const innyPlus = (cd, poz) => [0, 1, 2].some(i => i !== poz && cd[i] === '1');
 function liczModel(c, B, M) {   // pełne liczenie (z kluczami wierszy do kolorów na kartach)
   // → {…model, mx, gry: [{s, h, k, p, r, sk, sp, pus: [klucze], pol: [{rs: [{key, s: [kroki], hit}]}]}], teraz, otw (gra w toku)}
   const n = c.length, mx = Math.max(...M.w), gry = [];
-  let gra = null, nobs = 0, pus = [], pusK = [], teraz = null;   // gra: {sk, sp, pus, pol, st, h, graj} — cykl w toku (graj = false: warunek niespełniony, bez gry)
+  let gra = null, nobs = 0, pus = [], pusK = [], teraz = null; const puste = [];   // puste: każda pusta trójka poza grą {k, p, keys, l} (1.29.0); gra: {sk, sp, pus, pol, st, h, graj} — cykl w toku (graj = false: warunek niespełniony, bez gry)
   scan: for (let k = 0; k < B.cards.length; k++) for (let p = 0; p < B.cards[k].parts.length; p++) {
     if (partsOf(k)[p] < mx) continue;
     if (!gra && !M.czekaj) gra = { sk: k, sp: p, pus: [], pol: [], st: 0, h: 0, graj: true };   // gra od razu
@@ -96,16 +96,19 @@ function liczModel(c, B, M) {   // pełne liczenie (z kluczami wierszy do kolor�
     }
     if (gra) {
       gra.h++; gra.pol.push({ rs });
+      if (!hit && !gra.graj) puste.push({ k, p, keys, l: 'bez gry' });   // pusta połowa w cyklu bez gry (warunek +bok niespełniony)
       if (hit) { if (gra.graj) gry.push({ s: gra.st, h: gra.h, k, p, r: hit, sk: gra.sk, sp: gra.sp, pus: gra.pus, pol: gra.pol }); gra = null; nobs = 0; }
       continue;
     }
     if (hit) { nobs = 0; pus = []; pusK = []; continue; }
     pus.push(...keys); pusK.push(...kody);
-    if (++nobs === M.czekaj) { gra = { sk: k, sp: p, pus, pol: [], st: 0, h: 0, graj: !M.war || pusK.some(x => innyPlus(x, M.poz)) }; pus = []; pusK = []; }
+    if (++nobs === M.czekaj) { gra = { sk: k, sp: p, pus, pol: [], st: 0, h: 0, graj: !M.war || pusK.some(x => innyPlus(x, M.poz)) }; pus = []; pusK = [];
+      puste.push({ k, p, keys, l: gra.graj ? 'start' : 'bez +bok' }); }
+    else puste.push({ k, p, keys, l: `pusta ${nobs}/${M.czekaj}` });   // przy ×2: pierwsza pusta trójka (czeka na drugą)
   }
   const otw = gra && gra.graj ? gra : null;
   if (teraz) { teraz.gra = !!otw; teraz.bez = !!(gra && !gra.graj); teraz.s = otw ? otw.st + 1 : 1; }
-  return { ...M, mx, gry, teraz, otw };
+  return { ...M, mx, gry, teraz, otw, puste };
 }
 function modNum(M) {   // liczby modelu: gry, WIN, BUST, najdłużej, bilans, największy spadek (ze stawkami w trakcie gry), WIN wg kroku i połowy
   const G = M.gry, L = M.limit, zysk = s => s <= L ? KURS * STAWKI[s - 1] - sumSt(s) : -sumSt(L);
