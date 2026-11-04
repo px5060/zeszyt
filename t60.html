@@ -959,10 +959,10 @@ window.addEventListener('focus', refresh);
 (async () => {
   $('ver').textContent = APP_VER;
   $('info').textContent = 'Wczytuję kody…';
-  if (PODGLAD) {   // podgląd: tylko ten model (bieżąca gra i kolejne kroki), bez dźwięku; wysokość strony → ramka w SZUKAJ W Z
+  if (PODGLAD) {   // podgląd: tylko ten model, na kartach od pierwszej gry (każda pusta trójka i trigger, 1.29.0), bez dźwięku; wysokość strony → ramka w SZUKAJ W Z
     const M = modZKodu(PODGLAD); document.body.classList.add('podglad');
     if (M) { PAM[MOJEK] = JSON.stringify([...mojeModele(), { ...M, id: 'pg', lista: '' }]); PAM[MODK] = 'pg'; PAM[OTWK] = '1'; } else PAM[MODK] = '';
-    PAM[PRZK] = '0'; PAM[SNDK] = '0';
+    PAM[PRZK] = '1'; PAM[SNDK] = '0';
     if (window.ResizeObserver) new ResizeObserver(() => parent.postMessage({ zeszytH: document.documentElement.scrollHeight }, '*')).observe(document.body);
   } else { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
     if (m) { modWybSet(m, true); otwDla(m); history.replaceState(null, '', location.pathname); } }

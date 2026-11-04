@@ -412,3 +412,5 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Na kartach każda pusta trójka od pierwszej pokazanej gry do teraz jest fioletowa; napis przy ostatnim wierszu:
   **START** = trigger (od następnej połowy kroki), **PUSTA 1/2** = pierwsza z dwóch przy ×2, **BEZ +BOK** = trigger bez gry (warunek +bok niespełniony),
   **BEZ GRY** = pusta połowa w takim cyklu bez gry. Wiersze w trakcie gry dalej pokazują kroki.
+- Podgląd na zeszycie w SZUKAJ W Z (`?podglad=`) pokazuje od razu **od pierwszej gry**: każdy trigger (START) i każdą grę modelu na wszystkich kartach,
+  nie tylko bieżącą grę (wcześniej starszy trigger, np. T60 xx1 14·19·23 k8 strona 428, był bez oznaczenia).
