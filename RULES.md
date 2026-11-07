@@ -421,3 +421,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Kwadracik w „Ostatnie gry”: już **1. dotknięcie** przenosi zeszyt niżej na kartę tej gry (bez przewijania ekranu) i pokazuje „Pokaż na zeszycie ▼”;
   2. dotknięcie — jak dotąd, co było po takim wyniku. T60: karta triggera (strona przed 1. krokiem gry).
 - Na kartach od razu cały przebieg (od pierwszej gry): START, PUSTA 1/2, BEZ GRY / BEZ +BOK (czekanie, warunek niespełniony), kroki, WIN / LOST.
+
+## SZUKAJ W Z T60: „Na których krokach kończyły się gry” zamiast „Ile stron trwała gra” (1.31.0)
+- W statystykach modelu: gry zamknięte WIN-em w krokach k1–3, k4–6, k7–9… (do limitu) i BUST (ponad limit) — w sztukach i % wszystkich gier, jak przy bankach.
+- „Ile stron trwała gra” usunięte (mylące: krok = wiersz modelu, więc model z 2 wierszami na stronie gra 9 kroków przez 5 stron).
