@@ -115,6 +115,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 .zb .r b{font-size:15px}.zb .r b.w{color:#2ea85a}.zb .r b.l{color:var(--red)}.zb .r b.p{color:#f2c230}
 .zb button{background:var(--card);border:1px solid var(--bd);color:var(--tx);border-radius:7px;padding:3px 8px;font-size:12px}
 .zpust{color:var(--mu);text-align:center;padding:24px 10px}
+.zmoje{font-size:12.5px;line-height:1.4;padding:7px 9px;margin-bottom:8px;border:1px solid #c97a45;border-radius:9px;background:#c97a4518}.zmoje a,.zok a{color:#c97a45;font-weight:800;white-space:nowrap}
 .zg{margin-bottom:8px}.zg>.zb{margin-bottom:0}.zgw{margin:0 0 0 14px;border-left:2px solid var(--bd);padding-left:8px}
 .zgw summary{color:var(--mu);font-size:12.5px;font-weight:700;padding:6px 2px;cursor:pointer}.zgw .zb{opacity:.85;margin-top:6px}
 /* dalej po przegranym zakładzie (1.16.0): stan modelu teraz + następny krok */
@@ -266,7 +267,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.29.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.31.0';
+const APP_VER = '1.32.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -436,6 +437,7 @@ const modTeraz = (M, krot) => { const T = M.teraz; if (!T) return '';
 const modLeg = all => [['mf', 'wiersz modelu'], ['mp', 'pusta trójka (START = trigger)'], ['mk', 'krok bez trafienia'], ['mw', 'WIN'], ['mb', 'BUST'], ['mn', 'następny krok'], ['mpl', 'dalsze kroki do limitu'], ...(all ? [['mz', 'po limicie (przegrana gra)']] : [])].map(([cl, tx]) => `<span><i class="kd ${cl}"></i>${tx}</span>`).join('');
 // ===== ZAKŁADY — postawione zakłady na krokach modeli (zeszyt_v1_zaklady), jak „MOJE ZAKŁADY” w MOJE / SZUKAJ:
 // Nr wiersza · krok · postawione zł; wynik z kodu w tym wierszu: + w miejscu gry = WIN (+2 × stawka, kurs 3.0), inaczej przegrany (−stawka).
+const MOJEZ = PODGLAD ? '' : ` · <a href="/moje/?zak=t60">MOJE pilnuje kolejnego kroku ›</a>`;   // 1.32.0: zakład monitoruje MOJE → ZAKŁADY → 📓 ZESZYT
 const ZAKK = 'zeszyt_v1_zaklady60';
 const zakGet = () => { try { const a = JSON.parse(lsGet(ZAKK, '[]')); return Array.isArray(a) ? a.filter(z => z && z.m && Array.isArray(z.m.w) && Array.isArray(z.m.cel) && z.nr > 0) : []; } catch (e) { return []; } };
 const zakRes = z => { const c = S.codes[S.t]; return z.nr > c.length ? 'pend' : trafia(c[z.nr - 1], z.m.cel) ? 'win' : 'lost'; };
@@ -481,7 +483,8 @@ function zakTab() {   // zakładka 💰 Zakłady: wynik, czekające na wynik, ro
   const GP = G.filter(L => L[0].res === 'pend').sort((a, b) => a[0].nr - b[0].nr), GR = G.filter(L => L[0].res !== 'pend').sort((a, b) => b[0].nr - a[0].nr || b[0].t - a[0].t);
   const grupa = L => { const W = L.slice(1), Wd = W.filter(z => z.res !== 'pend');
     return `<div class="zg">${row(L[0])}${W.length ? `<details class="zgw"><summary>Wcześniejsze zakłady tego modelu · ${W.length}${Wd.length ? ` · wynik ${zl(sum(Wd))}` : ''}</summary>${W.map(row).join('')}</details>` : ''}</div>`; };
-  return `<div class="zsum"><div><b>${zl(sum(done))}</b>wynik łącznie</div><div><b>${fmt(done.reduce((a, z) => a + z.zl, 0))} zł</b>postawione (rozliczone)</div><div><b>${zl(sum(done.filter(z => z.t >= d0)))}</b>dziś</div></div>`
+  return (PODGLAD ? '' : `<div class="zmoje">📲 Zakłady z ZESZYTU pilnuje też <b>MOJE → ZAKŁADY → 📓 ZESZYT</b>: po przegranym zakładzie pokazuje, kiedy postawić kolejny krok (🟧 GRAJ TERAZ / 🟨 ZA CHWILĘ), i zapisuje go tutaj. <a href="/moje/?zak=t60">Otwórz w MOJE ›</a></div>`)
+    + `<div class="zsum"><div><b>${zl(sum(done))}</b>wynik łącznie</div><div><b>${fmt(done.reduce((a, z) => a + z.zl, 0))} zł</b>postawione (rozliczone)</div><div><b>${zl(sum(done.filter(z => z.t >= d0)))}</b>dziś</div></div>`
     + (A.length ? '' : '<div class="zpust">Brak zakładów. Zakład zapisujesz w opisie modelu (lista „Modele”), gdy model GRA: „💰 Zapisz zakład”.</div>')
     + (P.length ? `<div class="zsec">⏳ Czekają na wynik · ${P.length} · razem ${fmt(P.reduce((a, z) => a + z.zl, 0))} zł</div>` + GP.map(grupa).join('') : '')
     + (R.length ? `<div class="zsec">Rozliczone · ${R.length} · WIN ${R.filter(z => z.res === 'win').length} · przegrane ${R.filter(z => z.res === 'lost').length}</div>` + GR.map(grupa).join('') : '');
@@ -513,7 +516,7 @@ function modPanel(M) {   // opis wybranego modelu (pod nim na liście): wynik, c
   const co = tr === '1' ? `Na kartach: <b>od pierwszej gry</b> (${M.gry.length} gier${M.gry.length ? `, od karty ${M.gry[0].sk}` : ''}) — przewracaj karty.` : tr === '3' ? `Na kartach: <b>ostatnie ${g3.length} gry</b>${T && T.gra ? ' i bieżąca' : ''} — od karty ${g3.length ? g3[0].sk : '—'}.` : T && T.gra ? 'Na kartach: <b>bieżąca gra</b>.'
     : g ? `Na kartach: <b>ostatnia gra</b> — karty ${kk(g)}, WIN ${g.s}.` : 'Na kartach: wiersze modelu (jeszcze bez gier).';
   const zk = zakGet().filter(z => z.mid === M.id), juz = T && T.gra && zk.find(z => z.nr === T.nr), czeka = zk.filter(z => zakRes(z) === 'pend').length;
-  const zform = !(T && T.gra) ? '' : juz ? `<div class="zok">💰 Postawiony: Nr ${fmt(juz.nr)} · k${juz.krok} · ${fmt(juz.zl)} zł — czeka na wynik</div>`
+  const zform = !(T && T.gra) ? '' : juz ? `<div class="zok">💰 Postawiony: Nr ${fmt(juz.nr)} · k${juz.krok} · ${fmt(juz.zl)} zł — czeka na wynik${MOJEZ}</div>`
     : `<div class="zf"><label>Nr wiersza<input id="zNr-${M.id}" type="number" inputmode="numeric" value="${T.nr}"></label><label>krok<input id="zK-${M.id}" type="number" inputmode="numeric" min="1" value="${T.s}"></label>`
       + `<label>postawione zł<input id="zZl-${M.id}" type="number" inputmode="numeric" min="1" value="${STAWKI[T.s - 1]}"></label><button data-act="bet" data-id="${M.id}">💰 Zapisz zakład</button></div>`;
   return `<div class="mod">${modStat(M)}

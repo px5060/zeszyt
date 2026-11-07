@@ -426,3 +426,12 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - W statystykach modelu: gry zamknięte WIN-em w krokach k1–3, k4–6, k7–9… (do limitu) i BUST (ponad limit) — w sztukach i % wszystkich gier, jak przy bankach.
 - „Ile stron trwała gra” usunięte (mylące: krok = wiersz modelu, więc model z 2 wierszami na stronie gra 9 kroków przez 5 stron).
 - To samo w SZUKAJ W Z T50: „Na których krokach kończyły się gry” zastępuje „WIN w połowie gry”.
+
+## Zakłady ZESZYTU w MOJE (1.32.0)
+- Prośba użytkownika: zakłady postawione w ZESZYCIE ma pilnować MOJE (ZAKŁADY → 📓 ZESZYT, MOJE 1.45.0): kiedy kolejny krok, z jaką kwotą,
+  zapis kolejnego kroku na tę samą listę `zeszyt_v1_zaklady` / `zeszyt_v1_zaklady60` (format bez zmian).
+- W ZESZYCIE: przy postawionym zakładzie (opis modelu) „MOJE pilnuje kolejnego kroku ›”, w 💰 Zakłady ramka z odnośnikiem „Otwórz w MOJE ›”
+  (`/moje/?zak=t50|t60`). W podglądzie (`?podglad`, `?znacz`) bez odnośników.
+- **`silnik.js` / `silnik60.js` czyta też MOJE** (stan modeli z zakładami): nie zmieniać nazw `buildBook`, `liczModel`, `modDef`, `STAWKI`,
+  `partsOf` ani budowy wyniku `liczModel` (`gry`, `teraz`, `otw`, `pol` → `rs` → `key`, `s`) bez zmiany w MOJE.
+
