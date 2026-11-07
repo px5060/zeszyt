@@ -182,7 +182,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="../silnik.js?v=1.29.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.29.0';
+const APP_VER = '1.30.0';
 // wyszukiwarka modeli — te same kody co RAZEM / SZUKAJ / MOJE / ZESZYT (baza z MOJE + kody dopisane w telefonie), ten sam silnik co ZESZYT.
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj; „Do zeszytu” dopisuje model do zeszyt_v1_modele (lista modeli ZESZYTU).
 const SEED = '/moje/seed_t50.txt', ADDK = 't50razem_v1_added', SEED_CACHE = 'zeszyt-seed-v1';
@@ -388,17 +388,18 @@ function poHtml(S, L, v) {   // S = długości gier po kolei
     + `<div class="roz">${roz.map(([k, c]) => `<span><i class="${k === 'L' ? 'l' : 'w'}">${k === 'L' ? 'L' : k}</i>× ${c}</span>`).join('')}</div>`
     + `<div class="s3">kolejno (ostatnie, od najstarszej):</div><div class="sqs">${nx.slice(-15).map(s => kwI(s, L)).join('')}</div>`;
 }
-function pgKarta(ov, k) {   // podgląd zeszytu w statystykach → karta k, wszystkie gry modelu zaznaczone
+function pgKarta(ov, k, bezPrzew) {   // podgląd zeszytu w statystykach → karta k, wszystkie gry modelu zaznaczone
   const f = ov.querySelector('iframe.pgz'); if (!f || !(k > 0)) return;
   if (f.dataset.ok && f.contentWindow) f.contentWindow.postMessage({ idzKarta: k, wszystko: 1 }, '*');
   else { f.loading = 'eager'; f.src = f.src.replace(/&karta=\d+/, '') + '&karta=' + k; }
-  f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!bezPrzew) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function kwKlik(e, ov, G, L, cardOf) {
   const q = e.target.closest('.ost.kw i[data-i]');
   if (q) { const g = G[+q.dataset.i], v = wynK(g.s, L), box = ov.querySelector('.poW'); if (!g || !box) return true;
     if (!q.classList.contains('big')) { ov.querySelectorAll('.ost.kw .big').forEach(x => x.classList.remove('big')); q.classList.add('big');
-      box.innerHTML = `<b>${wynTx(v)}</b> — dotknij jeszcze raz: jak układały się następne gry po ${wynTx(v)}.`; return true; }
+      pgKarta(ov, cardOf(g), true);   // 1.30.0: już 1. dotknięcie przenosi zeszyt niżej na tę grę (bez przewijania ekranu)
+      box.innerHTML = `<b>${wynTx(v)}</b> — na zeszycie niżej: strona ${cardOf(g)} (ta gra). Dotknij jeszcze raz: jak układały się następne gry po ${wynTx(v)}. <button class="ida" data-k="${cardOf(g)}">Pokaż na zeszycie ▼</button>`; return true; }
     box.innerHTML = poHtml(G.map(x => x.s), L, v) + `<br><button class="ida" data-k="${cardOf(g)}">Pokaż tę grę na zeszycie ▼</button>`; return true; }
   const b = e.target.closest('[data-k]'); if (b) { pgKarta(ov, +b.dataset.k); return true; }
   return false;

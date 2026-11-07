@@ -414,3 +414,10 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
   **BEZ GRY** = pusta połowa w takim cyklu bez gry. Wiersze w trakcie gry dalej pokazują kroki.
 - Podgląd na zeszycie w SZUKAJ W Z (`?podglad=`) pokazuje od razu **od pierwszej gry**: każdy trigger (START) i każdą grę modelu na wszystkich kartach,
   nie tylko bieżącą grę (wcześniej starszy trigger, np. T60 xx1 14·19·23 k8 strona 428, był bez oznaczenia).
+
+## Podgląd modelu po LOST-cie i kwadraciki → gra na zeszycie (1.30.0)
+- Podgląd na zeszycie w statystykach SZUKAJ W Z otwiera też listę „Modele LOST” (`OTWLK`). Model po LOST-cie (ostatnia gra za limitem) jest na tej liście
+  i wcześniej w podglądzie nie miał żadnych oznaczeń (ani wierszy modelu, ani gier) — np. T60 LOST xx1 4·6·25 ×2 k9.
+- Kwadracik w „Ostatnie gry”: już **1. dotknięcie** przenosi zeszyt niżej na kartę tej gry (bez przewijania ekranu) i pokazuje „Pokaż na zeszycie ▼”;
+  2. dotknięcie — jak dotąd, co było po takim wyniku. T60: karta triggera (strona przed 1. krokiem gry).
+- Na kartach od razu cały przebieg (od pierwszej gry): START, PUSTA 1/2, BEZ GRY / BEZ +BOK (czekanie, warunek niespełniony), kroki, WIN / LOST.
