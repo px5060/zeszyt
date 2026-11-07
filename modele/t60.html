@@ -184,7 +184,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.30.0';
+const APP_VER = '1.31.0';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -487,6 +487,14 @@ function kwKlik(e, ov, G, L, cardOf) {
   const b = e.target.closest('[data-k]'); if (b) { pgKarta(ov, +b.dataset.k); return true; }
   return false;
 }
+// 1.31.0 (prośba użytkownika, zamiast „Ile stron trwała gra”): gry zamknięte WIN-em w krokach 1–3, 4–6, 7–9… do limitu i BUST — w sztukach i % wszystkich gier (jak przy bankach)
+function krGr(S, L) {
+  const n = S.length; if (!n) return 'Brak gier.';
+  const pc = v => `${Math.round(1000 * v / n) / 10}%`, out = [];
+  for (let a = 1; a <= L; a += 3) { const b = Math.min(L, a + 2), v = S.filter(s => s >= a && s <= b).length; out.push(`k${a}${b > a ? '–' + b : ''}: <b>${v}</b> (${pc(v)})`); }
+  const bu = S.filter(s => s > L).length; out.push(`<span class="lo">BUST (ponad k${L}): <b>${bu}</b> (${pc(bu)})</span>`);
+  return out.join(' · ') + `<br><small>z ${n} gier</small>`;
+}
 function statystyki(M, lost) {
   const P = przygotuj(M.cel, M.jedn), Z = graj(P, M, true), N = liczby(Z, M, P), L = M.limit, gd = Z.teraz ? gdzie(Z, P) : null, U = P.U;
   const now = Z.teraz && Z.teraz > L ? `<b class="big">⏸ po BUST</b> — krok ${Z.teraz} jest za limitem (k${L}); czekamy na koniec gry.`
@@ -494,7 +502,6 @@ function statystyki(M, lost) {
     : Z.bez ? '<b class="big">⏸ CZEKAJ</b> — pusta bez innego gola, tej gry nie gramy.' : `<b class="big">⏸ CZEKAJ</b> — na pustą (wiersze ${M.w.join(', ')} bez trafienia).`;
   const mxK = Math.max(1, ...Object.values(N.krok));
   const rows = Array.from({ length: L }, (_, i) => i + 1).map(s => `<tr><td>${s}</td><td>${fmt(STAWKI[s - 1])}</td><td>${N.krok[s] || 0}</td><td class="bar"><i style="width:${100 * (N.krok[s] || 0) / mxK}%"></i></td><td>${zl(zysk(s, L))}</td></tr>`).join('');
-  const dl = {}; Z.G.forEach(g => { const k = g.u1 - g.u0 + 1; dl[k] = (dl[k] || 0) + 1; });
   const jn = M.jedn === 't' ? 'tercji' : 'stron';
   let bal = 0, top = 0, dd = 0; Z.s.forEach(x => { bal += zysk(x, L); top = Math.max(top, bal); dd = Math.max(dd, top - bal); });
   const gTx = g => `${U[g.u0].str}${U[g.u0].t >= 0 ? '/' + (U[g.u0].t + 1) : ''}${g.u1 !== g.u0 ? `→${U[g.u1].str}${U[g.u1].t >= 0 ? '/' + (U[g.u1].t + 1) : ''}` : ''}`;
@@ -507,7 +514,7 @@ function statystyki(M, lost) {
       <div><b>${N.mx}</b>najdłużej (kroki)</div><div><b>${zl(N.bal).replace(' zł', '')}</b>bilans (zł)</div><div><b>${fmt(dd)}</b>największy spadek (zł)</div></div>
     ${F.SP ? `<div class="s">Sprawdzenie (podział ${F.SP} / ${100 - F.SP}, ${jn} 1–${N.cut} i dalej) — ${sprTx(N)}</div>` : ''}
     <h4>WIN na kroku</h4><table><tr><th>krok</th><th>stawka</th><th>WIN</th><th></th><th>zysk z gry</th></tr>${rows}</table>
-    <h4>Ile ${jn} trwała gra</h4><div class="s">${Object.keys(dl).sort((a, b) => a - b).map(k => `${k} — <b>${dl[k]}</b>`).join(' · ')}</div>
+    <h4>Na których krokach kończyły się gry</h4><div class="s">${krGr(Z.s, L)}</div>
     <h4>Najdłuższe gry</h4><div class="ost">${[...Z.G].sort((a, b) => b.s - a.s).slice(0, 6).map(g => `<span class="lk" data-k="${U[g.u0].str}">${M.jedn === 't' ? 'str./terc.' : 'strony'} ${gTx(g)} · ${g.s > L ? `<b class="lo">BUST k${g.s}</b>` : `<b>k${g.s}</b>`}</span>`).join('')}</div>
     <h4>Ostatnie gry — od najstarszej do najnowszej (▲ = ostatnia)</h4><div class="ost kw">${Z.G.slice(-20).map((g, i, A) => `<i data-i="${Z.G.length - A.length + i}" class="${g.s > L ? 'l' : 'w'}${i === A.length - 1 ? ' now' : ''}" title="${g.s > L ? 'LOST' : 'WIN'} — krok ${g.s}, strona ${gTx(g)} w.${g.r}">${g.s}</i>`).join('')}</div>
     <div class="po poW">Dotknij kwadracika — powiększy się; dotknij go jeszcze raz — zobaczysz, co było po takim wyniku (ile razy WIN 1, 2, 3… i BUST). Dotknij gry z listy „Najdłuższe gry” — pokaże ją na zeszycie.</div>
