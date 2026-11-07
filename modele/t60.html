@@ -184,7 +184,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 
 <script>
 "use strict";
-const APP_VER = '1.29.0';
+const APP_VER = '1.30.0';
 // SZUKAJ W ZESZYCIE — T60: te same kody co RAZEM / MOJE (baza /moje/seed_t60.txt + kody dopisane w telefonie t60razem_v1_added).
 // Własne dane tylko pod kluczami zeszyt_: filtry zeszyt_v1_szukaj60, modele do ZESZYTU T60 zeszyt_v1_modele60.
 const SEED = '/moje/seed_t60.txt', ADDK = 't60razem_v1_added', SEED_CACHE = 'zeszyt-seed-t60-v1';
@@ -471,17 +471,18 @@ function poHtml(S, L, v) {   // S = długości gier po kolei
     + `<div class="roz">${roz.map(([k, c]) => `<span><i class="${k === 'L' ? 'l' : 'w'}">${k === 'L' ? 'L' : k}</i>× ${c}</span>`).join('')}</div>`
     + `<div class="s3">kolejno (ostatnie, od najstarszej):</div><div class="sqs">${nx.slice(-15).map(s => kwI(s, L)).join('')}</div>`;
 }
-function pgKarta(ov, k) {   // podgląd zeszytu w statystykach → karta k, wszystkie gry modelu zaznaczone
+function pgKarta(ov, k, bezPrzew) {   // podgląd zeszytu w statystykach → karta k, wszystkie gry modelu zaznaczone
   const f = ov.querySelector('iframe.pgz'); if (!f || !(k > 0)) return;
   if (f.dataset.ok && f.contentWindow) f.contentWindow.postMessage({ idzKarta: k, wszystko: 1 }, '*');
   else { f.loading = 'eager'; f.src = f.src.replace(/&karta=\d+/, '') + '&karta=' + k; }
-  f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!bezPrzew) f.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function kwKlik(e, ov, G, L, cardOf) {
   const q = e.target.closest('.ost.kw i[data-i]');
   if (q) { const g = G[+q.dataset.i], v = wynK(g.s, L), box = ov.querySelector('.poW'); if (!g || !box) return true;
     if (!q.classList.contains('big')) { ov.querySelectorAll('.ost.kw .big').forEach(x => x.classList.remove('big')); q.classList.add('big');
-      box.innerHTML = `<b>${wynTx(v)}</b> — dotknij jeszcze raz: jak układały się następne gry po ${wynTx(v)}.`; return true; }
+      pgKarta(ov, cardOf(g), true);   // 1.30.0: już 1. dotknięcie przenosi zeszyt niżej na tę grę (bez przewijania ekranu)
+      box.innerHTML = `<b>${wynTx(v)}</b> — na zeszycie niżej: strona ${cardOf(g)} (ta gra). Dotknij jeszcze raz: jak układały się następne gry po ${wynTx(v)}. <button class="ida" data-k="${cardOf(g)}">Pokaż na zeszycie ▼</button>`; return true; }
     box.innerHTML = poHtml(G.map(x => x.s), L, v) + `<br><button class="ida" data-k="${cardOf(g)}">Pokaż tę grę na zeszycie ▼</button>`; return true; }
   const b = e.target.closest('[data-k]'); if (b) { pgKarta(ov, +b.dataset.k); return true; }
   return false;
@@ -515,7 +516,7 @@ function statystyki(M, lost) {
     <div class="bb"><span id="stPp">${przycisk()}</span><button id="stX">Zamknij</button></div></div>`;
   document.body.appendChild(ov);
   const close = () => ov.remove();
-  ov.onclick = e => { if (e.target === ov) return close(); kwKlik(e, ov, Z.G, L, g => +U[g.u0].str); };
+  ov.onclick = e => { if (e.target === ov) return close(); kwKlik(e, ov, Z.G, L, g => +U[Math.max(0, g.u0 - 1)].str); };   // karta triggera (strona przed 1. krokiem)
   $('stX').onclick = close;
   if ($('stP')) $('stP').onclick = () => { if (przenies(M, lost)) { $('stPp').innerHTML = przycisk(); pokazWyniki(); if (W.lost) pokazLost(); } };
 }
