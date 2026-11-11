@@ -435,3 +435,8 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - **`silnik.js` / `silnik60.js` czyta też MOJE** (stan modeli z zakładami): nie zmieniać nazw `buildBook`, `liczModel`, `modDef`, `STAWKI`,
   `partsOf` ani budowy wyniku `liczModel` (`gry`, `teraz`, `otw`, `pol` → `rs` → `key`, `s`) bez zmiany w MOJE.
 
+
+## Zeszyt z MOJE / S+ (`?znacz=`) — tylko ten jeden model (1.32.0)
+- Błąd z 1.30.0: komentarz w linii podglądu wyłączył `else PAM[MODK] = ''`. W ramce `?znacz=` (MOJE „📓 Zeszyt — bieżąca gra”, S+) pokazywały się
+  wtedy też modele wybrane w ZESZYCIE (inne WIN / kroki / wiersze modelu). Naprawione: w `?znacz=` tylko oznaczenia tego modelu.
+- Zasada: komentarz `//` zawsze na końcu linii, nigdy przed dalszym kodem w tej samej linii.
