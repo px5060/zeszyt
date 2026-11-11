@@ -934,7 +934,7 @@ window.addEventListener('focus', refresh);
   $('info').textContent = 'Wczytuję kody…';
   if (PODGLAD) {   // podgląd: tylko ten model, na kartach od pierwszej gry (każda pusta trójka i trigger, 1.29.0), bez dźwięku; wysokość strony → ramka w SZUKAJ W Z
     const M = modZKodu(PODGLAD); document.body.classList.add('podglad');
-    if (M) { PAM[MOJEK] = JSON.stringify([...mojeModele(), { ...M, id: 'pg', lista: '' }]); PAM[MODK] = 'pg'; PAM[OTWK] = '1'; PAM[OTWLK] = '1'; }   // 1.30.0: też lista LOST — model po LOST-cie jest na niej i inaczej nie miałby oznaczeń else PAM[MODK] = '';
+    if (M) { PAM[MOJEK] = JSON.stringify([...mojeModele(), { ...M, id: 'pg', lista: '' }]); PAM[MODK] = 'pg'; PAM[OTWK] = '1'; PAM[OTWLK] = '1'; } else PAM[MODK] = '';   // 1.30.0: też lista LOST (model po LOST-cie jest na niej); 1.32.0: „else” znowu działa — w ?znacz= (MOJE / S+) tylko ten jeden model, bez modeli ZESZYTU
     PAM[PRZK] = '1'; PAM[SNDK] = '0';
     if (window.ResizeObserver) new ResizeObserver(() => parent.postMessage({ zeszytH: document.documentElement.scrollHeight }, '*')).observe(document.body);
   } else { const m = new URLSearchParams(location.search).get('m');   // link z SZUKAJ W ZESZYCIE: pokaż ten model na kartach
