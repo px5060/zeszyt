@@ -267,7 +267,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.29.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.32.0';
+const APP_VER = '1.33.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -288,7 +288,8 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&am
 // PODGLĄD (od 1.14.0): ?podglad=<kod modelu> — ramka w statystykach SZUKAJ W Z: zeszyt z tym jednym modelem; zapisy tylko w PAM (nic w pamięci telefonu)
 // ZNACZ (od 1.15.0): ?znacz=Nr:typ[:krok],… — bieżąca gra modelu z SZUKAJ+ (STEP s, TRIGGER t, krok bez trafienia k, WIN w, BUST b, zakład do gry n);
 // też tryb podglądu (bez zapisu), bez modeli zeszytu
-const ZNACZ = new URLSearchParams(location.search).get('znacz'), ZNACZKI = new URLSearchParams(location.search).get('znaczki');   // znaczki=1: ukryta ramka liczy znaczki dla drugiej tabeli
+const ZNACZ = (z => z === '@' ? (() => { try { return String(window.parent.__ZNACZ || ''); } catch (e) { return ''; } })() : z)(new URLSearchParams(location.search).get('znacz')),   // 1.33.0: ?znacz=@ — znaczki od rodzica (MOJE: wszystkie gry modelu, za długie na adres)
+      ZNACZKI = new URLSearchParams(location.search).get('znaczki');   // znaczki=1: ukryta ramka liczy znaczki dla drugiej tabeli
 const PODGLAD = new URLSearchParams(location.search).get('podglad') || (ZNACZ != null ? 'znacz' : ZNACZKI ? 'znaczki' : null), PAM = {};
 const lsGet = (k, d) => { if (PODGLAD && k in PAM) return PAM[k]; try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { if (PODGLAD) { PAM[k] = String(v); return true; } try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
