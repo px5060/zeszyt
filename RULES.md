@@ -440,3 +440,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 - Błąd z 1.30.0: komentarz w linii podglądu wyłączył `else PAM[MODK] = ''`. W ramce `?znacz=` (MOJE „📓 Zeszyt — bieżąca gra”, S+) pokazywały się
   wtedy też modele wybrane w ZESZYCIE (inne WIN / kroki / wiersze modelu). Naprawione: w `?znacz=` tylko oznaczenia tego modelu.
 - Zasada: komentarz `//` zawsze na końcu linii, nigdy przed dalszym kodem w tej samej linii.
+
+## `?znacz=@` — znaczki od rodzica (1.33.0)
+- Ramka ZESZYTU `?znacz=@` czyta znaczki z `window.parent.__ZNACZ` (ten sam adres). MOJE pokazuje tak **wszystkie gry modelu** (STEP, TRIGGER,
+  kroki, WIN / BUST, zakład do gry) — za dużo znaczków na adres strony. Zwykłe `?znacz=Nr:typ…` działa jak dotąd.
