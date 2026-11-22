@@ -267,7 +267,7 @@ main{padding:10px 12px 40px;max-width:760px;margin:0 auto}
 <script src="silnik60.js?v=1.29.0"></script>
 <script>
 "use strict";
-const APP_VER = '1.33.0';
+const APP_VER = '1.34.0';
 // kody wspólne z RAZEM / SZUKAJ / MOJE: baza = seed z aplikacji MOJE (ten sam adres) + kody dopisane w telefonie. ZESZYT tylko czyta.
 // ZESZYT T60 (od 1.11.0): ta sama strona co ZESZYT T50, tylko tabela T60 — strony po 30 wierszy (3 × 10), silnik w silnik60.js.
 // Własne dane T60 pod osobnymi kluczami zeszyt_…60 / zeszyt_v1_notes_t60 (modele te same co w SZUKAJ T60: zeszyt_v1_modele60).
@@ -862,7 +862,12 @@ function editRow(nr) {
   };
   const inp = $('ntIn'); inp.focus();
   ov.onclick = e => { if (e.target === ov) close(); };
-  $('ntDel').onclick = () => { if (v) v.splice(0, 3, ...[...cd].map(Number)); save(''); };   // „Usuń mecz” — tylko nazwa, kod bez zmian
+  $('ntDel').onclick = () => {   // „Usuń mecz” (1.34.0): nazwa znika, a następne mecze podjeżdżają o jeden wiersz do góry (kod bez zmian)
+    const a = jget(K.notes(t)), max = Math.max(0, ...Object.keys(a).map(Number).filter(x => x > 0));
+    for (let x = nr; x && x <= max;) { const y = nextNr(t, x); if (y && a[y]) a[x] = a[y]; else delete a[x]; x = y; }
+    if (!lsSet(K.notes(t), JSON.stringify(a))) alert('BŁĄD zapisu pamięci telefonu!');
+    close(); render();
+  };
   $('ntOk').onclick = () => save(inp.value);
   $('ntGo').onclick = () => save(inp.value, true);
   inp.onkeydown = e => { if (e.key === 'Enter') save(inp.value, true); if (e.key === 'Escape') close(); };

@@ -444,3 +444,7 @@ Zapisuje reguły i ustalenia z rozmów, żeby przetrwały nowe sesje.
 ## `?znacz=@` — znaczki od rodzica (1.33.0)
 - Ramka ZESZYTU `?znacz=@` czyta znaczki z `window.parent.__ZNACZ` (ten sam adres). MOJE pokazuje tak **wszystkie gry modelu** (STEP, TRIGGER,
   kroki, WIN / BUST, zakład do gry) — za dużo znaczków na adres strony. Zwykłe `?znacz=Nr:typ…` działa jak dotąd.
+
+## „Usuń mecz” podciąga następne mecze (1.34.0)
+- T50 i T60: „Usuń mecz” w okienku wiersza usuwa nazwę meczu i przesuwa wszystkie następne nazwy o jeden wiersz do góry (bez pustego pola).
+  Kody bez zmian; wiersze dopisków (`pos.d`) pomijane jak przy „Dalej ▶”.
